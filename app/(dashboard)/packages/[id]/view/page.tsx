@@ -1,3 +1,5 @@
+"use client"
+
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -7,11 +9,16 @@ import { Progress } from "@/components/ui/progress"
 import { ArrowLeft, Box, Calendar, CreditCard, Edit, Mail, Phone, Star, Users } from "lucide-react"
 import Link from "next/link"
 import { use } from "react"
+import usePackageById from "../../_hooks/usePackageById"
 
 export default function PackageDetailsPage({ params }: { params: Promise<{ id: string }> }) {
     const {id} = use(params)
     const packageId = Number.parseInt(id)
-    const pkg = packages.find((p) => p.id === packageId) || packages[0]
+    const { pkg, loading, error } = usePackageById(packageId);
+
+    if (loading) return <div className="p-6">Loading package...</div>;
+    if (error) return <div className="p-6 text-red-500">Failed to load package.</div>;
+    if (!pkg) return <div className="p-6 text-muted-foreground">Package not found.</div>;
 
     return (
         <div className="flex flex-col gap-5 p-4 xl:p-6">
@@ -24,12 +31,12 @@ export default function PackageDetailsPage({ params }: { params: Promise<{ id: s
                 <h2 className="text-2xl lg:text-3xl font-bold tracking-tight">{pkg.name}</h2>
                 <Badge
                     className={
-                        pkg.status === "Active"
+                        pkg.isActive
                             ? "bg-green-100 text-green-800 hover:bg-green-100"
                             : "bg-yellow-100 text-yellow-800 hover:bg-yellow-100"
                     }
                 >
-                    {pkg.status}
+                    {pkg.isActive ? "Active" : "Inactive"}
                 </Badge>
             </div>
 
@@ -50,8 +57,8 @@ export default function PackageDetailsPage({ params }: { params: Promise<{ id: s
                         <CreditCard className="size-8 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{pkg.price === "Є0" ? "Є0" : `Є${Number(pkg.price.slice(1)) * 35}`}</div>
-                        <p className="text-xs text-muted-foreground">{pkg.price === "Є0" ? "Free package" : "+12% from last month"}</p>
+                        <div className="text-2xl font-bold">€{pkg.price * 35}</div>
+                        <p className="text-xs text-muted-foreground">+12% from last month</p>
                     </CardContent>
                 </Card>
                 <Card>
@@ -60,8 +67,8 @@ export default function PackageDetailsPage({ params }: { params: Promise<{ id: s
                         <Calendar className="size-8 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{pkg.price === "Є0" ? "N/A" : "78%"}</div>
-                        <p className="text-xs text-muted-foreground">{pkg.price === "Є0" ? "One-time signup" : "+5% from last quarter"}</p>
+                        <div className="text-2xl font-bold">78%</div>
+                        <p className="text-xs text-muted-foreground">+5% from last quarter</p>
                     </CardContent>
                 </Card>
             </div>
@@ -75,19 +82,19 @@ export default function PackageDetailsPage({ params }: { params: Promise<{ id: s
                     <CardContent className="space-y-4">
                         <div className="flex items-center gap-2">
                             <Box className="h-4 w-4 text-muted-foreground" />
-                            <span className="text-sm">Price: {pkg.price}</span>
+                            <span className="text-sm">Price: €{pkg.price}</span>
                         </div>
                         <div className="flex items-center gap-2">
                             <Calendar className="h-4 w-4 text-muted-foreground" />
-                            <span className="text-sm">Duration: {pkg.duration}</span>
+                            <span className="text-sm">Duration: {pkg.validity} days</span>
                         </div>
                         <div className="flex items-center gap-2">
                             <Star className="h-4 w-4 text-muted-foreground" />
-                            <span className="text-sm">Popularity: {["Low", "Medium", "High", "Very High"][pkg.id % 4]}</span>
+                            <span className="text-sm">Popularity: High</span>
                         </div>
                         <div className="flex items-center gap-2">
                             <Phone className="h-4 w-4 text-muted-foreground" />
-                            <span className="text-sm">Support: {pkg.price === "Є0" ? "Community" : "Priority"}</span>
+                            <span className="text-sm">Support: {pkg.price === 0 ? "Community" : "Priority"}</span>
                         </div>
                         <div className="pt-4">
                             <h4 className="mb-2 text-sm font-medium">Subscription Growth</h4>
@@ -125,44 +132,44 @@ export default function PackageDetailsPage({ params }: { params: Promise<{ id: s
                             </TabsList>
                             <TabsContent value="about" className="space-y-4">
                                 <p>
-                                    The {pkg.name} package offers {pkg.price === "Є0" ? "basic access" : "premium features"}
-                                    to our platform. {pkg.price !== "Є0" && `Priced at ${pkg.price} per ${pkg.duration}, `}
-                                    it provides excellent value for {pkg.price === "Є0" ? "new users" : "serious users"} looking
-                                    to {pkg.price === "Є0" ? "try out our service" : "get the most from our platform"}.
+                                    The {pkg.name} package offers {pkg.price === 0 ? "basic access" : "premium features"}
+                                    to our platform. {pkg.price !== 0 && `Priced at €${pkg.price} per ${pkg.validity} days, `}
+                                    it provides excellent value for {pkg.price === 0 ? "new users" : "serious users"} looking
+                                    to {pkg.price === 0 ? "try out our service" : "get the most from our platform"}.
                                 </p>
                                 <p>
-                                    {pkg.price === "Є0" ?
+                                    {pkg.price === 0 ?
                                         "This free tier allows users to explore basic functionality with some limitations." :
-                                        `Our ${pkg.name} package includes all the features below with ${pkg.duration} access.`}
+                                        `Our ${pkg.name} package includes all the features below with ${pkg.validity} days access.`}
                                 </p>
                                 <h4 className="font-medium pt-2">Package Benefits</h4>
                                 <ul className="list-disc pl-5 space-y-1">
-                                    <li>{pkg.price === "Є0" ? "Access to basic features" : "Full access to all features"}</li>
-                                    <li>{pkg.price === "Є0" ? "Community support" : "Priority customer support"}</li>
-                                    <li>{pkg.price === "Є0" ? "Limited storage" : "Expanded storage options"}</li>
-                                    <li>{pkg.price === "Є0" ? "Ad-supported experience" : "Ad-free experience"}</li>
+                                    <li>{pkg.price === 0 ? "Access to basic features" : "Full access to all features"}</li>
+                                    <li>{pkg.price === 0 ? "Community support" : "Priority customer support"}</li>
+                                    <li>{pkg.price === 0 ? "Limited storage" : "Expanded storage options"}</li>
+                                    <li>{pkg.price === 0 ? "Ad-supported experience" : "Ad-free experience"}</li>
                                 </ul>
                             </TabsContent>
                             <TabsContent value="features">
                                 <div className="space-y-4">
-                                    {pkg.features.map((feature, i) => (
-                                        <div key={i} className="flex items-center gap-4">
-                                            <div className="flex items-center justify-center rounded-md bg-primary/10 p-2">
-                                                <Star className="h-4 w-4 text-primary" />
-                                            </div>
-                                            <div>
-                                                <h4 className="text-sm font-medium">{feature}</h4>
-                                                <p className="text-xs text-muted-foreground">
-                                                    {[
-                                                        "Essential functionality",
-                                                        "Core feature",
-                                                        "Advanced capability",
-                                                        "Premium benefit"
-                                                    ][i % 4]}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    ))}
+                                    {/*{pkg.features.map((feature: string, i: number) => (*/}
+                                    {/*    <div key={i} className="flex items-center gap-4">*/}
+                                    {/*        <div className="flex items-center justify-center rounded-md bg-primary/10 p-2">*/}
+                                    {/*            <Star className="h-4 w-4 text-primary" />*/}
+                                    {/*        </div>*/}
+                                    {/*        <div>*/}
+                                    {/*            <h4 className="text-sm font-medium">{feature}</h4>*/}
+                                    {/*            <p className="text-xs text-muted-foreground">*/}
+                                    {/*                {[*/}
+                                    {/*                    "Essential functionality",*/}
+                                    {/*                    "Core feature",*/}
+                                    {/*                    "Advanced capability",*/}
+                                    {/*                    "Premium benefit"*/}
+                                    {/*                ][i % 4]}*/}
+                                    {/*            </p>*/}
+                                    {/*        </div>*/}
+                                    {/*    </div>*/}
+                                    {/*))}*/}
 
                                     <Link href={`/packages/features`}>
                                         <Button variant="outline" className="w-full mt-2">
@@ -211,15 +218,3 @@ export default function PackageDetailsPage({ params }: { params: Promise<{ id: s
         </div>
     )
 }
-
-const packages = [
-    {
-        id: 1,
-        name: "Free Tier",
-        image: "-",
-        price: "Є0",
-        duration: "1 month",
-        features: ["Basic features", "Limited access", "Ad-supported", "Community support"],
-        status: "Active",
-    }
-]

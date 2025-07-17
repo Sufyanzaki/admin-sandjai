@@ -9,40 +9,14 @@ import { Button } from "@/components/ui/button"
 import { MoreHorizontal } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import Link from "next/link"
+import { useLanguages } from "../_hooks/useLanguages";
+import AddLanguageForm from "./_components/addLanguageForm"
+import { usePatchLanguageStatus } from "./_hooks/usePatchLanguageStatus";
 
 export default function LanguagesManagementPage() {
-    const languages = [
-        {
-            name: "English",
-            code: "en",
-            status: "Active",
-            image: "/flags/en.png",
-        },
-        {
-            name: "Spanish",
-            code: "es",
-            status: "Active",
-            image: "/flags/es.png",
-        },
-        {
-            name: "French",
-            code: "fr",
-            status: "Active",
-            image: "/flags/fr.png",
-        },
-        {
-            name: "German",
-            code: "de",
-            status: "Inactive",
-            image: "/flags/de.png",
-        },
-        {
-            name: "Italian",
-            code: "it",
-            status: "Active",
-            image: "/flags/it.png",
-        },
-    ]
+    const { languages, languagesLoading, error } = useLanguages();
+    const { mutate: patchStatus, loading: patching } = usePatchLanguageStatus();
+
     return (
         <div className="flex flex-col gap-6 p-4 xl:p-6">
             <div>
@@ -56,6 +30,11 @@ export default function LanguagesManagementPage() {
                         <CardTitle>All Languages</CardTitle>
                     </CardHeader>
                     <CardContent>
+                        {languagesLoading ? (
+                            <div>Loading languages...</div>
+                        ) : error ? (
+                            <div className="text-red-500">Failed to load languages.</div>
+                        ) : (
                         <Table>
                             <TableHeader>
                                 <TableRow>
@@ -66,7 +45,7 @@ export default function LanguagesManagementPage() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {languages.map((language) => (
+                                {languages && languages.length > 0 ? languages.map((language) => (
                                     <TableRow key={language.code}>
                                         <TableCell className="flex items-center gap-3 font-medium">
                                             {language.name}
@@ -75,12 +54,12 @@ export default function LanguagesManagementPage() {
                                         <TableCell>
                                           <span
                                               className={`inline-flex items-center rounded-md px-2.5 py-0.5 text-xs font-medium ${
-                                                  language.status === "Active"
+                                                  language.isActive
                                                       ? "bg-green-100 text-green-800"
                                                       : "bg-gray-100 text-gray-800"
                                               }`}
                                           >
-                                            {language.status}
+                                            {language.isActive ? "Active" : "Inactive"}
                                           </span>
                                         </TableCell>
                                         <TableCell className="text-right">
@@ -93,57 +72,31 @@ export default function LanguagesManagementPage() {
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end">
                                                     <DropdownMenuItem>
-                                                        <Link href="/settings/languages/1">Translate Language</Link>
+                                                        <Link href={`/settings/languages/${language.code}`}>Translate Language</Link>
                                                     </DropdownMenuItem>
-                                                    <DropdownMenuItem className="text-red-600">
-                                                        {language.status === "Active" ? "Deactivate" : "Activate"}
+                                                    <DropdownMenuItem
+                                                        className="text-red-600"
+                                                        onClick={() => patchStatus(language.id, language.isActive ? false : true)}
+                                                        disabled={patching}
+                                                    >
+                                                        {language.isActive ? "Deactivate" : "Activate"}
                                                     </DropdownMenuItem>
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
                                         </TableCell>
                                     </TableRow>
-                                ))}
+                                )) : (
+                                    <TableRow>
+                                        <TableCell colSpan={4} className="text-center">No languages found.</TableCell>
+                                    </TableRow>
+                                )}
                             </TableBody>
                         </Table>
+                        )}
                     </CardContent>
                 </Card>
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Create Language</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="space-y-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="name">Name</Label>
-                                <Input id="name" placeholder="e.g. English" />
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label htmlFor="code">Code</Label>
-                                <Input id="code" placeholder="e.g. en" />
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label htmlFor="status">Status</Label>
-                                <Select>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select status" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="active">Active</SelectItem>
-                                        <SelectItem value="inactive">Inactive</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-
-                            <div className="flex justify-end gap-2 pt-4">
-                                <Button variant="outline">Cancel</Button>
-                                <Button>Create Language</Button>
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
+                <AddLanguageForm />
             </div>
         </div>
     )

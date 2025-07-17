@@ -30,6 +30,7 @@ import {
 } from "lucide-react"
 import {SimpleEditor} from "@/components/tiptap-templates/simple/simple-editor";
 import CookiesForm from "./_components/cookies-form"
+import SEOForm from "@/app/(dashboard)/settings/_components/SEO-form";
 
 export default function SettingsPage() {
   return (
@@ -349,9 +350,7 @@ export default function SettingsPage() {
                 Manage meta titles, descriptions, and keywords to improve your app’s visibility in search engines.
               </CardDescription>
             </CardHeader>
-
-
-            
+            <SEOForm />
           </Card>
         </TabsContent>
       </Tabs>

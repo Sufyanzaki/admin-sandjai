@@ -27,25 +27,36 @@ import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs"
 import {Box, DollarSign, MoreHorizontal, Plus, Search, Users} from "lucide-react"
 import Link from "next/link"
 import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar"
-
-interface PackageDto {
-    id: number,
-    name: string,
-    image: string,
-    price: string,
-    duration: string,
-    features: string[],
-    status: string,
-}
+import { usePackages } from "./_hooks/usePackages";
+import { usePatchPackage } from "./_hooks/usePatchPackage";
 
 export default function PackagesPage() {
+    const { packages, loading, error } = usePackages();
+    const { mutate: patchPackageStatus, loading: patching } = usePatchPackage();
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
-    const [currentPackage, setCurrentPackage] = useState(packages[0])
+    const [currentPackage, setCurrentPackage] = useState<any>(null)
+    const [search, setSearch] = useState("");
 
-    const openDeleteDialog = (pkg: PackageDto) => {
+    const openDeleteDialog = (pkg: any) => {
         setCurrentPackage(pkg)
         setDeleteDialogOpen(true)
     }
+
+    const handlePatchStatus = async () => {
+        if (currentPackage) {
+            await patchPackageStatus(currentPackage.id, !currentPackage.isActive);
+            setDeleteDialogOpen(false);
+        }
+    };
+
+    // Filter packages by search
+    const filteredPackages = (packages ?? []).filter(pkg =>
+        pkg.name.toLowerCase().includes(search.toLowerCase())
+    );
+
+    if (loading) return <div className="p-6">Loading packages...</div>;
+    if (error) return <div className="p-6 text-red-500">Failed to load packages.</div>;
+    if (!packages) return <div className="p-6 text-muted-foreground">No packages found.</div>;
 
     return (
         <>
@@ -72,7 +83,7 @@ export default function PackagesPage() {
                             <Box className="size-8 text-muted-foreground" />
                         </CardHeader>
                         <CardContent>
-                            <h2 className="text-2xl xl:text-4xl font-bold mb-2">4</h2>
+                            <h2 className="text-2xl xl:text-4xl font-bold mb-2">{packages.length}</h2>
                             <p className="text-xs text-muted-foreground">+1 from last month</p>
                         </CardContent>
                     </Card>
@@ -108,7 +119,7 @@ export default function PackagesPage() {
                             <div className="flex items-center gap-2">
                                 <div className="relative">
                                     <Search className="absolute left-2.5 top-2.5 text-muted-foreground" />
-                                    <Input type="search" placeholder="Search packages..." className="w-full pl-8 md:w-[300px]" />
+                                    <Input type="search" placeholder="Search packages..." className="w-full pl-8 md:w-[300px]" value={search} onChange={e => setSearch(e.target.value)} />
                                 </div>
                             </div>
                         </div>
@@ -134,27 +145,27 @@ export default function PackagesPage() {
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody className="whitespace-nowrap">
-                                        {packages.map((pkg) => (
+                                        {filteredPackages.map((pkg) => (
                                             <TableRow key={pkg.id}>
-                                                <TableCell>Package {pkg.id}</TableCell>
+                                                <TableCell>{pkg.name}</TableCell>
                                                 <TableCell>
                                                     <Avatar>
                                                         <AvatarImage src={pkg.image} alt="Package image" />
                                                         <AvatarFallback>IMG</AvatarFallback>
                                                     </Avatar>
                                                 </TableCell>
-                                                <TableCell>{pkg.price}</TableCell>
-                                                <TableCell>{pkg.duration}</TableCell>
-                                                <TableCell>{pkg.features.join(", ")}</TableCell>
+                                                <TableCell>€{pkg.price}</TableCell>
+                                                <TableCell>{pkg.validity} days</TableCell>
+                                                <TableCell>Pending</TableCell>
                                                 <TableCell>
                           <span
                               className={`inline-flex items-center rounded-md px-2.5 py-0.5 text-xs font-medium ${
-                                  pkg.status === "Active"
+                                  pkg.isActive
                                       ? "bg-green-100 text-green-800"
                                       : "bg-yellow-100 text-yellow-800"
                               }`}
                           >
-                            {pkg.status}
+                            {pkg.isActive ? "Active" : "Inactive"}
                           </span>
                                                 </TableCell>
                                                 <TableCell className="text-right">
@@ -180,9 +191,9 @@ export default function PackagesPage() {
                                                             <DropdownMenuSeparator />
                                                             <DropdownMenuItem
                                                                 onClick={() => openDeleteDialog(pkg)}
-                                                                className="text-red-600"
+                                                                className={pkg.isActive ? "text-red-600" : "text-green-600"}
                                                             >
-                                                                {pkg.status === "Active" ? "Deactivate" : "Activate"}
+                                                                {pkg.isActive ? "Deactivate" : "Activate"}
                                                             </DropdownMenuItem>
                                                         </DropdownMenuContent>
                                                     </DropdownMenu>
@@ -206,23 +217,23 @@ export default function PackagesPage() {
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody className="whitespace-nowrap">
-                                        {packages
-                                            .filter((pkg) => pkg.status === "Active")
+                                        {filteredPackages
+                                            .filter((pkg) => pkg.isActive)
                                             .map((pkg) => (
                                                 <TableRow key={pkg.id}>
-                                                    <TableCell className="font-medium">Package {pkg.id}</TableCell>
+                                                    <TableCell className="font-medium">{pkg.name}</TableCell>
                                                     <TableCell>
                                                         <Avatar>
                                                             <AvatarImage src={pkg.image} alt="Package image" />
                                                             <AvatarFallback>IMG</AvatarFallback>
                                                         </Avatar>
                                                     </TableCell>
-                                                    <TableCell>{pkg.price}</TableCell>
-                                                    <TableCell>{pkg.duration}</TableCell>
-                                                    <TableCell>{pkg.features.join(", ")}</TableCell>
+                                                    <TableCell>€{pkg.price}</TableCell>
+                                                    <TableCell>{pkg.validity} days</TableCell>
+                                                    <TableCell>Pending</TableCell>
                                                     <TableCell>
                             <span className="inline-flex items-center rounded-md bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
-                              {pkg.status}
+                              Active
                             </span>
                                                     </TableCell>
                                                     <TableCell className="text-right">
@@ -236,7 +247,7 @@ export default function PackagesPage() {
                                                             <DropdownMenuContent align="end">
                                                                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
                                                                 <DropdownMenuItem>
-                                                                    <Link href={`/packages/${pkg.id}`} className="flex w-full">
+                                                                    <Link href={`/packages/${pkg.id}/view`} className="flex w-full">
                                                                         View details
                                                                     </Link>
                                                                 </DropdownMenuItem>
@@ -279,23 +290,23 @@ export default function PackagesPage() {
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody className="whitespace-nowrap">
-                                        {packages
-                                            .filter((pkg) => pkg.status === "Inactive")
+                                        {filteredPackages
+                                            .filter((pkg) => !pkg.isActive)
                                             .map((pkg) => (
                                                 <TableRow key={pkg.id}>
-                                                    <TableCell className="font-medium">Package {pkg.id}</TableCell>
+                                                    <TableCell className="font-medium">{pkg.name}</TableCell>
                                                     <TableCell>
                                                         <Avatar>
                                                             <AvatarImage src={pkg.image} alt="Package image" />
                                                             <AvatarFallback>IMG</AvatarFallback>
                                                         </Avatar>
                                                     </TableCell>
-                                                    <TableCell>{pkg.price}</TableCell>
-                                                    <TableCell>{pkg.duration}</TableCell>
-                                                    <TableCell>{pkg.features.join(", ")}</TableCell>
+                                                    <TableCell>€{pkg.price}</TableCell>
+                                                    <TableCell>{pkg.validity} days</TableCell>
+                                                    <TableCell>Pending</TableCell>
                                                     <TableCell>
                             <span className="inline-flex items-center rounded-md bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800">
-                              {pkg.status}
+                              Inactive
                             </span>
                                                     </TableCell>
                                                     <TableCell className="text-right">
@@ -309,7 +320,7 @@ export default function PackagesPage() {
                                                             <DropdownMenuContent align="end">
                                                                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
                                                                 <DropdownMenuItem>
-                                                                    <Link href={`/packages/${pkg.id}`} className="flex w-full">
+                                                                    <Link href={`/packages/${pkg.id}/view`} className="flex w-full">
                                                                         View details
                                                                     </Link>
                                                                 </DropdownMenuItem>
@@ -347,12 +358,12 @@ export default function PackagesPage() {
                 <AlertDialogContent>
                     <AlertDialogHeader>
                         <AlertDialogTitle>
-                            {currentPackage?.status === "Active"
+                            {currentPackage?.isActive
                                 ? "Are you sure you want to deactivate this package?"
                                 : "Are you sure you want to activate this package?"}
                         </AlertDialogTitle>
                         <AlertDialogDescription>
-                            {currentPackage?.status === "Active"
+                            {currentPackage?.isActive
                                 ? "Deactivating will prevent new subscriptions but existing subscribers will keep their access until expiration."
                                 : "Activating will make this package available for new subscriptions immediately."}
                         </AlertDialogDescription>
@@ -360,10 +371,11 @@ export default function PackagesPage() {
                     <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
                         <AlertDialogAction
-                            onClick={() => setDeleteDialogOpen(false)}
-                            className={currentPackage?.status === "Active" ? "bg-red-500 hover:bg-red-700" : "bg-green-500 hover:bg-green-700"}
+                            onClick={handlePatchStatus}
+                            className={currentPackage?.isActive ? "bg-red-500 hover:bg-red-700" : "bg-green-500 hover:bg-green-700"}
+                            disabled={patching}
                         >
-                            {currentPackage?.status === "Active" ? "Deactivate" : "Activate"}
+                            {currentPackage?.isActive ? "Deactivate" : "Activate"}
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>
@@ -371,51 +383,3 @@ export default function PackagesPage() {
         </>
     )
 }
-
-const packages = [
-    {
-        id: 1,
-        name: "Free Tier",
-        image: "-",
-        price: "Є0",
-        duration: "1 month",
-        features: ["Basic features", "Limited access", "Ad-supported"],
-        status: "Active",
-    },
-    {
-        id: 2,
-        name: "Starter",
-        image: "/user-2.png",
-        price: "Є5",
-        duration: "1 month",
-        features: ["All basic features", "Ad-free", "Priority support"],
-        status: "Active",
-    },
-    {
-        id: 3,
-        name: "Professional",
-        image: "-",
-        price: "Є37",
-        duration: "3 months",
-        features: ["Advanced features", "API access", "24/7 support"],
-        status: "Active",
-    },
-    {
-        id: 4,
-        name: "Enterprise",
-        image: "-",
-        price: "Є57",
-        duration: "6 months",
-        features: ["All features", "Dedicated account manager", "Custom solutions"],
-        status: "Active",
-    },
-    {
-        id: 5,
-        name: "Legacy",
-        image: "Old Img",
-        price: "Є25",
-        duration: "1 month",
-        features: ["Deprecated features", "Limited support"],
-        status: "Inactive",
-    }
-]

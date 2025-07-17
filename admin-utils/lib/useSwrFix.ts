@@ -1,3 +1,5 @@
+"use client"
+
 import useSWR, { SWRConfiguration, SWRResponse } from 'swr';
 import { useEffect, useState } from 'react';
 
