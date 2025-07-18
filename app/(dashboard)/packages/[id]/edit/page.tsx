@@ -27,10 +27,10 @@ export default function PackageEditPage() {
     let id = params?.id;
     if (Array.isArray(id)) id = id[0];
     const { pkg, loading, error } = usePackageById(id);
-    const { mutate, loading: saving, error: saveError, success } = useEditPackage();
+    const { mutate, loading: saving } = useEditPackage();
     const router = useRouter();
 
-    const { control, register, setValue, handleSubmit, reset, watch, formState: { errors } } = useForm({
+    const { control, register, handleSubmit, reset, watch, formState: { errors } } = useForm({
         defaultValues: {
             name: '',
             price: 0,

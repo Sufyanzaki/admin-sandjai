@@ -7,7 +7,7 @@ export interface PostCookieSettingsPayload {
 
 export async function postCookieSettings(payload: PostCookieSettingsPayload) {
   return postRequest<PostCookieSettingsPayload>({
-    url: "cookie-settings",
+    url: "setting/cookie-settings",
     data: payload,
     useAuth: true,
   });
