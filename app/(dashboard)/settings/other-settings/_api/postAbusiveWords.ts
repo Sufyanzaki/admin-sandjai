@@ -6,7 +6,7 @@ export interface PostAbusiveWordsPayload {
 
 export async function postAbusiveWords(payload: PostAbusiveWordsPayload) {
   return postRequest<PostAbusiveWordsPayload>({
-    url: "/settings/abusive",
+    url: "settings/abusive",
     data: payload,
     useAuth: true,
   });

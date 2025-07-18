@@ -129,9 +129,9 @@ export default function AddPackagesPage() {
                             )}
                         />
                         {errors.image && <div className="text-red-500 text-sm">{errors.image.message}</div>}
-                        <p className="text-sm text-muted-foreground">
-                            Recommended size: 600x600px. Max 2MB.
-                        </p>
+                                <p className="text-sm text-muted-foreground">
+                                    Recommended size: 600x600px. Max 2MB.
+                                </p>
                     </div>
 
                     {/* Features */}

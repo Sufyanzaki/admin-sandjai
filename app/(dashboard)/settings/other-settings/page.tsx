@@ -29,22 +29,7 @@ import {Switch} from "@/components/ui/switch";
 import {Textarea} from "@/components/ui/textarea";
 import {MultiSelectCombobox} from "@/components/ui/combo-box";
 import AbusiveCard from "./_components/abusive-card";
-
-const currencies = [
-  {
-    id: "1",
-    name: "English",
-    code: "eng",
-    jsx: <Switch id={`show-`} />
-  },
-  {
-    id: "2",
-    name: "Dutch",
-    code: "nl",
-    jsx: <Switch id={`show-1`} />
-  },
-];
-
+import CurrencyTable from "./_components/currency-table";
 const pagesData = [
   {
     id: 1,
@@ -69,10 +54,6 @@ const pageOptions = [
 
 export default function SettingsPage() {
 
-  const [openAddDialog, setOpenAddDialog] = useState(false);
-  const [openFormatDialog, setOpenFormatDialog] = useState(false);
-  const [currencyToDelete, setCurrencyToDelete] = useState(currencies[0]);
-
   const [openFooterDialog, setOpenFooterDialog] = useState(false);
 
   const [selectedPage, setSelectedPage] = useState<string[]>([])
@@ -96,96 +77,7 @@ export default function SettingsPage() {
         </TabsList>
 
         <TabsContent value="currency" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                {/* Title & Description */}
-                <div>
-                  <CardTitle className="flex items-center gap-2 text-xl sm:text-2xl">
-                    <Settings className="h-5 w-5" />
-                    Currency Configuration
-                  </CardTitle>
-                  <CardDescription>
-                    Manage your system settings and appearance
-                  </CardDescription>
-                </div>
-
-                {/* Buttons */}
-                <div className="flex flex-wrap gap-2">
-                  <Button
-                      variant="outline"
-                      onClick={() => setOpenFormatDialog(true)}
-                      className="w-full sm:w-auto"
-                  >
-                    <Settings2 className="mr-2 h-4 w-4" />
-                    Set Format
-                  </Button>
-                  <Button
-                      onClick={() => setOpenAddDialog(true)}
-                      className="w-full sm:w-auto"
-                  >
-                    <Plus className="mr-2 h-4 w-4" />
-                    Add Currency
-                  </Button>
-                </div>
-              </div>
-            </CardHeader>
-
-
-            <CardContent className="p-0">
-              <div className="rounded-lg border">
-                <Table>
-                  <TableHeader className="bg-muted/50">
-                    <TableRow>
-                      <TableHead className="w-[80px]">#</TableHead>
-                      <TableHead>Currency</TableHead>
-                      <TableHead>Code</TableHead>
-                      <TableHead>RTL</TableHead>
-                      <TableHead className="w-[120px] text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {currencies.map((currency) => (
-                        <TableRow key={currency.id} className="hover:bg-muted/50">
-                          <TableCell className="font-medium">{currency.id}</TableCell>
-                          <TableCell>{currency.name}</TableCell>
-                          <TableCell>
-                            <Badge variant="outline">{currency.code}</Badge>
-                          </TableCell>
-                          <TableCell>
-                            {currency.jsx}
-                          </TableCell>
-                          <TableCell>
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" className="h-8 w-8 p-0 ml-auto">
-                                  <MoreHorizontal className="h-4 w-4" />
-                                  <span className="sr-only">Open menu</span>
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end" className="w-[160px]">
-                                <DropdownMenuItem onClick={()=> setOpenAddDialog(true)}>
-                                  <Pencil className="mr-2 h-4 w-4" />
-                                  Edit
-                                </DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem
-                                    className="text-destructive focus:text-destructive"
-                                    onClick={() => setCurrencyToDelete(currency)}
-                                >
-                                  <Trash2 className="mr-2 h-4 w-4" />
-                                  Delete
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </TableCell>
-                        </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            </CardContent>
-          </Card>
+          <CurrencyTable />
         </TabsContent>
         <TabsContent value="abusive-words" className="space-y-4">
           <Card>
@@ -378,123 +270,8 @@ export default function SettingsPage() {
         </TabsContent>
       </Tabs>
 
-      <Dialog open={openAddDialog} onOpenChange={setOpenAddDialog}>
-        <DialogContent className="sm:max-w-[600px]">
-          <DialogHeader>
-            <DialogTitle>Add New Currency</DialogTitle>
-            <DialogDescription>
-              Add a new currency to your system
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Currency Name *</Label>
-                <Input id="name" placeholder="e.g. US Dollar" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="code">Currency Code *</Label>
-                <Input id="code" placeholder="e.g. USD" />
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="symbol">Symbol *</Label>
-                <Input id="symbol" placeholder="e.g. $" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="rtl">Text Direction</Label>
-                <Select>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select direction" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="ltr">Left-to-Right (LTR)</SelectItem>
-                    <SelectItem value="rtl">Right-to-Left (RTL)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setOpenAddDialog(false)}>
-              Cancel
-            </Button>
-            <Button type="submit">
-              <Save className="mr-2 h-4 w-4" />
-              Save Currency
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
       {/* Set Format Dialog */}
-      <Dialog open={openFormatDialog} onOpenChange={setOpenFormatDialog}>
-        <DialogContent className="sm:max-w-[600px]">
-          <DialogHeader>
-            <DialogTitle>Currency Format Settings</DialogTitle>
-            <DialogDescription>
-              Configure how currency values are displayed
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="default">Default Currency *</Label>
-              <Select>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select default currency" />
-                </SelectTrigger>
-                <SelectContent>
-                  {currencies.map(currency => (
-                      <SelectItem key={currency.id} value={currency.id}>
-                        {currency.name} ({currency.code})
-                      </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="grid grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="symbol-format">Symbol Format</Label>
-                <Select>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select format" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="prefix">Prefix ($100)</SelectItem>
-                    <SelectItem value="suffix">Suffix (100$)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="decimal-separator">Decimal Separator</Label>
-                <Select>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select separator" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value=".">Period (.)</SelectItem>
-                    <SelectItem value=",">Comma (,)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="decimals">Decimal Places</Label>
-                <Input id="decimals" type="number" min="0" max="4" defaultValue="2" />
-              </div>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setOpenFormatDialog(false)}>
-              Cancel
-            </Button>
-            <Button type="submit">
-              <Save className="mr-2 h-4 w-4" />
-              Save Format
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+
 
       <Dialog open={openFooterDialog} onOpenChange={setOpenFooterDialog}>
         <DialogContent className="sm:max-w-md">

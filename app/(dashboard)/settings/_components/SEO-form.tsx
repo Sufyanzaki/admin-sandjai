@@ -1,11 +1,11 @@
+"use client"
+
 import { Button } from "@/components/ui/button";
 import { CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Upload } from "lucide-react";
 import useSeoSettingsForm from "../_hooks/useSeoSettingsForm";
-import { useRef } from "react";
 import { Controller } from "react-hook-form";
 import { CustomImageUpload } from "@/components/frontend-settings/CustomImageInput";
 
