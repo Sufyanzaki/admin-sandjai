@@ -1173,7 +1173,7 @@ export default function AddDoctorPage() {
             <Card>
               <CardHeader className="">
                 <CardTitle>Location</CardTitle>
-                <CardDescription className="text-slate-300">Where are you located?</CardDescription>
+                <CardDescription className="text-sm text-muted-foreground">Where are you located?</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6 pt-6">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -1261,7 +1261,7 @@ export default function AddDoctorPage() {
             <Card>
               <CardHeader className="">
                 <CardTitle>Physical Characteristics</CardTitle>
-                <CardDescription className="text-slate-300">
+                <CardDescription className="text-sm text-muted-foreground">
                   Tell us about your physical attributes and preferences
                 </CardDescription>
               </CardHeader>
