@@ -1,15 +1,16 @@
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { showError } from "@/admin-utils/lib/formErrors";
-import { showSuccess } from "@/admin-utils/lib/formSuccess";
-import { patchUser, postUser, UserPayload } from "../_api/createUser";
+import {useForm} from "react-hook-form";
+import {zodResolver} from "@hookform/resolvers/zod";
+import {z} from "zod";
+import {showError} from "@/admin-utils/lib/formErrors";
+import {showSuccess} from "@/admin-utils/lib/formSuccess";
+import {patchUser, postUser} from "../_api/createUser";
 import useSWRMutation from "swr/mutation";
-import { imageUpload } from "@/admin-utils/utils/imageUpload";
-import { setUserTrackingId, getUserTrackingId, updateUserTrackingId } from "@/lib/access-token";
-import { isFile } from "@/lib/utils";
-import { useEffect } from "react";
-import { useBasicInfo } from "./useBasicInfo";
+import {imageUpload} from "@/admin-utils/utils/imageUpload";
+import {getUserTrackingId, setUserTrackingId, updateUserTrackingId} from "@/lib/access-token";
+import {isFile} from "@/lib/utils";
+import {useEffect, useMemo} from "react";
+import {useBasicInfo} from "../../_hooks/useBasicInfo";
+import {useParams} from "next/navigation";
 
 interface UserApiResponse {
   email?: string;
@@ -29,9 +30,11 @@ interface UserApiResponse {
   shortDescription?: string;
 }
 
-const createUserSchema = z.object({
+const createUserSchema = (requirePassword: boolean) => z.object({
   email: z.string().min(1, "Email is required").email("Please enter a valid email address"),
-  password: z.string().min(6, "Password is required and must be at least 6 characters"),
+  password: requirePassword
+    ? z.string().min(6, "Password is required and must be at least 6 characters")
+    : z.string().optional(),
   username: z.string().min(1, "Username is required"),
   firstName: z.string().min(1, "First name is required"),
   lastName: z.string().min(1, "Last name is required"),
@@ -48,9 +51,24 @@ const createUserSchema = z.object({
   shortDescription: z.string().min(1, "Short description is required"),
 });
 
-export type CreateUserFormValues = z.infer<typeof createUserSchema>;
+export type CreateUserFormValues = z.infer<ReturnType<typeof createUserSchema>>;
 
 export default function useCreateUserForm() {
+
+  const params = useParams();
+  const tracker = getUserTrackingId();
+
+  const id = useMemo(() => {
+    const paramId = Array.isArray(params.id) ? params.id[0] : params.id;
+    return tracker?.id ?? paramId;
+  }, [params.id, tracker?.id]);
+
+  const allowEdit = useMemo(() => {
+    return id || tracker?.basicInformation;
+  }, [id, tracker?.basicInformation]);
+
+  const schema = useMemo(() => createUserSchema(!allowEdit), [allowEdit]);
+
   const {
     handleSubmit,
     formState: { errors, isSubmitting },
@@ -60,10 +78,10 @@ export default function useCreateUserForm() {
     control,
     watch,
   } = useForm<CreateUserFormValues>({
-    resolver: zodResolver(createUserSchema),
+    resolver: zodResolver(schema),
     defaultValues: {
       email: "",
-      password: "",
+      password: undefined,
       username: "",
       firstName: "",
       lastName: "",
@@ -83,14 +101,13 @@ export default function useCreateUserForm() {
   });
 
   const { user, userLoading } = useBasicInfo();
-  const tracker = getUserTrackingId();
 
   useEffect(() => {
-    if (tracker?.id && user) {
+    if (id && user) {
       const u = user as UserApiResponse;
       reset({
         email: u.email || "",
-        password: "",
+        password: undefined,
         username: u.username || "",
         firstName: u.firstName || "",
         lastName: u.lastName || "",
@@ -107,40 +124,41 @@ export default function useCreateUserForm() {
         shortDescription: u.shortDescription || "",
       });
     }
-  }, [tracker?.id, user]);
+  }, [user, id]);
 
   const { trigger, isMutating } = useSWRMutation(
-    "createOrUpdateUser",
-    async (_: string, { arg }: { arg: UserPayload }) => {
-      const tracker = getUserTrackingId();
-      let imageUrl: string = "";
-      if (isFile(arg.image)) imageUrl = await imageUpload(arg.image);
-      else if (typeof arg.image === "string") imageUrl = arg.image;
-      if(tracker?.id && tracker.basicInformation) return await patchUser(tracker.id, { ...arg, image: imageUrl });
-      else return await postUser({ ...arg, image: imageUrl });
-    },
-    {
-      onError: (error: any) => {
-        showError({ message: error.message || "Failed to add user" });
+      "createOrUpdateUser",
+      async (_: string, { arg }: { arg: CreateUserFormValues }) => {
+        let imageUrl = "";
+        if (isFile(arg.image)) imageUrl = await imageUpload(arg.image);
+        else if (typeof arg.image === "string") imageUrl = arg.image;
+
+        if (id && allowEdit) {
+          return await patchUser(id, { ...arg, image: imageUrl });
+        } else {
+          return await postUser({ ...arg, image: imageUrl });
+        }
       },
-      revalidate: false,
-      populateCache: false,
-    }
+      {
+        onError: (error: any) => {
+          showError({ message: error?.message || "Failed to add user" });
+        },
+        revalidate: false,
+        populateCache: false,
+      }
   );
 
   const onSubmit = async (values: CreateUserFormValues, callback?: (data: any) => void) => {
-    const tracker = getUserTrackingId();
-    let imageUrl: string = "";
-    if (isFile(values.image)) {
-      imageUrl = await imageUpload(values.image as File);
-    } else if (typeof values.image === "string") {
-      imageUrl = values.image;
-    }
+    const imageUrl =
+        isFile(values.image) ? await imageUpload(values.image as File) : (values.image as string);
+
     const result = await trigger({ ...values, image: imageUrl });
-    if (result?.status === 201 || result?.status === 200) {
+
+    if (result?.status === 200 || result?.status === 201) {
       showSuccess("User created successfully!");
       callback?.(result.response);
-      if (tracker && tracker.id) {
+
+      if (id) {
         updateUserTrackingId({ basicInformation: true });
       } else {
         setUserTrackingId({
@@ -158,6 +176,7 @@ export default function useCreateUserForm() {
       }
     }
   };
+
   return {
     register,
     handleSubmit,

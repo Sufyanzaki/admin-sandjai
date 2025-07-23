@@ -1,12 +1,14 @@
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useEffect } from "react";
-import useSWR from "swr";
 import useSWRMutation from "swr/mutation";
 import { showError } from "@/admin-utils/lib/formErrors";
 import { showSuccess } from "@/admin-utils/lib/formSuccess";
 import { postBasicSettings } from "../_api/postBasicSettings";
+import { useBasicSettings } from "./useBasicSettings";
+import { imageUpload } from "@/admin-utils/utils/imageUpload";
+import { isFile } from "@/lib/utils";
 
 const basicSettingsSchema = z.object({
   systemLogo: z.any().optional(),
@@ -27,7 +29,7 @@ const basicSettingsSchema = z.object({
 export type BasicSettingsFormValues = z.infer<typeof basicSettingsSchema>;
 
 export function useBasicSettingsForm() {
-  const { data, isLoading: loading } = useSWR("getBasicSettings", getBasicSettings);
+  const { data, loading } = useBasicSettings();
   const { trigger, isMutating } = useSWRMutation(
     "postBasicSettings",
     async (_: string, { arg }: { arg: BasicSettingsFormValues }) => {
@@ -73,6 +75,18 @@ export function useBasicSettingsForm() {
   }, [data, reset]);
 
   const onSubmit = async (values: BasicSettingsFormValues) => {
+    if (values.systemLogo && isFile(values.systemLogo)) {
+      const uploaded = await imageUpload(values.systemLogo);
+      if (uploaded) {
+        values.systemLogo = uploaded;
+      }
+    }
+    if (values.loginImage && isFile(values.loginImage)) {
+      const uploaded = await imageUpload(values.loginImage);
+      if (uploaded) {
+        values.loginImage = uploaded;
+      }
+    }
     const result = await trigger(values);
     if (result) {
       showSuccess("Settings updated successfully!");

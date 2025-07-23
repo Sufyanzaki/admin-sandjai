@@ -4,10 +4,11 @@ import { z } from "zod";
 import { showError } from "@/admin-utils/lib/formErrors";
 import { showSuccess } from "@/admin-utils/lib/formSuccess";
 import useSWRMutation from "swr/mutation";
-import { postLifeStyle, patchLifeStyle } from "../_api/updateLifeStyle";
+import { postLifeStyle, patchLifeStyle } from "../../_api/updateLifeStyle";
 import { getUserTrackingId, updateUserTrackingId } from "@/lib/access-token";
-import { useLifeStyleInfo } from "./useLifeStyleInfo";
-import { useEffect } from "react";
+import { useLifeStyleInfo } from "../../_hooks/useLifeStyleInfo";
+import { useEffect, useMemo } from "react";
+import { useParams } from "next/navigation";
 
 const lifeStyleSchema = z.object({
   smoke: z.string().min(1, "Smoke is required"),
@@ -26,6 +27,19 @@ const lifeStyleSchema = z.object({
 export type LifeStyleFormValues = z.infer<typeof lifeStyleSchema>;
 
 export default function useLifeStyleForm() {
+
+  const params = useParams();
+  const tracker = getUserTrackingId();
+
+  const id = useMemo(() => {
+    const paramId = Array.isArray(params.id) ? params.id[0] : params.id;
+    return tracker?.id ?? paramId;
+  }, [params.id, tracker?.id]);
+
+  const allowEdit = useMemo(() => {
+    return id || tracker?.lifeStyle;
+  }, [id, tracker?.lifeStyle]);
+
   const {
     handleSubmit,
     formState: { errors, isSubmitting },
@@ -53,10 +67,9 @@ export default function useLifeStyleForm() {
   });
 
   const { lifeStyle, lifeStyleLoading } = useLifeStyleInfo();
-  const tracker = getUserTrackingId();
 
   useEffect(() => {
-    if (tracker?.id && lifeStyle) {
+    if (id && lifeStyle) {
       reset({
         smoke: lifeStyle.smoke || "",
         drinking: lifeStyle.drinking || "",
@@ -71,17 +84,15 @@ export default function useLifeStyleForm() {
         primaryHobby: lifeStyle.primaryHobby || "",
       });
     }
-  }, [tracker?.id, lifeStyle, reset]);
+  }, [id, lifeStyle, reset]);
 
   const { trigger, isMutating } = useSWRMutation(
     "updateLifeStyle",
     async (_: string, { arg }: { arg: LifeStyleFormValues }) => {
-      const tracker = getUserTrackingId();
-      const id = tracker?.id ?? "";
 
-      if (!id) return showError({ message: "User not found" });
+      if (!id) return showError({ message: "You need to initialize a new member profile before you can add other details. Go back to basic Information to initialze a member" });
 
-      if (tracker && tracker.lifeStyle) return await patchLifeStyle(id, arg);
+      if (id && allowEdit) return await patchLifeStyle(id, arg);
       else return await postLifeStyle(id, arg);
       
     },

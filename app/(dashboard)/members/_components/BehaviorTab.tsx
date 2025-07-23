@@ -4,9 +4,12 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import usePersonalityBehaviorForm from "../_hooks/usePersonalityBehaviorForm";
+import usePersonalityBehaviorForm from "../add/_hooks/usePersonalityBehaviorForm";
 import React from "react";
-import type { PersonalityBehaviorFormValues } from "../_hooks/usePersonalityBehaviorForm";
+import type { PersonalityBehaviorFormValues } from "../add/_hooks/usePersonalityBehaviorForm";
+import { AlertTriangle } from "lucide-react";
+import { useParams } from "next/navigation";
+import { getUserTrackingId } from "@/lib/access-token";
 
 const traitMap: { key: keyof PersonalityBehaviorFormValues; label: string }[] = [
   { key: "simple", label: "simpel" },
@@ -49,6 +52,13 @@ const traitMap: { key: keyof PersonalityBehaviorFormValues; label: string }[] = 
 ];
 
 export default function BehaviorTab() {
+
+  const params = useParams();
+  const id = typeof params.id === 'string' ? params.id : params.id?.[0];
+
+  const tracker = getUserTrackingId();
+  const userId = tracker?.id ?? id;
+
   const {
     handleSubmit,
     isLoading,
@@ -67,6 +77,14 @@ export default function BehaviorTab() {
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit((values) => onSubmit(values))}>
+        {!userId && <div className="border border-amber-200 bg-amber-50 rounded-sm p-4 mb-6">
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="h-5 w-5 text-amber-600" />
+                <div className="text-amber-700 text-sm">
+                  You need to initialize a new member profile before you can add other details. Go back to basic Information to initialze a member
+                </div>
+            </div>
+          </div>}
           <CardContent>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {traitMap.map((trait, index) => (

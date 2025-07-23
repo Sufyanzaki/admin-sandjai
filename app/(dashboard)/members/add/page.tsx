@@ -4,15 +4,15 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {ArrowLeft} from "lucide-react";
 import Link from "next/link";
-import PersonalInfoTab from "./_components/PersonalInfoTab";
-import ProfessionalTab from "./_components/ProfessionalTab";
-import BehaviorTab from "./_components/BehaviorTab";
-import PartnerTab from "./_components/PartnerTab";
-import LifeStyleTab from "./_components/LifeStyleTab";
-import HobbiesTab from "./_components/HobbiesTab";
-import LanguagesTab from "./_components/LanguagesTab";
-import LivingTab from "./_components/LivingTab";
-import AboutMeTab from "./_components/AboutMeTab";
+import PersonalInfoTab from "@/app/(dashboard)/members/_components/PersonalInfoTab";
+import ProfessionalTab from "@/app/(dashboard)/members/_components/ProfessionalTab";
+import BehaviorTab from "@/app/(dashboard)/members/_components/BehaviorTab";
+import PartnerTab from "@/app/(dashboard)/members/_components/PartnerTab";
+import LifeStyleTab from "@/app/(dashboard)/members/_components/LifeStyleTab";
+import HobbiesTab from "@/app/(dashboard)/members/_components/HobbiesTab";
+import LanguagesTab from "@/app/(dashboard)/members/_components/LanguagesTab";
+import LivingTab from "@/app/(dashboard)/members/_components/LivingTab";
+import AboutMeTab from "@/app/(dashboard)/members/_components/AboutMeTab";
 
 export default function AddMemberPage() {
 

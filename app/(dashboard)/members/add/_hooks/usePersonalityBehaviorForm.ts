@@ -4,10 +4,11 @@ import { z } from "zod";
 import { showError } from "@/admin-utils/lib/formErrors";
 import { showSuccess } from "@/admin-utils/lib/formSuccess";
 import useSWRMutation from "swr/mutation";
-import { updatePersonalityBehavior, patchPersonalityBehavior, UpdatePersonalityBehaviorPayload } from "../_api/updatePersonalityBehavior";
+import { updatePersonalityBehavior, patchPersonalityBehavior, UpdatePersonalityBehaviorPayload } from "../../_api/updatePersonalityBehavior";
 import { getUserTrackingId, updateUserTrackingId } from "@/lib/access-token";
-import { usePersonalityBehaviorInfo } from "./usePersonalityBehaviorInfo";
-import { useEffect } from "react";
+import { usePersonalityBehaviorInfo } from "../../_hooks/usePersonalityBehaviorInfo";
+import { useEffect, useMemo } from "react";
+import { useParams } from "next/navigation";
 
 const personalityBehaviorSchema = z.object({
   simple: z.boolean(),
@@ -52,6 +53,19 @@ const personalityBehaviorSchema = z.object({
 export type PersonalityBehaviorFormValues = z.infer<typeof personalityBehaviorSchema>;
 
 export default function usePersonalityBehaviorForm() {
+
+  const params = useParams();
+  const tracker = getUserTrackingId();
+
+  const id = useMemo(() => {
+    const paramId = Array.isArray(params.id) ? params.id[0] : params.id;
+    return tracker?.id ?? paramId;
+  }, [params.id, tracker?.id]);
+
+  const allowEdit = useMemo(() => {
+    return id || tracker?.personalityAndBehavior;
+  }, [id, tracker?.personalityAndBehavior]);
+
   const {
     handleSubmit,
     formState: { errors, isSubmitting },
@@ -105,10 +119,9 @@ export default function usePersonalityBehaviorForm() {
   });
 
   const { personalityBehavior, personalityBehaviorLoading } = usePersonalityBehaviorInfo();
-  const tracker = getUserTrackingId();
 
   useEffect(() => {
-    if (tracker?.id && personalityBehavior) {
+    if (id && personalityBehavior) {
       reset({
         ...personalityBehavior
       });
@@ -119,12 +132,10 @@ export default function usePersonalityBehaviorForm() {
     "updatePersonalityBehavior",
     async (_: string, { arg }: { arg: PersonalityBehaviorFormValues }) => {
       const { ...payload } = arg;
-      const tracker = getUserTrackingId();
-      const id = tracker?.id ?? "";
     
-      if(!id) return showError({message : "User not found"});
+      if(!id) return showError({message : "You need to initialize a new member profile before you can add other details. Go back to basic Information to initialze a member"});
       
-      if (tracker && tracker.personalityAndBehavior) return await patchPersonalityBehavior(id, payload);
+      if (id && allowEdit) return await patchPersonalityBehavior(id, payload);
       else return await updatePersonalityBehavior(id, payload);
     
     },

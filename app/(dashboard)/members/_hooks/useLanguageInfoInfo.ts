@@ -1,10 +1,15 @@
 import { useSWRFix } from "@/admin-utils/lib/useSwrFix";
 import { getUserTrackingId } from "@/lib/access-token";
 import { getLanguageInfo } from "../_api/updateLanguageInfo";
+import { useParams } from "next/navigation";
 
 export const useLanguageInfoInfo = () => {
+  
+  const params = useParams();
+  const id = typeof params.id === 'string' ? params.id : params.id?.[0];
+
   const tracker = getUserTrackingId();
-  const userId = tracker?.id ?? '';
+  const userId = tracker?.id ?? id;  
 
   const { data, loading, error, mutate } = useSWRFix({
     key: userId ? `language-info-${userId}` : '',

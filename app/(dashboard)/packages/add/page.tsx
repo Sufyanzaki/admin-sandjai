@@ -17,12 +17,10 @@ export default function AddPackagesPage() {
         errors,
         isLoading,
         register,
-        setValue,
         control,
-        fields,
-        append,
-        remove,
-        watch,
+        features,
+        addFeature,
+        removeFeature,
     } = usePackageForm();
 
     return (
@@ -138,19 +136,19 @@ export default function AddPackagesPage() {
                     <div className="space-y-2">
                         <Label>Features</Label>
                         <div className="space-y-3">
-                            {fields.map((field, idx) => (
-                                <div key={field.id} className="flex items-center gap-3">
+                            {features.map((feature, idx) => (
+                                <div key={idx} className="flex items-center gap-3">
                                     <Input
                                         placeholder={`Feature ${idx + 1}`}
                                         className="bg-background"
                                         {...register(`features.${idx}`)}
                                     />
-                                    <Button variant="ghost" size="icon" type="button" onClick={() => remove(idx)}>
+                                    <Button variant="ghost" size="icon" type="button" onClick={() => removeFeature(idx)}>
                                         <Trash2 className="h-4 w-4 text-red-500" />
                                     </Button>
                                 </div>
                             ))}
-                            <Button variant="outline" type="button" onClick={append}>
+                            <Button variant="outline" type="button" onClick={addFeature}>
                                 <Plus className="mr-2 h-4 w-4" />
                                 Add Feature
                             </Button>

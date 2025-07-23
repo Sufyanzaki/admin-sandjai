@@ -4,10 +4,11 @@ import { z } from "zod";
 import { showError } from "@/admin-utils/lib/formErrors";
 import { showSuccess } from "@/admin-utils/lib/formSuccess";
 import useSWRMutation from "swr/mutation";
-import { patchEducationCareer, updateEducationCareer } from "../_api/updateEducationCareer";
+import { patchEducationCareer, postEducationCareer } from "../../_api/updateEducationCareer";
 import { getUserTrackingId, updateUserTrackingId } from "@/lib/access-token";
-import { useEducationCareerInfo } from "./useEducationCareerInfo";
-import { useEffect } from "react";
+import { useEducationCareerInfo } from "../../_hooks/useEducationCareerInfo";
+import { useEffect, useMemo } from "react";
+import {useParams} from "next/navigation";
 
 const educationCareerSchema = z.object({
   primarySpecialization: z.string().min(1, "Primary specialization is required"),
@@ -23,6 +24,20 @@ const educationCareerSchema = z.object({
 export type EducationCareerFormValues = z.infer<typeof educationCareerSchema>;
 
 export default function useEducationCareerForm() {
+
+  const params = useParams();
+  const { educationCareer, educationCareerLoading } = useEducationCareerInfo();
+  const tracker = getUserTrackingId();
+
+  const id = useMemo(() => {
+    const paramId = Array.isArray(params.id) ? params.id[0] : params.id;
+    return tracker?.id ?? paramId;
+  }, [params.id, tracker?.id]);
+
+  const allowEdit = useMemo(() => {
+    return id || tracker?.educationAndCareer;
+  }, [id, tracker?.educationAndCareer]);
+
   const {
     handleSubmit,
     formState: { errors, isSubmitting },
@@ -46,11 +61,8 @@ export default function useEducationCareerForm() {
     mode: "onBlur",
   });
 
-  const { educationCareer, educationCareerLoading } = useEducationCareerInfo();
-  const tracker = getUserTrackingId();
-
   useEffect(() => {
-    if (tracker?.id && educationCareer) {
+    if (id && educationCareer) {
       reset({
         primarySpecialization: educationCareer.primarySpecialization || "",
         secondarySpecialization: educationCareer.secondarySpecialization || "",
@@ -62,17 +74,15 @@ export default function useEducationCareerForm() {
         position: educationCareer.position || "",
       });
     }
-  }, [tracker?.id, educationCareer, reset]);
+  }, [tracker?.id, educationCareer, reset, id]);
 
   const { trigger, isMutating } = useSWRMutation(
     "updateEducationCareer",
     async (_: string, { arg }: { arg: EducationCareerFormValues }) => {
-      const tracker = getUserTrackingId();
-      const id = tracker?.id ?? "";
-      if (tracker && tracker.educationAndCareer) {
+      if (id && allowEdit) {
         return await patchEducationCareer(id, arg);
       } else {
-        return await updateEducationCareer(id, arg);
+        return await postEducationCareer(id!, arg);
       }
     },
     {
@@ -88,7 +98,6 @@ export default function useEducationCareerForm() {
     const result = await trigger(values);
     if (result?.status === 201 || result?.status === 200) {
       showSuccess("Education & Career updated successfully!");
-      reset();
       callback?.(result.response);
       updateUserTrackingId({ educationAndCareer: true });
     }

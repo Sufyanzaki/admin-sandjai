@@ -2,7 +2,7 @@ import { postRequest, patchRequest, getRequest } from "@/admin-utils";
 
 export interface UserPayloadBase {
   email: string;
-  password: string;
+  password?: string;
   username: string;
   firstName: string;
   lastName: string;

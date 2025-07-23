@@ -11,7 +11,7 @@ export interface EducationCareerPayload {
   position: string;
 }
 
-export async function updateEducationCareer(userId: string, payload: EducationCareerPayload) {
+export async function postEducationCareer(userId: string, payload: EducationCareerPayload) {
   return postRequest({
     url: `users/${userId}/education-career`,
     data: payload,

@@ -62,7 +62,7 @@ export default function ProfilePage() {
                   </Button>
                 </div>
 
-                {isEditing ? <ProfileEditForm /> : (
+                {isEditing ? <ProfileEditForm onFinish={() => setIsEditing(false)} /> : (
                   <div className="grid gap-3 text-sm">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
@@ -70,13 +70,6 @@ export default function ProfilePage() {
                         <span className="text-muted-foreground">Email</span>
                       </div>
                       <span>{displayUser?.email || "No email provided"}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Phone className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-muted-foreground">Phone</span>
-                      </div>
-                      <span>{displayUser?.phone || "No phone provided"}</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">

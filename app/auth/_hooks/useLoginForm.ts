@@ -43,6 +43,8 @@ export default function useLoginForm() {
                 callbackUrl: '/',
             });
 
+            console.log(errors)
+
             if (result?.error) {
                 const errorMessage = result.error === 'CredentialsSignin'
                     ? 'Invalid email or password'

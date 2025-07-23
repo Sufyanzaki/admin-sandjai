@@ -10,12 +10,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { TabsContent } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Mail, Upload } from "lucide-react";
-import useCreateUserForm from "../_hooks/useCreateUser";
+import useCreateUserForm from "../add/_hooks/useCreateUser";
 import { Controller } from "react-hook-form";
 import { useRef } from "react";
 import { getUserTrackingId } from "@/lib/access-token";
+import {useParams} from "next/navigation";
 
 export default function PersonalInfoTab() {
+
+  const params = useParams();
+  const {id} = params;
+
   const {
     register,
     handleSubmit,
@@ -143,7 +148,7 @@ export default function PersonalInfoTab() {
                 {errors.email && <p className="text-sm text-red-500">{errors.email.message}</p>}
               </div>
               <div className="space-y-2">
-                {!getUserTrackingId() && <><Label htmlFor="password">Password</Label>
+                {!(getUserTrackingId() || id) && <><Label htmlFor="password">Password</Label>
                 <Input id="password" placeholder="Enter Password" type="password" {...register("password")} />
                 {errors.password && <p className="text-sm text-red-500">{errors.password.message}</p>}</>}
               </div>

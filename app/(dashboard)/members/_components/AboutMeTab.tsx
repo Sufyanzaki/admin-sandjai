@@ -7,11 +7,21 @@ import { Input } from "@/components/ui/input";
 import { MultiSelectCombobox } from "@/components/ui/combo-box";
 import { Button } from "@/components/ui/button";
 import { Controller } from "react-hook-form";
-import usePhysicalAppearanceForm from "../_hooks/usePhysicalAppearanceForm";
-import type { PhysicalAppearanceFormValues } from "../_hooks/usePhysicalAppearanceForm";
+import usePhysicalAppearanceForm from "../add/_hooks/usePhysicalAppearanceForm";
+import type { PhysicalAppearanceFormValues } from "../add/_hooks/usePhysicalAppearanceForm";
 import type { FieldErrors } from "react-hook-form";
+import { useParams } from "next/navigation";
+import { getUserTrackingId } from "@/lib/access-token";
+import { AlertTriangle } from "lucide-react";
 
 export default function AboutMeTab() {
+
+  const params = useParams();
+  const id = typeof params.id === 'string' ? params.id : params.id?.[0];
+
+  const tracker = getUserTrackingId();
+  const userId = tracker?.id ?? id;
+
   const {
     control,
     handleSubmit,
@@ -58,6 +68,14 @@ export default function AboutMeTab() {
           intelligence: values.intelligence,
           language: values.language,
         }))}>
+          {!userId && <div className="border border-amber-200 bg-amber-50 rounded-sm p-4 mb-6">
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="h-5 w-5 text-amber-600" />
+                <div className="text-amber-700 text-sm">
+                  You need to initialize a new member profile before you can add other details. Go back to basic Information to initialze a member
+                </div>
+            </div>
+          </div>}
           <CardContent className="space-y-6 pt-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Left Column */}

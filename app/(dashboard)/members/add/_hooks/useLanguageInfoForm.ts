@@ -4,10 +4,11 @@ import { z } from "zod";
 import { showError } from "@/admin-utils/lib/formErrors";
 import { showSuccess } from "@/admin-utils/lib/formSuccess";
 import useSWRMutation from "swr/mutation";
-import { postLanguageInfo, patchLanguageInfo } from "../_api/updateLanguageInfo";
+import { postLanguageInfo, patchLanguageInfo } from "../../_api/updateLanguageInfo";
 import { getUserTrackingId, updateUserTrackingId } from "@/lib/access-token";
-import { useLanguageInfoInfo } from "./useLanguageInfoInfo";
-import { useEffect } from "react";
+import { useLanguageInfoInfo } from "../../_hooks/useLanguageInfoInfo";
+import { useEffect, useMemo } from "react";
+import { useParams } from "next/navigation";
 
 const languageInfoSchema = z.object({
   motherTongue: z.string().min(1, "Mother tongue is required"),
@@ -17,6 +18,20 @@ const languageInfoSchema = z.object({
 export type LanguageInfoFormValues = z.infer<typeof languageInfoSchema>;
 
 export default function useLanguageInfoForm() {
+
+  const params = useParams();
+  const tracker = getUserTrackingId();
+
+  const id = useMemo(() => {
+    const paramId = Array.isArray(params.id) ? params.id[0] : params.id;
+    return tracker?.id ?? paramId;
+  }, [params.id, tracker?.id]);
+
+  const allowEdit = useMemo(() => {
+    return id || tracker?.languages;
+  }, [id, tracker?.languages]);
+
+
   const {
     handleSubmit,
     formState: { errors, isSubmitting },
@@ -33,24 +48,23 @@ export default function useLanguageInfoForm() {
   });
 
   const { languageInfo, languageInfoLoading } = useLanguageInfoInfo();
-  const tracker = getUserTrackingId();
 
   useEffect(() => {
-    if (tracker?.id && languageInfo) {
+    if (id && languageInfo) {
       reset({
         motherTongue: languageInfo.motherTongue || "",
         knownLanguages: languageInfo.knownLanguages || "",
       });
     }
-  }, [tracker?.id, languageInfo, reset]);
+  }, [id, languageInfo, reset]);
 
   const { trigger, isMutating } = useSWRMutation(
     "updateLanguageInfo",
     async (_: string, { arg }: { arg: LanguageInfoFormValues }) => {
-      const tracker = getUserTrackingId();
-      const id = tracker?.id ?? "";
-      if (!id) return showError({ message: "User not found" });
-      if (tracker && tracker.languages) return await patchLanguageInfo(id, arg);
+
+      if (!id) return showError({ message: "You need to initialize a new member profile before you can add other details. Go back to basic Information to initialze a member" });
+
+      if (id && allowEdit) return await patchLanguageInfo(id, arg);
       else return await postLanguageInfo(id, arg);
     },
     {

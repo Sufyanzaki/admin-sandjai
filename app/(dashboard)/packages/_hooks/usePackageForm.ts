@@ -1,4 +1,4 @@
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import useSWRMutation from "swr/mutation";
@@ -40,10 +40,6 @@ export default function usePackageForm() {
     mode: "onBlur",
   });
 
-  const { fields, append, remove } = useFieldArray<PackageFormValues>({
-    control,
-    name: "features",
-  });
 
   const { trigger, isMutating } = useSWRMutation(
     "addPackage",
@@ -56,9 +52,11 @@ export default function usePackageForm() {
       } else {
         imageUrl = "";
       }
+      const featuresString = arg.features.join(", ");
       return await addPackage({
         ...arg,
         image: imageUrl,
+        features: featuresString as any,
       });
     },
     {
@@ -79,6 +77,11 @@ export default function usePackageForm() {
     }
   };
 
+  // Add helpers for features
+  const features = watch("features");
+  const addFeature = () => setValue("features", [...features, ""]);
+  const removeFeature = (idx: number) => setValue("features", features.filter((_, i) => i !== idx));
+
   return {
     handleSubmit,
     onSubmit,
@@ -89,8 +92,8 @@ export default function usePackageForm() {
     watch,
     control,
     reset,
-    fields,
-    append: () => append(""),
-    remove,
+    features,
+    addFeature,
+    removeFeature,
   };
 } 

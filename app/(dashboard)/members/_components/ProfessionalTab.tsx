@@ -7,11 +7,21 @@ import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import useEducationCareerForm from "../_hooks/useEducationCareerForm";
+import useEducationCareerForm from "../add/_hooks/useEducationCareerForm";
 import { Controller } from "react-hook-form";
-import React from "react";
+import React, { useEffect } from "react";
+import { AlertTriangle } from "lucide-react";
+import { useParams } from "next/navigation";
+import { getUserTrackingId } from "@/lib/access-token";
 
 export default function ProfessionalTab() {
+
+  const params = useParams();
+  const id = typeof params.id === 'string' ? params.id : params.id?.[0];
+
+  const tracker = getUserTrackingId();
+  const userId = tracker?.id ?? id;
+
   const {
     register,
     handleSubmit,
@@ -21,7 +31,6 @@ export default function ProfessionalTab() {
     onSubmit,
     educationCareerLoading
   } = useEducationCareerForm();
-
 
   if (educationCareerLoading) return <div>Loading...</div>;
 
@@ -34,6 +43,14 @@ export default function ProfessionalTab() {
             Enter the member's occupation, education, and other professional background details.
           </CardDescription>
         </CardHeader>
+        {!userId && <div className="border border-amber-200 bg-amber-50 rounded-sm p-4 mb-6">
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="h-5 w-5 text-amber-600" />
+                <div className="text-amber-700 text-sm">
+                  You need to initialize a new member profile before you can add other details. Go back to basic Information to initialze a member
+                </div>
+            </div>
+          </div>}
         <CardContent className="space-y-6">
           <form onSubmit={handleSubmit(v => onSubmit(v, () => { console.log("success") }))} className="space-y-4">
             <div className="flex flex-col md:flex-row gap-4">

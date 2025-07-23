@@ -4,14 +4,12 @@ import { z } from "zod";
 import { showError } from "@/admin-utils/lib/formErrors";
 import { showSuccess } from "@/admin-utils/lib/formSuccess";
 import useSWRMutation from "swr/mutation";
-import { patchUserLocation, postUserLocation } from "../_api/updateLocation";
+import { patchUserLocation, postUserLocation } from "../../_api/updateLocation";
 import { getUserTrackingId, updateUserTrackingId } from "@/lib/access-token";
 
 const livingLocationSchema = z.object({
   id: z.string().optional(),
-  country: z.string().min(1, "Country is required"),
-  state: z.string().min(1, "State is required"),
-  city: z.string().min(1, "City is required"),
+  location: z.string().min(1, "Location is required"),
 });
 
 export type UpdateUserLocationFormValues = z.infer<typeof livingLocationSchema>;
@@ -27,9 +25,7 @@ export default function useLivingLocationForm() {
   } = useForm<UpdateUserLocationFormValues>({
     resolver: zodResolver(livingLocationSchema),
     defaultValues: {
-      country: "",
-      state: "",
-      city: "",
+      location: "",
     },
     mode: "onBlur",
   });
@@ -40,10 +36,10 @@ export default function useLivingLocationForm() {
       const tracker = getUserTrackingId();
       const id = tracker?.id ?? "";
 
-      if (!id) return showError({ message: "User not found" });
+      if (!id) return showError({ message: "You need to initialize a new member profile before you can add other details. Go back to basic Information to initialze a member" });
 
-      if (tracker && tracker.living) return await patchUserLocation(arg);
-       else  await postUserLocation(arg);
+      if (tracker && tracker.living) return await patchUserLocation(id,arg);
+       else  await postUserLocation(id, arg);
       
     },
     {

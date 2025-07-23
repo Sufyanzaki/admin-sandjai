@@ -1,10 +1,15 @@
 import { useSWRFix } from "@/admin-utils/lib/useSwrFix";
 import { getEducationCareer } from "../_api/updateEducationCareer";
 import { getUserTrackingId } from "@/lib/access-token";
+import { useParams } from "next/navigation";
 
 export const useEducationCareerInfo = () => {
+
+  const params = useParams();
+  const id = typeof params.id === 'string' ? params.id : params.id?.[0];
+
   const tracker = getUserTrackingId();
-  const userId = tracker?.id ?? '';
+  const userId = tracker?.id ?? id;
 
   const { data, loading, error, mutate } = useSWRFix({
     key: userId ? `education-career-${userId}` : '',

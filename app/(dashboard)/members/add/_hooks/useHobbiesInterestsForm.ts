@@ -4,10 +4,11 @@ import { z } from "zod";
 import { showError } from "@/admin-utils/lib/formErrors";
 import { showSuccess } from "@/admin-utils/lib/formSuccess";
 import useSWRMutation from "swr/mutation";
-import { postHobbiesInterests, patchHobbiesInterests } from "../_api/updateHobbiesInterests";
+import { postHobbiesInterests, patchHobbiesInterests } from "../../_api/updateHobbiesInterests";
 import { getUserTrackingId, updateUserTrackingId } from "@/lib/access-token";
-import { useHobbiesInterestsInfo } from "./useHobbiesInterestsInfo";
-import { useEffect } from "react";
+import { useHobbiesInterestsInfo } from "../../_hooks/useHobbiesInterestsInfo";
+import { useEffect, useMemo } from "react";
+import { useParams } from "next/navigation";
 
 const hobbiesInterestsSchema = z.object({
   sports: z.string().min(1, "Sports is required"),
@@ -20,6 +21,19 @@ const hobbiesInterestsSchema = z.object({
 export type HobbiesInterestsFormValues = z.infer<typeof hobbiesInterestsSchema>;
 
 export default function useHobbiesInterestsForm() {
+
+  const params = useParams();
+  const tracker = getUserTrackingId();
+
+  const id = useMemo(() => {
+    const paramId = Array.isArray(params.id) ? params.id[0] : params.id;
+    return tracker?.id ?? paramId;
+  }, [params.id, tracker?.id]);
+
+  const allowEdit = useMemo(() => {
+    return id || tracker?.hobbiesAndInterest;
+  }, [id, tracker?.hobbiesAndInterest]);
+
   const {
     handleSubmit,
     formState: { errors, isSubmitting },
@@ -39,10 +53,9 @@ export default function useHobbiesInterestsForm() {
   });
 
   const { hobbiesInterests, hobbiesInterestsLoading } = useHobbiesInterestsInfo();
-  const tracker = getUserTrackingId();
 
   useEffect(() => {
-    if (tracker?.id && hobbiesInterests) {
+    if (id && hobbiesInterests) {
       reset({
         sports: hobbiesInterests.sports || "",
         music: hobbiesInterests.music || "",
@@ -51,17 +64,14 @@ export default function useHobbiesInterestsForm() {
         tvShows: hobbiesInterests.tvShows || "",
       });
     }
-  }, [tracker?.id, hobbiesInterests, reset]);
+  }, [id, hobbiesInterests, reset]);
 
   const { trigger, isMutating } = useSWRMutation(
     "updateHobbiesInterests",
     async (_: string, { arg }: { arg: HobbiesInterestsFormValues }) => {
-      const tracker = getUserTrackingId();
-      const id = tracker?.id ?? "";
+      if (!id) return showError({ message: "You need to initialize a new member profile before you can add other details. Go back to basic Information to initialze a member" });
 
-      if (!id) return showError({ message: "User not found" });
-
-      if (tracker && tracker.hobbiesAndInterest) return await patchHobbiesInterests(id, arg);
+      if (id && allowEdit) return await patchHobbiesInterests(id, arg);
       else return await postHobbiesInterests(id, arg);
     },
     {

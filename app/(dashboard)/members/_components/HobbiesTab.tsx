@@ -3,19 +3,14 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Label } from "@/components/ui/label";
 import { TabsContent } from "@/components/ui/tabs";
 import { MultiSelectCombobox } from "@/components/ui/combo-box";
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import useHobbiesInterestsForm from "../_hooks/useHobbiesInterestsForm";
-import type { HobbiesInterestsFormValues } from "../_hooks/useHobbiesInterestsForm";
+import useHobbiesInterestsForm from "../add/_hooks/useHobbiesInterestsForm";
+import type { HobbiesInterestsFormValues } from "../add/_hooks/useHobbiesInterestsForm";
 import type { FieldErrors } from "react-hook-form";
 import { Controller } from "react-hook-form";
-
-interface InterestSection {
-  id: string;
-  label: string;
-  selected: string[];
-  options: string[];
-}
+import { AlertTriangle } from "lucide-react";
+import { useParams } from "next/navigation";
+import { getUserTrackingId } from "@/lib/access-token";
 
 const interestMap: { id: keyof HobbiesInterestsFormValues; label: string; options: string[] }[] = [
   { id: "sports", label: "Sports", options: [
@@ -36,6 +31,14 @@ const interestMap: { id: keyof HobbiesInterestsFormValues; label: string; option
 ];
 
 export default function HobbiesTab() {
+
+  const params = useParams();
+  const id = typeof params.id === 'string' ? params.id : params.id?.[0];
+
+  const tracker = getUserTrackingId();
+  const userId = tracker?.id ?? id;
+
+
   const {
     handleSubmit,
     errors,
@@ -52,6 +55,14 @@ export default function HobbiesTab() {
           <CardDescription>Select your interests in different categories</CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit((values) => onSubmit(values))}>
+        {!userId && <div className="border border-amber-200 bg-amber-50 rounded-sm p-4 mb-6">
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="h-5 w-5 text-amber-600" />
+                <div className="text-amber-700 text-sm">
+                  You need to initialize a new member profile before you can add other details. Go back to basic Information to initialze a member
+                </div>
+            </div>
+          </div>}
           <CardContent className="space-y-6">
             {interestMap.map((section) => (
               <div key={section.id} className="space-y-3">

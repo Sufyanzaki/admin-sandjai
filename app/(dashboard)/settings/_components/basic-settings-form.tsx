@@ -24,9 +24,7 @@ export default function BasicSettingsForm() {
       <CardContent>
         <form className="space-y-8" onSubmit={handleSubmit(onSubmit)}>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Left Column */}
             <div className="space-y-6">
-              {/* System Identity */}
               <div className="space-y-4 rounded-lg border p-4">
                 <h3 className="text-lg font-semibold">System Identity</h3>
                 <div className="space-y-4">

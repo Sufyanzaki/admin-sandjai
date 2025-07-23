@@ -4,8 +4,10 @@ import { z } from "zod";
 import { showError } from "@/admin-utils/lib/formErrors";
 import { showSuccess } from "@/admin-utils/lib/formSuccess";
 import useSWRMutation from "swr/mutation";
-import { patchPartnerExpectation, postPartnerExpectation } from "../_api/updatePartnerExpectation";
+import { patchPartnerExpectation, postPartnerExpectation } from "../../_api/updatePartnerExpectation";
 import { getUserTrackingId, updateUserTrackingId } from "@/lib/access-token";
+import { useParams } from "next/navigation";
+import { useMemo } from "react";
 
 const partnerExpectationSchema = z.object({
   origin: z.string().min(1, "Origin is required"),
@@ -26,6 +28,19 @@ const partnerExpectationSchema = z.object({
 export type PartnerExpectationFormValues = z.infer<typeof partnerExpectationSchema>;
 
 export default function usePartnerExpectationForm() {
+
+  const params = useParams();
+  const tracker = getUserTrackingId();
+
+  const id = useMemo(() => {
+    const paramId = Array.isArray(params.id) ? params.id[0] : params.id;
+    return tracker?.id ?? paramId;
+  }, [params.id, tracker?.id]);
+
+  const allowEdit = useMemo(() => {
+    return id || tracker?.partnerExpectation;
+  }, [id, tracker?.partnerExpectation]);
+
   const {
     handleSubmit,
     formState: { errors, isSubmitting },
@@ -57,11 +72,9 @@ export default function usePartnerExpectationForm() {
   const { trigger, isMutating } = useSWRMutation(
     "updatePartnerExpectation",
     async (_: string, { arg }: { arg: PartnerExpectationFormValues }) => {
-      const tracker = getUserTrackingId();
-      const id = tracker?.id ?? "";
-      if (!id) return showError({ message: "User not found" });
+      if (!id) return showError({ message: "You need to initialize a new member profile before you can add other details. Go back to basic Information to initialze a member" });
 
-      if (tracker && tracker.partnerExpectation) return await patchPartnerExpectation(id, arg);
+      if (id && allowEdit) return await patchPartnerExpectation(id, arg);
       else return await postPartnerExpectation(id, arg);
     },
     {

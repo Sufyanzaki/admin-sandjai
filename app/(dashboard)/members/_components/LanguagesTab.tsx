@@ -5,12 +5,22 @@ import { TabsContent } from "@/components/ui/tabs";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { MultiSelectCombobox } from "@/components/ui/combo-box";
 import { Button } from "@/components/ui/button";
-import useLanguageInfoForm from "../_hooks/useLanguageInfoForm";
-import type { LanguageInfoFormValues } from "../_hooks/useLanguageInfoForm";
+import useLanguageInfoForm from "../add/_hooks/useLanguageInfoForm";
+import type { LanguageInfoFormValues } from "../add/_hooks/useLanguageInfoForm";
 import type { FieldErrors } from "react-hook-form";
 import { Controller } from "react-hook-form";
+import { useParams } from "next/navigation";
+import { getUserTrackingId } from "@/lib/access-token";
+import { AlertTriangle } from "lucide-react";
 
 export default function LanguagesTab() {
+
+  const params = useParams();
+  const id = typeof params.id === 'string' ? params.id : params.id?.[0];
+
+  const tracker = getUserTrackingId();
+  const userId = tracker?.id ?? id;
+
   const {
     control,
     handleSubmit,
@@ -34,6 +44,14 @@ export default function LanguagesTab() {
           <CardDescription>Select your interests in different languages</CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit((values) => onSubmit(values))}>
+        {!userId && <div className="border border-amber-200 bg-amber-50 rounded-sm p-4 mb-6">
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="h-5 w-5 text-amber-600" />
+                <div className="text-amber-700 text-sm">
+                  You need to initialize a new member profile before you can add other details. Go back to basic Information to initialze a member
+                </div>
+            </div>
+          </div>}
           <CardContent className="space-y-6">
             <div className="space-y-4">
               <div className="space-y-2">

@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Camera, X } from "lucide-react";
 import useProfileForm from "@/app/(dashboard)/profile/_hooks/useProfileForm";
 
-export default function ProfileEditForm() {
+export default function ProfileEditForm({ onFinish }: { onFinish: () => void }) {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -24,11 +24,8 @@ export default function ProfileEditForm() {
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      // Create blob URL for preview
       const blobUrl = URL.createObjectURL(file);
       setImagePreview(blobUrl);
-      
-      // Set the file in form
       setValue("image", file);
     }
   };
@@ -43,7 +40,6 @@ export default function ProfileEditForm() {
 
   return (
     <div className="space-y-6">
-      {/* Image Upload Section */}
       <div className="space-y-4">
         <Label>Profile Picture</Label>
         <div className="flex items-center gap-4">
@@ -95,7 +91,7 @@ export default function ProfileEditForm() {
       </div>
 
       {/* Form Fields */}
-      <form onSubmit={handleSubmit((data: any) => onSubmit(data, ()=>console.log("Update Called")))} className="space-y-4">
+      <form onSubmit={handleSubmit((data: any) => onSubmit(data, onFinish))} className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="firstName">First Name</Label>
@@ -132,18 +128,6 @@ export default function ProfileEditForm() {
           />
           {errors.email && (
             <p className="text-sm text-red-500">{String(errors.email.message)}</p>
-          )}
-        </div>
-        
-        <div className="space-y-2">
-          <Label htmlFor="phone">Phone</Label>
-          <Input 
-            id="phone" 
-            {...register("phone")}
-            placeholder="Enter your phone number"
-          />
-          {errors.phone && (
-            <p className="text-sm text-red-500">{String(errors.phone.message)}</p>
           )}
         </div>
         
