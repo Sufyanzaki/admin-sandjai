@@ -43,8 +43,6 @@ export default function useLoginForm() {
                 callbackUrl: '/',
             });
 
-            console.log(errors)
-
             if (result?.error) {
                 const errorMessage = result.error === 'CredentialsSignin'
                     ? 'Invalid email or password'
@@ -58,7 +56,6 @@ export default function useLoginForm() {
             }
         } catch (error) {
             showError({message: 'An unexpected error occurred. Please try again.'});
-            console.error('Login error:', error);
         }
     };
 

@@ -1,3 +1,5 @@
+"use client"
+
 import {useForm} from 'react-hook-form';
 import {zodResolver} from '@hookform/resolvers/zod';
 import {z} from 'zod';
@@ -5,7 +7,7 @@ import {showError} from "@/admin-utils/lib/formErrors";
 import {showSuccess} from "@/admin-utils/lib/formSuccess";
 import {updateBanner} from "@/app/(dashboard)/marketing/banners/_api/updateBanner";
 import useSWRMutation from "swr/mutation";
-import { useState, useEffect, useCallback } from "react";
+import { useEffect } from "react";
 import { useBannerDetails } from "./useBannerDetails";
 
 const editBannerSchema = z.object({

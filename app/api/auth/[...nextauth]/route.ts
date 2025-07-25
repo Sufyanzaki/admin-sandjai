@@ -32,7 +32,6 @@ export const authOptions: NextAuthOptions = {
             password,
           });
 
-
           if (response) {
             console.log('Login success:', response);
             return {
@@ -45,7 +44,7 @@ export const authOptions: NextAuthOptions = {
           }
           return null;
         } catch (error) {
-          console.error('Login error:', error);
+          console.log('Login API error:', error);
           return null;
         }
       }
