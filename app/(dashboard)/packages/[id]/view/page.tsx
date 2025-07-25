@@ -124,53 +124,31 @@ export default function PackageDetailsPage({ params }: { params: Promise<{ id: s
                         <CardDescription>Key information and statistics</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <Tabs defaultValue="about">
+                        <Tabs defaultValue="features">
                             <TabsList className="mb-4">
-                                <TabsTrigger value="about">About</TabsTrigger>
                                 <TabsTrigger value="features">Features</TabsTrigger>
                                 <TabsTrigger value="subscribers">Top Subscribers</TabsTrigger>
                             </TabsList>
-                            <TabsContent value="about" className="space-y-4">
-                                <p>
-                                    The {pkg.name} package offers {pkg.price === 0 ? "basic access" : "premium features"}
-                                    to our platform. {pkg.price !== 0 && `Priced at €${pkg.price} per ${pkg.validity} days, `}
-                                    it provides excellent value for {pkg.price === 0 ? "new users" : "serious users"} looking
-                                    to {pkg.price === 0 ? "try out our service" : "get the most from our platform"}.
-                                </p>
-                                <p>
-                                    {pkg.price === 0 ?
-                                        "This free tier allows users to explore basic functionality with some limitations." :
-                                        `Our ${pkg.name} package includes all the features below with ${pkg.validity} days access.`}
-                                </p>
-                                <h4 className="font-medium pt-2">Package Benefits</h4>
-                                <ul className="list-disc pl-5 space-y-1">
-                                    <li>{pkg.price === 0 ? "Access to basic features" : "Full access to all features"}</li>
-                                    <li>{pkg.price === 0 ? "Community support" : "Priority customer support"}</li>
-                                    <li>{pkg.price === 0 ? "Limited storage" : "Expanded storage options"}</li>
-                                    <li>{pkg.price === 0 ? "Ad-supported experience" : "Ad-free experience"}</li>
-                                </ul>
-                            </TabsContent>
                             <TabsContent value="features">
                                 <div className="space-y-4">
-                                    {/*{pkg.features.map((feature: string, i: number) => (*/}
-                                    {/*    <div key={i} className="flex items-center gap-4">*/}
-                                    {/*        <div className="flex items-center justify-center rounded-md bg-primary/10 p-2">*/}
-                                    {/*            <Star className="h-4 w-4 text-primary" />*/}
-                                    {/*        </div>*/}
-                                    {/*        <div>*/}
-                                    {/*            <h4 className="text-sm font-medium">{feature}</h4>*/}
-                                    {/*            <p className="text-xs text-muted-foreground">*/}
-                                    {/*                {[*/}
-                                    {/*                    "Essential functionality",*/}
-                                    {/*                    "Core feature",*/}
-                                    {/*                    "Advanced capability",*/}
-                                    {/*                    "Premium benefit"*/}
-                                    {/*                ][i % 4]}*/}
-                                    {/*            </p>*/}
-                                    {/*        </div>*/}
-                                    {/*    </div>*/}
-                                    {/*))}*/}
-
+                                {pkg.features.split(',').map((feature: string, i: number) => (
+                                    <div key={i} className="flex items-center gap-4">
+                                        <div className="flex items-center justify-center rounded-md bg-primary/10 p-2">
+                                            <Star className="h-4 w-4 text-primary" />
+                                        </div>
+                                        <div>
+                                            <h4 className="text-sm font-medium">{feature}</h4>
+                                            <p className="text-xs text-muted-foreground">
+                                                {[
+                                                    "Essential functionality",
+                                                    "Core feature",
+                                                    "Advanced capability",
+                                                    "Premium benefit"
+                                                ][i % 4]}
+                                            </p>
+                                        </div>
+                                    </div>
+                                ))}
                                     <Link href={`/packages/features`}>
                                         <Button variant="outline" className="w-full mt-2">
                                             Compare All Features

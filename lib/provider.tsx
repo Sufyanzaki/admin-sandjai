@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { SessionProvider, useSession } from "next-auth/react";
 import { Session } from "next-auth";
 import { useRouter } from "next/navigation";
+import { stat } from "fs";
 
 export default function Providers({
                                       children,
@@ -38,6 +39,7 @@ function AuthGuard({ children, mounted }: { children: React.ReactNode; mounted: 
     const router = useRouter();
 
     useEffect(() => {
+        console.log(status)
         if (mounted && status === "unauthenticated") {
             router.push("/auth/login");
         }

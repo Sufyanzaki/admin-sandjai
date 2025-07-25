@@ -1,9 +1,10 @@
 import {useForm} from 'react-hook-form';
 import {zodResolver} from '@hookform/resolvers/zod';
 import {z} from 'zod';
-import {signIn} from 'next-auth/react';
 import {useRouter} from 'next/navigation';
 import {showError} from "@/admin-utils/lib/formErrors";
+import useSWRMutation from 'swr/mutation';
+import { postLoginForm } from '../_api/postLoginForm';
 
 const loginSchema = z.object({
     email: z.string()
@@ -17,13 +18,25 @@ const loginSchema = z.object({
 export type LoginFormValues = z.infer<typeof loginSchema>;
 
 export default function useLoginForm() {
+
     const router = useRouter();
+
+    const { trigger } = useSWRMutation(
+        'login',
+        async (_: string, { arg }: { arg: { email: string; password: string } }) => {
+            return await postLoginForm(arg);
+        },
+        {
+            onError: (error: any) => {
+                showError({ message: error.message });
+            }
+        }
+    );
 
     const {
         register,
         handleSubmit,
         formState: { errors, isSubmitting },
-        setError,
     } = useForm<LoginFormValues>({
         resolver: zodResolver(loginSchema),
         defaultValues: {
@@ -34,28 +47,15 @@ export default function useLoginForm() {
         mode: 'onBlur'
     });
 
-    const onSubmit = async (values: LoginFormValues, callback?: () => void) => {
+    const onSubmit = async (values: LoginFormValues, callback?: (data: any) => void) => {
         try {
-            const result = await signIn('credentials', {
-                redirect: false,
+            await trigger({
                 email: values.email,
                 password: values.password,
-                callbackUrl: '/',
             });
-
-            if (result?.error) {
-                const errorMessage = result.error === 'CredentialsSignin'
-                    ? 'Invalid email or password'
-                    : 'Login failed. Please try again.';
-
-                showError({message: errorMessage});
-                setError('root', { message: errorMessage });
-            } else {
-                callback?.();
-                router.push('/');
-            }
-        } catch (error) {
-            showError({message: 'An unexpected error occurred. Please try again.'});
+            router.push('/auth/otp?email=' + values.email);
+        } catch (error: any) {
+            showError({ message: error.message || 'An unexpected error occurred. Please try again.' });
         }
     };
 

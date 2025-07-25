@@ -9,7 +9,7 @@ export interface Package {
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
-  features: string[];
+  features: string;
 }
 
 export async function getAllPackages(): Promise<Package[]> {
