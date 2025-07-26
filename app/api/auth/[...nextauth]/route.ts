@@ -26,19 +26,15 @@ export const authOptions: NextAuthOptions = {
           }
 
           const { email, otp } = parsedCredentials.data;
-
           const response = await postOtp({ email, otp });
-          
-console.log(response)
+
+          console.log(response);
 
           if(!response) return null;
 
           return {
-            id: response.user?.id || "1",
-            name: response.user?.name || "User",
-            email: response.user?.email || email,
-            role: response.user?.role || "user",
-            token: response.token,
+            ...response.user,
+            token: response.tokens.access.token,
           };
         } catch (error: any) {
           console.error('Authorization error:', error.message);
@@ -53,21 +49,13 @@ console.log(response)
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id;
-        token.name = user.name;
-        token.email = user.email;
-        token.role = user.role;
-        token.token = user.token;
+        token.user = user;
       }
       return token;
     },
     async session({ session, token }) {
-      session.user.id = token.id as string;
-      session.user.name = token.name as string;
-      session.user.email = token.email as string;
-      session.user.role = token.role as string;
-      session.token = token.token as string;
-      
+      session.user = token.user as typeof session.user;
+      session.token = (token.user as any).token;
       return session;
     },
   },

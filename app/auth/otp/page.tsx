@@ -5,18 +5,30 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import useOTPForm from "../_hooks/useOTPForm";
+import useResendOtp from "../_hooks/useResendOtp";
+import { useSearchParams } from "next/navigation";
 import { Controller } from "react-hook-form";
 
 export default function OtpPage() {
+  const searchParams = useSearchParams();
+  const email = searchParams.get("email") || "";
   const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
+  
   const {
     control,
     handleSubmit,
     errors,
     isLoading,
     onSubmit,
-    setValue,
   } = useOTPForm();
+
+  const { resendOtp, isLoading: isResending } = useResendOtp();
+
+  const handleResend = () => {
+    if (email) {
+      resendOtp(email);
+    }
+  };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-950 px-4 py-12">
@@ -37,12 +49,12 @@ export default function OtpPage() {
             </CardDescription>
           </CardHeader>
 
-          <form onSubmit={handleSubmit(r => onSubmit(r, () => {}))}>
+          <form onSubmit={handleSubmit(r => onSubmit(r))}>
             <CardContent className="space-y-6">
               <Controller
                 name="otp"
                 control={control}
-                defaultValue={""}
+                defaultValue=""
                 render={({ field: { value = '', onChange } }) => (
                   <div className="flex justify-center gap-3">
                     {[0, 1, 2, 3, 4].map((index) => (
@@ -93,7 +105,15 @@ export default function OtpPage() {
                 {isLoading ? "Verifying..." : "Verify"}
               </Button>
               <p className="text-center text-sm text-gray-400">
-                Didn't receive code? <span className="underline cursor-pointer">Resend</span>
+                Didn't receive code?{" "}
+                <button
+                  type="button"
+                  onClick={handleResend}
+                  disabled={isResending}
+                  className="underline cursor-pointer hover:text-blue-400 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isResending ? "Sending..." : "Resend"}
+                </button>
               </p>
             </CardFooter>
           </form>
