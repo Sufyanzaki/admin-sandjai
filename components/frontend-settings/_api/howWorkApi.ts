@@ -1,0 +1,1 @@
+setting/how-it-works

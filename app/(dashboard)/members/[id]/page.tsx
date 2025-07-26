@@ -104,13 +104,13 @@ export default function MemberProfilePage({ params }: { params: { id: string } }
                                 </div>
                                 <TabsList className="flex">
                                     {userProfile.map((tab) => (
-                                        <TabsTrigger className="px-4 py-2" value={tab.id}>{tab.section}</TabsTrigger>
+                                        <TabsTrigger key={tab.id} className="px-4 py-2" value={tab.id}>{tab.section}</TabsTrigger>
                                     ))}
                                 </TabsList>
                             </CardHeader>
 
                             {userProfile.map(({Data, id}) => (
-                                <TabsContent value={id}>
+                                <TabsContent value={id} key={id}>
                                     <Data memberId={memberId} />
                                 </TabsContent>
                             ))}
