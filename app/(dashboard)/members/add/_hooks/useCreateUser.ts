@@ -152,11 +152,12 @@ export default function useCreateUserForm() {
     const imageUrl =
         isFile(values.image) ? await imageUpload(values.image as File) : (values.image as string);
 
+    callback?.(true);
     const result = await trigger({ ...values, image: imageUrl });
+    callback?.(false);
 
     if (result?.status === 200 || result?.status === 201) {
       showSuccess("User created successfully!");
-      callback?.(result.response);
 
       if (id) {
         updateUserTrackingId({ basicInformation: true });

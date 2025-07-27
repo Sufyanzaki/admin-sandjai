@@ -8,7 +8,7 @@ export interface AddLanguagePayload {
 
 export async function addLanguage(payload: AddLanguagePayload) {
   return postRequest<AddLanguagePayload>({
-    url: "setting",
+    url: "setting/language",
     data: payload,
     useAuth: true,
   });

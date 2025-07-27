@@ -9,11 +9,12 @@ import React from "react";
 type CustomImageUploadProps = {
     label: string;
     file: File | null;
+    existingImage?: string;
     onFileChange: (file: File | null) => void;
     type?: string;
 };
 
-export const CustomImageUpload = ({ label, file, onFileChange, type }: CustomImageUploadProps) => {
+export const CustomImageUpload = ({ label, file, existingImage, onFileChange, type }: CustomImageUploadProps) => {
     const inputRef = useRef<HTMLInputElement>(null);
     const [preview, setPreview] = React.useState<string | null>(null);
 
@@ -41,12 +42,14 @@ export const CustomImageUpload = ({ label, file, onFileChange, type }: CustomIma
                 <div className="flex flex-col items-center space-y-4">
                     {preview ? (
                         <img src={preview} alt="Preview" className="w-24 h-24 object-cover rounded-md mx-auto" />
+                    ) : existingImage ? (
+                        <img src={existingImage} alt="Existing" className="w-24 h-24 object-cover rounded-md mx-auto" />
                     ) : (
                         <FileText className="w-12 h-12 text-gray-400 mx-auto" />
                     )}
                     <div className="space-y-3">
                         <p className="text-sm mb-1 text-gray-500">
-                            {file ? file.name : "No image uploaded yet"}
+                            {file ? file.name : existingImage ? "Existing image" : "No image uploaded yet"}
                         </p>
                         <p className="text-sm font-medium ">Click to upload image</p>
                     </div>

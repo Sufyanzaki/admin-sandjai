@@ -1,4 +1,4 @@
-export type HomePageSettings = {
+export type HomePageSettingsDto = {
   id: number;
   Title: string;
   Url: string;

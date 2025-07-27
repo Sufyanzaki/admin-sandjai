@@ -3,20 +3,20 @@
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card"
 import {Input} from "@/components/ui/input"
 import {Label} from "@/components/ui/label"
-import {useState} from "react"
 import {Checkbox} from "@/components/ui/checkbox";
 import {Button} from "@/components/ui/button";
-import {ArrowLeft, Upload, X} from "lucide-react"
+import {ArrowLeft} from "lucide-react"
 import Link from "next/link"
 import { SimpleEditor } from "../tiptap-templates/simple/simple-editor"
+import { CustomImageUpload } from "./CustomImageInput"
+import useContactForm from "@/app/(dashboard)/frontend-settings/_hooks/useContactForm"
+import { Controller } from "react-hook-form"
 
 export default function ContactForm() {
-
-    const [bannerImage, setBannerImage] = useState<File | null>(null)
-    const [showOnHeader, setShowOnHeader] = useState(true)
+    const { handleSubmit, onSubmit, errors, isLoading, register, setValue, watch, control } = useContactForm();
 
     const handleImageUpload = (file: File | null) => {
-        setBannerImage(file)
+        setValue('contactBannerImage', file)
     }
 
     return (
@@ -35,137 +35,210 @@ export default function ContactForm() {
                         <p className="text-muted-foreground">Fill the form to add new page.</p>
                     </div>
                 </div>
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Contact Banner Section</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="contact-name">Contact Name</Label>
-                            <Input id="contact-name" defaultValue="Contact" />
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label>Contact Banner Image (Recommended size 1920x1080)</Label>
-                            <div className="flex items-center gap-4">
-                                <div className="flex-1">
-                                    <Input
-                                        id="contact-banner-image"
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={(e) => handleImageUpload(e.target.files?.[0] || null)}
-                                        className="hidden"
-                                    />
-                                    <div className="flex items-center gap-2">
-                                        <Button
-                                            type="button"
-                                            variant="outline"
-                                            onClick={() => document.getElementById("contact-banner-image")?.click()}
-                                            className="flex items-center gap-2"
-                                        >
-                                            <Upload className="h-4 w-4" />
-                                            Choose File
-                                        </Button>
-                                        <span className="text-sm text-muted-foreground">
-                                            {bannerImage ? bannerImage.name : "No file chosen"}
-                                          </span>
-                                        {bannerImage && (
-                                            <Button type="button" variant="ghost" size="sm" onClick={() => handleImageUpload(null)}>
-                                                <X className="h-4 w-4" />
-                                            </Button>
-                                        )}
-                                    </div>
-                                </div>
-                                {bannerImage && (
-                                    <div className="w-20 h-20 border rounded-lg overflow-hidden">
-                                        <img
-                                            src={URL.createObjectURL(bannerImage) || "/placeholder.svg"}
-                                            alt="Preview"
-                                            className="w-full h-full object-cover"
-                                        />
-                                    </div>
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Contact Banner Section</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="contact-name">Contact Name</Label>
+                                <Input 
+                                    id="contact-name" 
+                                    {...register('contactName')}
+                                    placeholder="Contact"
+                                />
+                                {errors.contactName && (
+                                    <p className="text-sm text-red-500">{errors.contactName.message}</p>
                                 )}
                             </div>
-                        </div>
 
-                        <div className="space-y-2">
-                            <Label htmlFor="title">Title</Label>
-                            <Input id="title" defaultValue="Welkom bij help & contact" />
-                        </div>
+                            <div className="space-y-2">
+                                <CustomImageUpload
+                                    label="Contact Banner Image (Recommended size 1920x1080)"
+                                    file={watch('contactBannerImage') instanceof File ? watch('contactBannerImage') : null}
+                                    existingImage={typeof watch('contactBannerImage') === 'string' ? watch('contactBannerImage') : undefined}
+                                    onFileChange={(file) => handleImageUpload(file)}
+                                    type="contact-banner-image"
+                                />
+                            </div>
 
-                        <div className="space-y-2">
-                            <Label htmlFor="sub-title">Sub Title</Label>
-                            <Input id="sub-title" placeholder="Contact Sub title" />
-                        </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="title">Title</Label>
+                                <Input 
+                                    id="title" 
+                                    {...register('bannerTitle')}
+                                    placeholder="Welkom bij help & contact"
+                                />
+                                {errors.bannerTitle && (
+                                    <p className="text-sm text-red-500">{errors.bannerTitle.message}</p>
+                                )}
+                            </div>
 
-                        <div className="space-y-2">
-                            <Label>Description</Label>
-                            <SimpleEditor/>
-                        </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="sub-title">Sub Title</Label>
+                                <Input 
+                                    id="sub-title" 
+                                    {...register('bannerSubTitle')}
+                                    placeholder="Contact Sub title"
+                                />
+                                {errors.bannerSubTitle && (
+                                    <p className="text-sm text-red-500">{errors.bannerSubTitle.message}</p>
+                                )}
+                            </div>
 
-                        <div className="space-y-2">
-                            <Label htmlFor="address-name">Address Name</Label>
-                            <Input id="address-name" placeholder="Wil je een vraag over het gebruik van humsafar" />
-                        </div>
+                            <div className="space-y-2">
+                                <Label>Description</Label>
+                                <Controller
+                                    name="description"
+                                    control={control}
+                                    render={({ field, fieldState }) => (
+                                        <>
+                                            <SimpleEditor
+                                                existingValue={field.value}
+                                                onChange={field.onChange}
+                                            />
+                                            {fieldState.error && (
+                                                <p className="text-sm text-red-500">
+                                                    {fieldState.error.message}
+                                                </p>
+                                            )}
+                                        </>
+                                    )}
+                                />
+                            </div>
 
-                        <div className="space-y-2">
-                            <Label htmlFor="address-value">Address Value</Label>
-                            <Input id="address-value" placeholder="stuur dan een e-mail naar: hello@humsafar.nl" />
-                        </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="address-name">Address Name</Label>
+                                <Input 
+                                    id="address-name" 
+                                    {...register('addressName')}
+                                    placeholder="Wil je een vraag over het gebruik van humsafar"
+                                />
+                                {errors.addressName && (
+                                    <p className="text-sm text-red-500">{errors.addressName.message}</p>
+                                )}
+                            </div>
 
-                        <div className="space-y-2">
-                            <Label htmlFor="phone-name">Phone Name</Label>
-                            <Input id="phone-name" placeholder="Wil je contact opnemen met de afdeling Marketing?" />
-                        </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="address-value">Address Value</Label>
+                                <Input 
+                                    id="address-value" 
+                                    {...register('addressValue')}
+                                    placeholder="stuur dan een e-mail naar: hello@humsafar.nl"
+                                />
+                                {errors.addressValue && (
+                                    <p className="text-sm text-red-500">{errors.addressValue.message}</p>
+                                )}
+                            </div>
 
-                        <div className="space-y-2">
-                            <Label htmlFor="phone-value">Phone Value</Label>
-                            <Input id="phone-value" placeholder="Stuur een e-mail naar biz@humsafar.nl" />
-                        </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="phone-name">Phone Name</Label>
+                                <Input 
+                                    id="phone-name" 
+                                    {...register('phoneName')}
+                                    placeholder="Wil je contact opnemen met de afdeling Marketing?"
+                                />
+                                {errors.phoneName && (
+                                    <p className="text-sm text-red-500">{errors.phoneName.message}</p>
+                                )}
+                            </div>
 
-                        <div className="space-y-2">
-                            <Label htmlFor="email-name">Email Name</Label>
-                            <Input id="email-name" defaultValue="Misbruik melden" />
-                        </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="phone-value">Phone Value</Label>
+                                <Input 
+                                    id="phone-value" 
+                                    {...register('phoneValue')}
+                                    placeholder="Stuur een e-mail naar biz@humsafar.nl"
+                                />
+                                {errors.phoneValue && (
+                                    <p className="text-sm text-red-500">{errors.phoneValue.message}</p>
+                                )}
+                            </div>
 
-                        <div className="space-y-2">
-                            <Label htmlFor="email-value">Email Value</Label>
-                            <Input id="email-value" defaultValue="abuse@humsafar.nl" />
-                        </div>
-                    </CardContent>
-                </Card>
+                            <div className="space-y-2">
+                                <Label htmlFor="email-name">Email Name</Label>
+                                <Input 
+                                    id="email-name" 
+                                    {...register('emailName')}
+                                    placeholder="Misbruik melden"
+                                />
+                                {errors.emailName && (
+                                    <p className="text-sm text-red-500">{errors.emailName.message}</p>
+                                )}
+                            </div>
 
-                {/* Contact Form Section */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Contact Form Section</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="email-title">Email Title</Label>
-                            <Input id="email-title" defaultValue="Hoe kunnen we je helpen?" />
-                        </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="email-value">Email Value</Label>
+                                <Input 
+                                    id="email-value" 
+                                    {...register('emailValue')}
+                                    placeholder="abuse@humsafar.nl"
+                                />
+                                {errors.emailValue && (
+                                    <p className="text-sm text-red-500">{errors.emailValue.message}</p>
+                                )}
+                            </div>
+                        </CardContent>
+                    </Card>
 
-                        <div className="space-y-2">
-                            <Label>Email Description</Label>
-                            <SimpleEditor />
-                        </div>
+                    {/* Contact Form Section */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Contact Form Section</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="email-title">Email Title</Label>
+                                <Input 
+                                    id="email-title" 
+                                    {...register('contactFormTitle')}
+                                    placeholder="Hoe kunnen we je helpen?"
+                                />
+                                {errors.contactFormTitle && (
+                                    <p className="text-sm text-red-500">{errors.contactFormTitle.message}</p>
+                                )}
+                            </div>
 
-                        <div className="flex items-center space-x-2 pt-4">
-                            <Checkbox
-                                id="show-header"
-                                checked={showOnHeader}
-                                onCheckedChange={(checked) => setShowOnHeader(checked as boolean)}
-                            />
-                            <Label htmlFor="show-header">Show on Header</Label>
-                        </div>
-                    </CardContent>
-                </Card>
+                            <div className="space-y-2">
+                                <Label>Email Description</Label>
+                                <Controller
+                                    name="emailDescription"
+                                    control={control}
+                                    render={({ field, fieldState }) => (
+                                        <>
+                                            <SimpleEditor
+                                                existingValue={field.value}
+                                                onChange={field.onChange}
+                                            />
+                                            {fieldState.error && (
+                                                <p className="text-sm text-red-500">
+                                                    {fieldState.error.message}
+                                                </p>
+                                            )}
+                                        </>
+                                    )}
+                                />
+                            </div>
 
-                {/* Action Buttons */}
-                <div className="flex justify-end">
-                    <Button type="submit">Update</Button>
-                </div>
+                            <div className="flex items-center space-x-2 pt-4">
+                                <Checkbox
+                                    id="show-header"
+                                    checked={watch('showOnHeader')}
+                                    onCheckedChange={(checked) => setValue('showOnHeader', checked as boolean)}
+                                />
+                                <Label htmlFor="show-header">Show on Header</Label>
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    {/* Action Buttons */}
+                    <div className="flex justify-end">
+                        <Button type="submit" disabled={isLoading}>
+                            {isLoading ? 'Updating...' : 'Update'}
+                        </Button>
+                    </div>
+                </form>
             </div>
         </>
     )

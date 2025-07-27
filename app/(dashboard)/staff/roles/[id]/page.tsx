@@ -1,3 +1,5 @@
+"use client"
+
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -11,12 +13,7 @@ import {
   Users,
   Edit,
   Download,
-  Copy,
   Clock,
-  UserPlus,
-  Search,
-  Filter,
-  MoreHorizontal,
   LayoutDashboard,
   UserCog,
   CreditCard,
@@ -30,58 +27,9 @@ import {
   Settings, Video
 } from "lucide-react"
 import Link from "next/link"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Input } from "@/components/ui/input"
 import { use } from "react"
-
-interface Module {
-  id: string;
-  name: string;
-  description: string;
-}
-
-interface User {
-  id: number;
-  name: string;
-  email: string;
-  department: string;
-  position: string;
-  assignedDate: string;
-  status: string;
-  avatar: string;
-}
-
-interface AuditLog {
-  id: number;
-  action: string;
-  module: string;
-  permission: string;
-  timestamp: string;
-  user: string;
-}
-
-interface Role {
-  id: string;
-  name: string;
-  category: string;
-  description: string;
-  users: number;
-  isDefault: boolean;
-  lastUpdated: string;
-  updatedBy: string;
-  createdAt: string;
-  createdBy: string;
-  permissions: {
-    [key: string]: string[];
-  };
-}
+import useRoleById from "../_hook/useRoleById"
+import { RoleDto, Permission } from "../add/_types/roleTypes"
 
 const staffMenuItems = [
   { id: "dashboard", title: "Dashboard", icon: LayoutDashboard },
@@ -99,108 +47,24 @@ const staffMenuItems = [
   { id: "chat_video_setting", title: "Chat & Video Setting", icon: Video },
 ];
 
+const permissionTypes: string[] = ["view", "create", "edit", "delete"];
+
 export default function RoleDetailsPage({ params }: { params: Promise<{ id: string }> }) {
-  // Mock data for the role
   const { id } = use(params)
-  const role: Role = {
-    id: id,
-    name: "Administrator",
-    category: "Administrative",
-    description: "Full system access with all permissions",
-    users: 3,
-    isDefault: true,
-    lastUpdated: "2023-11-15",
-    updatedBy: "System Admin",
-    createdAt: "2023-01-10",
-    createdBy: "System Admin",
-    permissions: {
-      dashboard: ["view", "edit"],
-      patients: ["view", "edit", "create", "delete"],
-      appointments: ["view", "edit", "create", "delete"],
-      billing: ["view", "edit", "create", "delete"],
-      reports: ["view", "edit", "create", "delete"],
-      settings: ["view", "edit"],
-      inventory: ["view", "edit", "create", "delete"],
-      staff: ["view", "edit", "create", "delete"],
-    },
+  const { role, loading, error } = useRoleById(id);
+
+  if (loading) {
+    return <div className="p-8 text-center text-lg">Loading role...</div>;
+  }
+  if (error || !role) {
+    return <div className="p-8 text-center text-red-500">Failed to load role.</div>;
   }
 
-  // Mock data for users with this role
-  const users: User[] = [
-    {
-      id: 1,
-      name: "Dr. Sarah Johnson",
-      email: "sarah.johnson@clinic.com",
-      department: "Cardiology",
-      position: "Medical Director",
-      assignedDate: "2023-01-15",
-      status: "Active",
-      avatar: "/medical-professional-profile.png",
-    },
-    {
-      id: 2,
-      name: "Michael Chen",
-      email: "michael.chen@clinic.com",
-      department: "Administration",
-      position: "IT Manager",
-      assignedDate: "2023-02-10",
-      status: "Active",
-      avatar: "/abstract-jr.png",
-    },
-    {
-      id: 3,
-      name: "Emily Rodriguez",
-      email: "emily.rodriguez@clinic.com",
-      department: "Administration",
-      position: "Clinic Manager",
-      assignedDate: "2023-03-05",
-      status: "Active",
-      avatar: "/thoughtful-artist.png",
-    },
-  ]
-
-  // Modules for permission matrix
-  const modules: Module[] = [
-    { id: "dashboard", name: "Dashboard", description: "Access to system dashboard and analytics" },
-    { id: "patients", name: "Patients", description: "Patient records and management" },
-    { id: "appointments", name: "Appointments", description: "Scheduling and appointment management" },
-    { id: "billing", name: "Billing", description: "Invoices, payments, and financial records" },
-    { id: "reports", name: "Reports", description: "Analytics and reporting tools" },
-    { id: "settings", name: "Settings", description: "System configuration and settings-c" },
-    { id: "inventory", name: "Inventory", description: "Medical supplies and equipment" },
-    { id: "staff", name: "Staff", description: "Staff management and scheduling" },
-  ]
-
-  // Permission types
-  const permissionTypes: string[] = ["view", "create", "edit", "delete"]
-
-  // Audit logs for this role
-  const auditLogs: AuditLog[] = [
-    {
-      id: 1,
-      action: "Permission Added",
-      module: "Reports",
-      permission: "delete",
-      timestamp: "2023-11-15 09:23:45",
-      user: "System Admin",
-    },
-    {
-      id: 2,
-      action: "Permission Removed",
-      module: "Billing",
-      permission: "edit",
-      timestamp: "2023-10-14 14:12:30",
-      user: "Dr. Sarah Johnson",
-    },
-    {
-      id: 3,
-      action: "Role Updated",
-      module: "All",
-      permission: "N/A",
-      timestamp: "2023-09-10 11:05:22",
-      user: "Dr. Sarah Johnson",
-    },
-  ]
+  function isPermissionArray(
+    permissions: RoleDto["permissions"]
+  ): permissions is Permission[] {
+    return Array.isArray(permissions);
+  }
 
   return (
     <div className="flex flex-col gap-6 p-4 xl:p-6">
@@ -237,14 +101,14 @@ export default function RoleDetailsPage({ params }: { params: Promise<{ id: stri
               <div className="space-y-1">
                 <p className="text-sm font-medium">Category</p>
                 <div className="flex items-center gap-2">
-                  <Badge variant="outline">{role.category}</Badge>
+                  <Badge variant="outline">{role.catagory}</Badge>
                   {role.isDefault && <Badge>Default</Badge>}
                 </div>
               </div>
               <div className="space-y-1 text-right">
                 <p className="text-sm font-medium">Users Assigned</p>
                 <div className="flex items-center justify-end gap-2">
-                  <Badge variant="secondary">{role.users}</Badge>
+                  <Badge variant="secondary">-</Badge>
                   <Button variant="ghost" size="sm" asChild>
                     <Link href={`/staff/roles/${id}/users`}>
                       <Users className="mr-2 h-4 w-4" />
@@ -265,18 +129,18 @@ export default function RoleDetailsPage({ params }: { params: Promise<{ id: stri
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="space-y-1">
                 <p className="text-sm font-medium">Created By</p>
-                <p className="text-sm">{role.createdBy}</p>
+                <p className="text-sm">-</p>
                 <p className="text-xs text-muted-foreground">
                   <Clock className="mr-1 inline-block h-3 w-3" />
-                  {role.createdAt}
+                  -
                 </p>
               </div>
               <div className="space-y-1">
                 <p className="text-sm font-medium">Last Updated By</p>
-                <p className="text-sm">{role.updatedBy}</p>
+                <p className="text-sm">-</p>
                 <p className="text-xs text-muted-foreground">
                   <Clock className="mr-1 inline-block h-3 w-3" />
-                  {role.lastUpdated}
+                  -
                 </p>
               </div>
             </div>
@@ -290,27 +154,47 @@ export default function RoleDetailsPage({ params }: { params: Promise<{ id: stri
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {staffMenuItems.map((module) => (
-                <div key={module.id} className="space-y-2">
-                  <div className="flex items-center justify-between flex-wrap gap-4">
-                    <p className="text-sm font-medium">{module.title}</p>
-                    <div className="flex gap-1">
-                      {permissionTypes.map((type) => {
-                        const hasPermission = role.permissions[module.id]?.includes(type)
-                        return (
-                          <Badge
-                            key={`${module.id}-${type}`}
-                            variant={hasPermission ? "default" : "outline"}
-                            className={!hasPermission ? "opacity-40" : ""}
-                          >
-                            {type.charAt(0).toUpperCase() + type.slice(1)}
-                          </Badge>
-                        )
-                      })}
+              {isPermissionArray(role.permissions) ? (
+                role.permissions.map((perm) => (
+                  <div key={perm.module} className="space-y-2">
+                    <div className="flex items-center justify-between flex-wrap gap-4">
+                      <p className="text-sm font-medium">{perm.module}</p>
+                      <div className="flex gap-1">
+                        {["canView", "canCreate", "canEdit", "canDelete"].map((type) => {
+                          const hasPermission = perm[type as keyof typeof perm];
+                          return (
+                            <Badge
+                              key={`${perm.module}-${type}`}
+                              variant={hasPermission ? "default" : "outline"}
+                              className={!hasPermission ? "opacity-40" : ""}
+                            >
+                              {type.replace("can", "").toLowerCase()}
+                            </Badge>
+                          );
+                        })}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))
+              ) : (
+                Object.entries(role.permissions).map(([module, perms]) => (
+                  <div key={module} className="space-y-2">
+                    <div className="flex items-center justify-between flex-wrap gap-4">
+                      <p className="text-sm font-medium">{module}</p>
+                      <div className="flex gap-1">
+                        {perms.map((type) => (
+                          <Badge
+                            key={`${module}-${type}`}
+                            variant={"default"}
+                          >
+                            {type}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </CardContent>
         </Card>
@@ -341,20 +225,35 @@ export default function RoleDetailsPage({ params }: { params: Promise<{ id: stri
               </TableRow>
             </TableHeader>
             <TableBody className="whitespace-nowrap">
-              {staffMenuItems.map((module) => (
-                  <TableRow key={module.id}>
-                    <TableCell className="font-medium">
-                      <div className="flex items-center gap-2">
-                        <span>{module.title}</span>
-                      </div>
-                    </TableCell>
-                    {permissionTypes.map((type) => (
-                        <TableCell key={`${module.id}-${type}`}>
-                          <Checkbox checked={role.permissions[module.id]?.includes(type)} disabled />
+              {isPermissionArray(role.permissions)
+                ? role.permissions.map((perm) => (
+                    <TableRow key={perm.module}>
+                      <TableCell className="font-medium">
+                        <div className="flex items-center gap-2">
+                          <span>{perm.module}</span>
+                        </div>
+                      </TableCell>
+                      {["canView", "canCreate", "canEdit", "canDelete"].map((type) => (
+                        <TableCell key={`${perm.module}-${type}`}>
+                          <Checkbox checked={!!perm[type as keyof typeof perm]} disabled />
                         </TableCell>
-                    ))}
-                  </TableRow>
-              ))}
+                      ))}
+                    </TableRow>
+                  ))
+                : Object.entries(role.permissions).map(([module, perms]) => (
+                    <TableRow key={module}>
+                      <TableCell className="font-medium">
+                        <div className="flex items-center gap-2">
+                          <span>{module}</span>
+                        </div>
+                      </TableCell>
+                      {["view", "create", "edit", "delete"].map((type) => (
+                        <TableCell key={`${module}-${type}`}>
+                          <Checkbox checked={perms.includes(type)} disabled />
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))}
             </TableBody>
           </Table>
         </CardContent>

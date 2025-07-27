@@ -9,7 +9,8 @@ export const useLanguageInfoInfo = () => {
   const id = typeof params.id === 'string' ? params.id : params.id?.[0];
 
   const tracker = getUserTrackingId();
-  const userId = tracker?.id ?? id;  
+  const allowThisTab = tracker?.languages;
+  const userId = allowThisTab ? (tracker?.id ?? id) : null;
 
   const { data, loading, error, mutate } = useSWRFix({
     key: userId ? `language-info-${userId}` : '',

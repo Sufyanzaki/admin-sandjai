@@ -8,6 +8,7 @@ import useSWRMutation from "swr/mutation";
 import { imageUpload } from "@/admin-utils/utils/imageUpload";
 import { isFile } from "@/lib/utils";
 import { useProfile } from './useProfile';
+import { useEffect } from 'react';
 
 const profileSchema = z.object({
     firstName: z.string()
@@ -35,7 +36,7 @@ type UpdateProfileProps = {
 }
 
 export default function useProfileForm() {
-    const { mutate } = useProfile();
+    const { user, mutate } = useProfile();
     
     const { trigger, isMutating } = useSWRMutation(
         'updateProfile',
@@ -55,8 +56,8 @@ export default function useProfileForm() {
         formState: { errors, isSubmitting },
         register,
         setValue,
-        reset,
         watch,
+        reset,
     } = useForm<ProfileFormValues>({
         resolver: zodResolver(profileSchema),
         defaultValues: {
@@ -67,6 +68,17 @@ export default function useProfileForm() {
         },
         mode: 'onBlur'
     });
+
+    useEffect(()=>{
+        if(!user) return;
+
+        reset({
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
+            location: user.location,
+        })
+    }, [])
 
     const onSubmit = async (values: ProfileFormValues, callback?: (data: {status: number} | undefined) => void) => {
         try {

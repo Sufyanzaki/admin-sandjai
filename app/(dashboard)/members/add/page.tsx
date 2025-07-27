@@ -1,9 +1,12 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {ArrowLeft} from "lucide-react";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
+
+// Import your tab components
 import PersonalInfoTab from "@/app/(dashboard)/members/_components/PersonalInfoTab";
 import ProfessionalTab from "@/app/(dashboard)/members/_components/ProfessionalTab";
 import BehaviorTab from "@/app/(dashboard)/members/_components/BehaviorTab";
@@ -15,45 +18,51 @@ import LivingTab from "@/app/(dashboard)/members/_components/LivingTab";
 import AboutMeTab from "@/app/(dashboard)/members/_components/AboutMeTab";
 
 export default function AddMemberPage() {
+  const [activeTab, setActiveTab] = useState("personal");
 
   return (
-    <div className="flex flex-col gap-5 p-4 xl:p-6">
-      <div className="flex items-center gap-4">
-        <Button variant="outline" size="icon" asChild>
-          <Link href="/members">
-            <ArrowLeft className="h-4 w-4" />
-            <span className="sr-only">Back</span>
-          </Link>
-        </Button>
-        <div className="space-y-2">
-          <h1 className="text-2xl lg:text-3xl font-bold tracking-tight mb-2">Add Member</h1>
-          <p className="text-muted-foreground">Add a new member to your app.</p>
+      <div className="flex flex-col gap-5 p-4 xl:p-6">
+        <div className="flex items-center gap-4">
+          <Button variant="outline" size="icon" asChild>
+            <Link href="/members">
+              <ArrowLeft className="h-4 w-4" />
+              <span className="sr-only">Back</span>
+            </Link>
+          </Button>
+          <div className="space-y-2">
+            <h1 className="text-2xl lg:text-3xl font-bold tracking-tight mb-2">Add Member</h1>
+            <p className="text-muted-foreground">Add a new member to your app.</p>
+          </div>
         </div>
+
+        <Tabs
+            defaultValue="personal"
+            className="space-y-4"
+            onValueChange={setActiveTab}
+        >
+          <TabsList>
+            <TabsTrigger value="personal">Basic Information</TabsTrigger>
+            <TabsTrigger value="professional">Education & Career</TabsTrigger>
+            <TabsTrigger value="behavior">Personality & Behavior</TabsTrigger>
+            <TabsTrigger value="partner">Partner Expectation</TabsTrigger>
+            <TabsTrigger value="life_style">Life Style</TabsTrigger>
+            <TabsTrigger value="hobbies">Hobbies & Interest</TabsTrigger>
+            <TabsTrigger value="languages">Languages</TabsTrigger>
+            <TabsTrigger value="living">Living</TabsTrigger>
+            <TabsTrigger value="about_me">About Me</TabsTrigger>
+          </TabsList>
+
+          {/* Only render the active tab */}
+          {activeTab === "personal" && <PersonalInfoTab />}
+          {activeTab === "professional" && <ProfessionalTab />}
+          {activeTab === "behavior" && <BehaviorTab />}
+          {activeTab === "partner" && <PartnerTab />}
+          {activeTab === "life_style" && <LifeStyleTab />}
+          {activeTab === "hobbies" && <HobbiesTab />}
+          {activeTab === "languages" && <LanguagesTab />}
+          {activeTab === "living" && <LivingTab />}
+          {activeTab === "about_me" && <AboutMeTab />}
+        </Tabs>
       </div>
-
-      <Tabs defaultValue="personal" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="personal">Basic Information</TabsTrigger>
-          <TabsTrigger value="professional">Education & Career</TabsTrigger>
-          <TabsTrigger value="behavior">Personality & Behavior</TabsTrigger>
-          <TabsTrigger value="patner">Partner Expectation</TabsTrigger>
-          <TabsTrigger value="life_style">Life Style</TabsTrigger>
-          <TabsTrigger value="hobbies">Hobbies & Interest</TabsTrigger>
-          <TabsTrigger value="languages">Languages</TabsTrigger>
-          <TabsTrigger value="living">Living</TabsTrigger>
-          <TabsTrigger value="about_me">About Me</TabsTrigger>
-        </TabsList>
-        <PersonalInfoTab />
-        <ProfessionalTab />
-        <BehaviorTab />
-        <PartnerTab />
-        <LifeStyleTab />
-        <HobbiesTab />
-        <LanguagesTab />
-        <LivingTab />
-        <AboutMeTab />
-      </Tabs>
-
-    </div>
   );
 }

@@ -61,7 +61,7 @@ export default function EditBlogPage() {
                 </CardHeader>
 
                 <CardContent>
-                    <form className="grid grid-cols-2 gap-6" onSubmit={handleSubmit(async (values) => { await onSubmit(values); })}>
+                    <form className="grid grid-cols-2 gap-6" onSubmit={handleSubmit((values) => { onSubmit(values); })}>
                         {/* Blog Title */}
                         <div className="flex-1 space-y-2">
                             <Label htmlFor="title">Blog Title *</Label>

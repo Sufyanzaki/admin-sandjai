@@ -6,7 +6,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Checkbox } from "@/components/ui/checkbox"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import {
   DropdownMenu,
@@ -30,20 +29,12 @@ import {
   Search,
   Plus,
   MoreHorizontal,
-  Download,
   Edit,
   Trash,
   Users,
   Shield,
   UserCog,
   FileText,
-  Copy,
-  Info,
-  ShieldCheck,
-  UserPlus,
-  Eye,
-  RefreshCw,
-  Filter,
   Pencil,
   LayoutDashboard,
   CreditCard,
@@ -54,72 +45,37 @@ import {
   AlertCircle,
   BarChart2,
   Megaphone, Settings, Video,
+  Eye,
 } from "lucide-react"
 import Link from "next/link"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Separator } from "@/components/ui/separator"
 import { useState } from "react"
 import { DeleteRoleModal } from "@/components/roles/delete-role-modal"
-
-// Create roles array based on staffData
-const staffData = [
-  {
-    id: 1,
-    name: "Admin",
-    email: "info@rajmedia.nl",
-    password: "-",
-    role: "admin",
-    status: "active"
-  },
-  {
-    id: 2,
-    name: "sandjai p",
-    email: "sandjai@netblue.nl",
-    password: "-",
-    role: "Mod",
-    status: "active"
-  },
-  {
-    id: 3,
-    name: "kareemn sas",
-    email: "kareembakhs112244@gmail.com",
-    password: "1234341",
-    role: "admin",
-    status: "inactive"
-  },
-  {
-    id: 4,
-    name: "sufyan zaki",
-    email: "sufyan.zaki.789@gmail.com",
-    password: "122132342345",
-    role: "admin",
-    status: "active"
-  }
-];
-
-// Generate roles from staffData
-const roles = Array.from(new Set(staffData.map(staff => staff.role))).map((role, index) => ({
-  id: index + 1,
-  name: role,
-  title: role === 'Mod' ? 'Moderator' : role.charAt(0).toUpperCase() + role.slice(1),
-  category: role === 'admin' ? 'Administrative' : 'Custom',
-  isDefault: role === 'admin',
-  users: staffData.filter(staff => staff.role === role).length,
-  description: role === 'admin' ? 'Full system access' : 'Limited system access',
-  status: 'active'
-}));
+import RoleForm from "./_components/roleForm"
+import useRoles from "./_hook/useRoles"
+import useDeleteRole from "./_hook/useDeleteRole";
 
 export default function RolesAndPermissionsPage() {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [roleToDelete, setRoleToDelete] = useState<{ id: number; name: string } | null>(null)
 
+  const { roles, loading, error } = useRoles();
+  const { deleteRole, isDeleting } = useDeleteRole();
+
+  // Loading and error states
+  if (loading) {
+    return <div className="p-8 text-center text-lg">Loading roles...</div>;
+  }
+  if (error) {
+    return <div className="p-8 text-center text-red-500">Failed to load roles.</div>;
+  }
+  if (!roles) {
+    return <div className="p-8 text-center text-lg">No roles found.</div>;
+  }
+
   // Filter roles by category
-  const medicalRoles = roles.filter((role) => role.category === "Medical")
-  const administrativeRoles = roles.filter((role) => role.category === "Administrative")
-  const customRoles = roles.filter((role) => role.category === "Custom")
+  const administrativeRoles = roles.filter((role) => role.catagory === "Administrative");
+  const customRoles = roles.filter((role) => role.catagory === "Custom");
 
   const modules = [
     { id: "dashboard", title: "Dashboard", icon: LayoutDashboard },
@@ -128,7 +84,7 @@ export default function RolesAndPermissionsPage() {
     { id: "payments", title: "Payments", icon: CreditCard },
   ];
 
-  const permissionTypes = ["view", "create", "edit", "delete"]
+  const permissionTypes = ["view", "create", "edit", "delete"];
 
   return (
       <div className="flex flex-col gap-6 p-4 xl:p-6">
@@ -164,7 +120,7 @@ export default function RolesAndPermissionsPage() {
               <Users className="size-8 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl xl:text-4xl mb-2 font-bold">{staffData.length}</div>
+              <div className="text-2xl xl:text-4xl mb-2 font-bold">-</div>
               <p className="text-xs text-muted-foreground">Across all roles</p>
             </CardContent>
           </Card>
@@ -176,7 +132,8 @@ export default function RolesAndPermissionsPage() {
             <CardContent>
               <div className="text-2xl xl:text-4xl mb-2 font-bold">{administrativeRoles.length}</div>
               <p className="text-xs text-muted-foreground">
-                {administrativeRoles.reduce((sum, role) => sum + role.users, 0)} staff assigned
+                {/* Staff assigned count can be added if available in API */}
+                - staff assigned
               </p>
             </CardContent>
           </Card>
@@ -213,59 +170,7 @@ export default function RolesAndPermissionsPage() {
                     Define a new role with specific permissions for staff members.
                   </DialogDescription>
                 </DialogHeader>
-                <div className="grid gap-4 py-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="name">Role Name</Label>
-                    <Input id="name" placeholder="Enter role name" />
-                  </div>
-
-                  <div className="grid gap-2">
-                    <Label htmlFor="description">Role Description</Label>
-                    <Textarea id="name" placeholder="Role Description" />
-                  </div>
-
-                  <Separator />
-                  <div className="space-y-4">
-                    <Label className="text-base">Basic Permissions</Label>
-                    {modules.slice(0, 4).map((module) => (
-                        <div key={module.id} className="space-y-2">
-                          <div className="flex items-center justify-between">
-                            <Label className="font-medium">{module.title}</Label>
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Button variant="ghost" size="icon" className="h-6 w-6">
-                                    <Info className="h-4 w-4" />
-                                  </Button>
-                                </TooltipTrigger>
-                              </Tooltip>
-                            </TooltipProvider>
-                          </div>
-                          <div className="grid grid-cols-4 gap-4">
-                            {permissionTypes.map((type) => (
-                                <div key={type} className="flex items-center space-x-2">
-                                  <Checkbox id={`${module.id}-${type}`} />
-                                  <Label htmlFor={`${module.id}-${type}`} className="text-sm capitalize">
-                                    {type}
-                                  </Label>
-                                </div>
-                            ))}
-                          </div>
-                        </div>
-                    ))}
-                    <div className="pt-2">
-                      <Button variant="outline" size="sm">
-                        <Link href="/staff/roles/add">
-                          Show All Modules
-                        </Link>
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-                <DialogFooter>
-                  <Button variant="outline">Cancel</Button>
-                  <Button>Create Role</Button>
-                </DialogFooter>
+                <RoleForm />
               </DialogContent>
             </Dialog>
           </div>
@@ -275,7 +180,7 @@ export default function RolesAndPermissionsPage() {
           <TabsList>
             <TabsTrigger value="all">All Roles</TabsTrigger>
             <TabsTrigger value="administrative">Administrative</TabsTrigger>
-            <TabsTrigger value="custom">Moderator</TabsTrigger>
+            <TabsTrigger value="custom">Custom</TabsTrigger>
           </TabsList>
           <TabsContent value="all" className="mt-4">
             <Card className="bg-background">
@@ -285,7 +190,6 @@ export default function RolesAndPermissionsPage() {
                     <TableRow>
                       <TableHead>Role</TableHead>
                       <TableHead>Category</TableHead>
-                      <TableHead>Staff Members</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
@@ -293,16 +197,15 @@ export default function RolesAndPermissionsPage() {
                   <TableBody>
                     {roles.map((role) => (
                         <TableRow key={role.id}>
-                          <TableCell className="font-medium">{role.title}</TableCell>
+                          <TableCell className="font-medium">{role.name}</TableCell>
                           <TableCell>
-                            <Badge variant={role.category === 'Administrative' ? 'default' : 'outline'}>
-                              {role.category}
+                            <Badge variant={role.catagory === 'Administrative' ? 'default' : 'outline'}>
+                              {role.catagory}
                             </Badge>
                           </TableCell>
-                          <TableCell>{role.users}</TableCell>
                           <TableCell>
-                            <Badge variant={role.status === 'active' ? 'default' : 'destructive'}>
-                              {role.status}
+                            <Badge variant={role.isActive ? 'default' : 'destructive'}>
+                              {role.isActive ? 'active' : 'inactive'}
                             </Badge>
                           </TableCell>
                           <TableCell className="text-right">
@@ -355,7 +258,6 @@ export default function RolesAndPermissionsPage() {
                   <TableHeader>
                     <TableRow>
                       <TableHead>Role</TableHead>
-                      <TableHead>Staff Members</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
@@ -363,11 +265,10 @@ export default function RolesAndPermissionsPage() {
                   <TableBody>
                     {administrativeRoles.map((role) => (
                         <TableRow key={role.id}>
-                          <TableCell className="font-medium">{role.title}</TableCell>
-                          <TableCell>{role.users}</TableCell>
+                          <TableCell className="font-medium">{role.name}</TableCell>
                           <TableCell>
-                            <Badge variant={role.status === 'active' ? 'default' : 'destructive'}>
-                              {role.status}
+                            <Badge variant={role.isDefault ? 'default' : 'destructive'}>
+                              {role.isDefault ? 'active' : 'inactive'}
                             </Badge>
                           </TableCell>
                           <TableCell className="text-right flex justify-end gap-2">
@@ -401,7 +302,6 @@ export default function RolesAndPermissionsPage() {
                   <TableHeader>
                     <TableRow>
                       <TableHead>Role</TableHead>
-                      <TableHead>Staff Members</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
@@ -409,11 +309,10 @@ export default function RolesAndPermissionsPage() {
                   <TableBody>
                     {customRoles.map((role) => (
                         <TableRow key={role.id}>
-                          <TableCell className="font-medium">{role.title}</TableCell>
-                          <TableCell>{role.users}</TableCell>
+                          <TableCell className="font-medium">{role.name}</TableCell>
                           <TableCell>
-                            <Badge variant={role.status === 'active' ? 'default' : 'destructive'}>
-                              {role.status}
+                            <Badge variant={role.isDefault ? 'default' : 'destructive'}>
+                              {role.isDefault ? 'active' : 'inactive'}
                             </Badge>
                           </TableCell>
                           <TableCell className="text-right flex justify-end gap-2">
@@ -446,12 +345,12 @@ export default function RolesAndPermissionsPage() {
                 open={deleteModalOpen}
                 onOpenChange={setDeleteModalOpen}
                 roleName={roleToDelete.name}
-                onConfirm={() => {
-                  // This would be replaced with actual delete logic in a real app
-                  console.log(`Deleting role: ${roleToDelete.name}`)
-                  setDeleteModalOpen(false)
-                  setRoleToDelete(null)
+                onConfirm={async () => {
+                  await deleteRole(roleToDelete.id);
+                  setDeleteModalOpen(false);
+                  setRoleToDelete(null);
                 }}
+                isLoading={isDeleting}
             />
         )}
       </div>

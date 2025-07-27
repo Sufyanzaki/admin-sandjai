@@ -6,7 +6,8 @@ import { showSuccess } from "@/admin-utils/lib/formSuccess";
 import useSWRMutation from "swr/mutation";
 import { patchEmailTemplate, PatchEmailTemplatePayload } from "../_api/patchEmailTemplate";
 import { useEmailTemplateById } from "./useEmailTemplateById";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
+import { Language } from "@/app/(dashboard)/settings/_api/getLanguages";
 
 const translationSchema = z.object({
   language: z.string().min(1, "Language is required"),
@@ -22,31 +23,36 @@ const emailTemplateSchema = z.object({
 
 export type EmailTemplateFormValues = z.infer<typeof emailTemplateSchema>;
 
-const languages = [
-  { value: "en", label: "English" },
-  { value: "es", label: "Spanish" },
-  { value: "fr", label: "French" },
-  { value: "de", label: "German" },
-  { value: "it", label: "Italian" },
-];
+type Props = {
+  id: string;
+  languages?: Language[];
+};
 
-export default function useEmailTemplateForm(id: number | string) {
+export default function useEmailTemplateForm({ id, languages = [] }: Props) {
   const { emailTemplate, loading, error } = useEmailTemplateById(id);
 
   const { trigger, isMutating } = useSWRMutation(
-    `patch-email-template-${id}`,
-    async (_: string, { arg }: { arg: EmailTemplateFormValues }) => {
-      return await patchEmailTemplate(id, arg);
-    },
-    {
-      onError: (error: Error) => {
-        showError({ message: error.message });
-        console.error("Email template update error:", error);
+      `patch-email-template-${id}`,
+      async (_: string, { arg }: { arg: EmailTemplateFormValues }) => {
+        return await patchEmailTemplate(id, arg);
       },
-      revalidate: false,
-      populateCache: false,
-    }
+      {
+        onError: (error: Error) => {
+          showError({ message: error.message });
+          console.error("Email template update error:", error);
+        },
+        revalidate: false,
+        populateCache: false,
+      }
   );
+
+  const initialTranslations = useMemo(() => {
+    return languages.map((lang) => ({
+      language: lang.name,
+      subject: " ",
+      content: " ",
+    }));
+  }, [languages]);
 
   const {
     handleSubmit,
@@ -61,28 +67,27 @@ export default function useEmailTemplateForm(id: number | string) {
     defaultValues: {
       key: "",
       isActive: true,
-      translations: [],
+      translations: initialTranslations,
     },
     mode: "onBlur",
   });
 
   useEffect(() => {
-    if (emailTemplate) {
-      // Ensure all translations are present and non-null
+    if (emailTemplate && languages.length > 0) {
       reset({
         key: emailTemplate.key,
         isActive: emailTemplate.isActive,
-        translations: languages.map(lang => {
-          const t = emailTemplate.translations.find(tr => tr.language === lang.value);
+        translations: languages.map((lang) => {
+          const t = emailTemplate.translations.find((tr) => tr.language === lang.name);
           return {
-            language: lang.value,
-            subject: t?.subject ?? " ", // Use a single space to pass zod min(1)
+            language: lang.name,
+            subject: t?.subject ?? " ",
             content: t?.content ?? " ",
           };
         }),
       });
     }
-  }, [emailTemplate, reset]);
+  }, [emailTemplate, languages, reset]);
 
   const onSubmit = async (values: EmailTemplateFormValues, callback?: (data: any) => void) => {
     const result = await trigger(values);
@@ -107,4 +112,4 @@ export default function useEmailTemplateForm(id: number | string) {
     loading,
     error,
   };
-} 
+}

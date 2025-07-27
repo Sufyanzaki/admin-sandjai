@@ -10,7 +10,7 @@ export interface Language {
 
 export async function getLanguages(): Promise<Language[]> {
   return getRequest<Language[]>({
-    url: "setting",
+    url: "setting/language",
     useAuth: true,
   });
 } 

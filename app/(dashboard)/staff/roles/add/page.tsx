@@ -1,3 +1,5 @@
+"use client"
+
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -20,31 +22,12 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
-import { use } from "react"
+import { Controller } from "react-hook-form";
+import useRoleForm from "../_hook/useRoleForm";
+import React from "react";
 
-interface Role {
-  id: string;
-  name: string;
-  category: string;
-  description: string;
-  users: number;
-  isDefault: boolean;
-  lastUpdated: string;
-  updatedBy: string;
-  permissions: {
-    [key: string]: string[];
-  };
-}
-
-interface Module {
-  id: string;
-  name: string;
-  description: string;
-}
-
-const staffMenuItems = [
+export const roleMenuItems = [
   { id: "dashboard", title: "Dashboard", icon: LayoutDashboard },
   { id: "members", title: "Members", icon: Users },
   { id: "profile_attributes", title: "Profile Attributes", icon: UserCog },
@@ -60,32 +43,36 @@ const staffMenuItems = [
   { id: "chat_video_setting", title: "Chat & Video Setting", icon: Video },
 ];
 
-const role: Role = {
-  id: "123",
-  name: "Administrator",
-  category: "Administrative",
-  description: "Full system access with all permissions",
-  users: 3,
-  isDefault: true,
-  lastUpdated: "2023-11-15",
-  updatedBy: "System Admin",
-  permissions: {
-    dashboard: ["view", "edit"],
-    patients: ["view", "edit", "create", "delete"],
-    appointments: ["view", "edit", "create", "delete"],
-    billing: ["view", "edit", "create", "delete"],
-    reports: ["view", "edit", "create", "delete"],
-    settings: ["view", "edit"],
-    inventory: ["view", "edit", "create", "delete"],
-    staff: ["view", "edit", "create", "delete"],
-  },
-}
+const permissionTypes = [
+  { key: "canView" as const, label: "view" },
+  { key: "canCreate" as const, label: "create" },
+  { key: "canEdit" as const, label: "edit" },
+  { key: "canDelete" as const, label: "delete" },
+];
 
-export default function AddRolePage({ params }: { params: Promise<{ id: string }> }) {
-  // Mock data for the role
-  const { id } = use(params)
-  // Permission types
-  const permissionTypes: string[] = ["view", "create", "edit", "delete"]
+export default function AddRolePage() {
+  const {
+    handleSubmit,
+    onSubmit,
+    errors,
+    isLoading,
+    setValue,
+    control,
+    fields,
+  } = useRoleForm();
+
+  // Ensure permissions array matches staffMenuItems
+  React.useEffect(() => {
+    roleMenuItems.forEach((mod, idx) => {
+      if (!fields[idx] || fields[idx].module !== mod.id) {
+        setValue(`permissions.${idx}.module`, mod.id);
+        setValue(`permissions.${idx}.canView`, false);
+        setValue(`permissions.${idx}.canCreate`, false);
+        setValue(`permissions.${idx}.canEdit`, false);
+        setValue(`permissions.${idx}.canDelete`, false);
+      }
+    });
+  }, [fields, setValue]);
 
   return (
     <div className="flex flex-col gap-6 p-4 xl:p-6">
@@ -102,77 +89,106 @@ export default function AddRolePage({ params }: { params: Promise<{ id: string }
         </div>
       </div>
 
-      <Card className="bg-background">
-        <CardHeader>
-          <CardTitle>Role Information</CardTitle>
-          <CardDescription>Basic information about the role</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2">
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <Card className="bg-background">
+          <CardHeader>
+            <CardTitle>Role Information</CardTitle>
+            <CardDescription>Basic information about the role</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="name">Role Name</Label>
+                <Controller
+                  name="name"
+                  control={control}
+                  render={({ field }) => (
+                    <Input id="name" placeholder="Enter role name" {...field} />
+                  )}
+                />
+                {errors.name && <span className="text-red-500 text-xs">{errors.name.message}</span>}
+              </div>
+            </div>
             <div className="space-y-2">
-              <Label htmlFor="name">Role Name</Label>
-              <Input id="name" defaultValue={role.name} />
+              <Label htmlFor="description">Description</Label>
+              <Controller
+                name="description"
+                control={control}
+                render={({ field }) => (
+                  <Textarea id="description" placeholder="Role Description" {...field} />
+                )}
+              />
+              {errors.description && <span className="text-red-500 text-xs">{errors.description.message}</span>}
             </div>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
-            <Textarea id="description" defaultValue={role.description} />
-          </div>
-          <div className="flex items-center space-x-2">
-            <Switch id="isDefault" defaultChecked={role.isDefault} />
-            <Label htmlFor="isDefault">Set as default role</Label>
-          </div>
-        </CardContent>
-      </Card>
+            <div className="flex items-center space-x-2">
+              <Controller
+                name="isDefault"
+                control={control}
+                render={({ field }) => (
+                  <Switch id="isDefault" checked={field.value} onCheckedChange={field.onChange} />
+                )}
+              />
+              <Label htmlFor="isDefault">Set as default role</Label>
+            </div>
+          </CardContent>
+        </Card>
 
-      <Card className="bg-background">
-        <CardHeader>
-          <CardTitle>Permissions</CardTitle>
-          <CardDescription>Configure access permissions for this role</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {staffMenuItems.map((module) => (
-            <div key={module.id} className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label className="text-base font-medium">{module.title}</Label>
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-6 w-6">
-                        <Info className="h-4 w-4" />
-                      </Button>
-                    </TooltipTrigger>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
-              <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-                {permissionTypes.map((type) => (
-                  <div key={type} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={`${module.id}-${type}`}
-                      defaultChecked={role.permissions[module.id]?.includes(type)}
+        <Card className="bg-background mt-6">
+          <CardHeader>
+            <CardTitle>Permissions</CardTitle>
+            <CardDescription>Configure access permissions for this role</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {roleMenuItems.map((module, modIdx) => (
+              <div key={module.id} className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-base font-medium">{module.title}</Label>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-6 w-6">
+                          <Info className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        {module.title}
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+                <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+                  {permissionTypes.map((type) => (
+                    <Controller
+                      key={type.key}
+                      name={`permissions.${modIdx}.${type.key}`}
+                      control={control}
+                      render={({ field }) => (
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            id={`${module.id}-${type.label}`}
+                            checked={!!field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                          <Label htmlFor={`${module.id}-${type.label}`} className="capitalize">
+                            {type.label}
+                          </Label>
+                        </div>
+                      )}
                     />
-                    <Label htmlFor={`${module.id}-${type}`} className="capitalize">
-                      {type}
-                    </Label>
-                  </div>
-                ))}
+                  ))}
+                </div>
+                <Separator className="mt-4" />
               </div>
-              <Separator className="mt-4" />
-            </div>
-          ))}
-        </CardContent>
-        <CardFooter className="flex justify-between flex-wrap gap-2">
-          <Button variant="outline">
-            <Undo className="mr-2 h-4 w-4" />
-            Reset Changes
-          </Button>
-          <Button>
-            <Save className="mr-2 h-4 w-4" />
-            Save Changes
-          </Button>
-        </CardFooter>
-      </Card>
+            ))}
+          </CardContent>
+          <CardFooter className="flex justify-end flex-wrap gap-2">
+            <Button type="submit" disabled={isLoading}>
+              <Save className="mr-2 h-4 w-4" />
+              {isLoading ? "Saving..." : "Save Changes"}
+            </Button>
+          </CardFooter>
+        </Card>
+      </form>
     </div>
   )
 }

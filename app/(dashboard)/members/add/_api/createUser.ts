@@ -17,6 +17,7 @@ export interface UserPayloadBase {
   children: boolean;
   religion: string;
   shortDescription: string;
+  isActive?: boolean;
 }
 
 export type UserPayload = UserPayloadBase & Partial<{ department: string }>;
@@ -35,6 +36,14 @@ export async function patchUser(userId: string, payload: UserPayload): Promise<U
   return patchRequest({
     url: `users/${userId}`,
     data: payload,
+    useAuth: true,
+  });
+}
+
+export async function patchUserStatus(userId: string, isActive: boolean): Promise<UserResponse> {
+  return patchRequest({
+    url: `users/${userId}`,
+    data: { isActive },
     useAuth: true,
   });
 } 

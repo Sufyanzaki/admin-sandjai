@@ -57,7 +57,7 @@ export default function PartnerTab() {
   };
 
   return (
-    <TabsContent value="patner" className="space-y-4 mt-4">
+    <TabsContent value="partner" className="space-y-4 mt-4">
       <Card>
         <CardHeader>
           <CardTitle>Profile Information</CardTitle>

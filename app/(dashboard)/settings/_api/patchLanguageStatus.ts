@@ -7,7 +7,7 @@ export interface PatchLanguageStatusPayload {
 
 export async function patchLanguageStatus({ id, isActive }: PatchLanguageStatusPayload) {
   return patchRequest({
-    url: `setting/${id}`,
+    url: `setting/language/${id}`,
     data: { isActive },
     useAuth: true,
   });

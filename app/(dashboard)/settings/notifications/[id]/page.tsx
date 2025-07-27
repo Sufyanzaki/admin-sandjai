@@ -9,26 +9,26 @@ import {Switch} from "@/components/ui/switch";
 import {SimpleEditor} from "@/components/tiptap-templates/simple/simple-editor";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
 import { useParams } from "next/navigation";
-import { useState } from "react";
+import {useEffect, useState} from "react";
 import useEmailTemplateForm from "../_hooks/useEmailTemplateForm";
 import { Controller } from "react-hook-form";
-
-const languages = [
-  { value: "en", label: "English" },
-  { value: "es", label: "Spanish" },
-  { value: "fr", label: "French" },
-  { value: "de", label: "German" },
-  { value: "it", label: "Italian" },
-];
+import {useLanguages} from "@/app/(dashboard)/settings/_hooks/useLanguages";
 
 export default function EditEmailTemplatePage() {
   const params = useParams();
-  let id = params?.id as string | number;
-  const { handleSubmit, emailTemplate, loading, error, control, onSubmit, isLoading, register, errors } = useEmailTemplateForm(id);
+  let id = params?.id as string;
+  const { languages, languagesLoading } = useLanguages();
+  const { handleSubmit, emailTemplate, loading, error, control, onSubmit, isLoading, register, errors } = useEmailTemplateForm({id, languages});
 
   const [activeTab, setActiveTab] = useState("en");
 
-  if (loading) return <div className="p-6">Loading template...</div>;
+  useEffect(()=>{
+    if(!languages) return;
+
+    setActiveTab(languages[0].code);
+  }, [languages])
+
+  if (loading || languagesLoading) return <div className="p-6">Loading template...</div>;
   if (error) return <div className="p-6 text-red-500">Failed to load template.</div>;
   if (!emailTemplate) return <div className="p-6 text-muted-foreground">Template not found.</div>;
 
@@ -53,19 +53,19 @@ export default function EditEmailTemplatePage() {
             className="w-full"
         >
           <TabsList className="grid w-full grid-cols-5">
-            {languages.map((lang) => (
-                <TabsTrigger key={lang.value} value={lang.value}>
-                  {lang.label}
+            {(languages ?? []).map((lang) => (
+                <TabsTrigger key={lang.code} value={lang.code}>
+                  {lang.name}
                 </TabsTrigger>
             ))}
           </TabsList>
 
-          {languages.map((lang, idx) => (
-              <TabsContent key={lang.value} value={lang.value}>
+          {(languages ?? []).map((lang, idx) => (
+              <TabsContent key={lang.code} value={lang.code}>
                 <Card className="bg-background">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 !pb-0">
                     <CardTitle className="text-sm xl:text-lg font-medium">
-                      {emailTemplate!.key} - {lang.label}
+                      {emailTemplate!.key} - {lang.name}
                     </CardTitle>
                     <Mail className="size-5 text-muted-foreground" />
                   </CardHeader>
@@ -74,7 +74,7 @@ export default function EditEmailTemplatePage() {
                       <div className="space-y-6 rounded-lg border p-6">
                         <div className="flex items-center justify-between">
                           <div>
-                            <Label htmlFor={`${lang.value}-status`} className="text-base">
+                            <Label htmlFor={`${lang.code}-status`} className="text-base">
                               Template Status
                             </Label>
                             <p className="text-sm text-muted-foreground">
@@ -86,7 +86,7 @@ export default function EditEmailTemplatePage() {
                             control={control}
                             render={({ field }) => (
                               <Switch
-                                id={`${lang.value}-status`}
+                                id={`${lang.code}-status`}
                                 checked={field.value}
                                 onCheckedChange={field.onChange}
                               />
@@ -95,12 +95,12 @@ export default function EditEmailTemplatePage() {
                         </div>
 
                         <div className="space-y-2">
-                          <Label htmlFor={`${lang.value}-subject`} className="text-base">
+                          <Label htmlFor={`${lang.code}-subject`} className="text-base">
                             Email Subject
                           </Label>
                           <Input
-                              id={`${lang.value}-subject`}
-                              placeholder={`e.g., Welcome to Our Platform (${lang.label})`}
+                              id={`${lang.code}-subject`}
+                              placeholder={`e.g., Welcome to Our Platform (${lang.name})`}
                               className="text-base py-2 h-12"
                               {...register(`translations.${idx}.subject` as const)}
                           />
@@ -112,7 +112,7 @@ export default function EditEmailTemplatePage() {
                         </div>
 
                         <div className="space-y-2">
-                          <Label htmlFor={`${lang.value}-content`} className="text-base">
+                          <Label htmlFor={`${lang.code}-content`} className="text-base">
                             Email Content
                           </Label>
                           <Controller
@@ -140,7 +140,7 @@ export default function EditEmailTemplatePage() {
 
                       <div className="flex justify-end gap-4">
                         <Button type="submit" className="px-8" disabled={isLoading}>
-                          {isLoading ? "Saving..." : `Save ${lang.label} Template`}
+                          {isLoading ? "Saving..." : `Save ${lang.name} Template`}
                         </Button>
                       </div>
                     </form>

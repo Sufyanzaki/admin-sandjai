@@ -9,7 +9,8 @@ export const useLifeStyleInfo = () => {
   const id = typeof params.id === 'string' ? params.id : params.id?.[0];
 
   const tracker = getUserTrackingId();
-  const userId = tracker?.id ?? id;
+  const allowThisTab = tracker?.lifeStyle;
+  const userId = allowThisTab ? (tracker?.id ?? id) : null;
 
   const { data, loading, error, mutate } = useSWRFix({
     key: userId ? `lifestyle-${userId}` : '',
