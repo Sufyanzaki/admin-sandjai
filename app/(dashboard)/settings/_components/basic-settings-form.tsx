@@ -10,10 +10,16 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Settings, Upload } from "lucide-react";
+import Preloader from "@/components/ui/Preloader";
 
 export default function BasicSettingsForm() {
   const { handleSubmit, control, register, errors, isLoading, onSubmit, loading, data } = useBasicSettingsForm();
-  if (loading) return <div className="p-6">Loading settings...</div>;
+  if (loading) return (
+    <div className="flex items-center flex-col justify-center h-64">
+        <Preloader />
+        <p className="text-sm">Loading settings</p>
+    </div>
+  )
   return (
     <Card>
       <CardHeader>

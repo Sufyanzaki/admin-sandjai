@@ -19,6 +19,7 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { useEmailTemplates } from "./_hooks/useEmailTemplates";
 import { useState } from "react";
+import Preloader from "@/components/ui/Preloader"
 
 export default function NotificationsPage() {
   const { emailTemplates, loading, error } = useEmailTemplates();
@@ -97,7 +98,10 @@ export default function NotificationsPage() {
       <Card className="bg-background">
         <CardContent className="p-0">
           {loading ? (
-            <div className="p-6">Loading templates...</div>
+            <div className="flex items-center flex-col justify-center h-64">
+              <Preloader/>
+              <p className="text-sm">Loading Templates</p>
+            </div>
           ) : error ? (
             <div className="p-6 text-red-500">Failed to load templates.</div>
           ) : (

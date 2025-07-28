@@ -28,7 +28,7 @@ export default function useLanguageInfoForm() {
   }, [params.id, tracker?.id]);
 
   const allowEdit = useMemo(() => {
-    return id || tracker?.languages;
+    return id && tracker?.languages;
   }, [id, tracker?.languages]);
 
 

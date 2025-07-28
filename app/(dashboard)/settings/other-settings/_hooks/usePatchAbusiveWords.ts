@@ -4,12 +4,13 @@ import { z } from "zod";
 import useSWRMutation from "swr/mutation";
 import { showError } from "@/admin-utils/lib/formErrors";
 import { showSuccess } from "@/admin-utils/lib/formSuccess";
-import { postAbusiveWords } from "../_api/postAbusiveWords";
+import {patchAbusiveWords} from "../_api/postAbusiveWords";
 import { getAbusiveWords } from "../_api/getAbusiveWords";
 import { useEffect } from "react";
+import { useAbusiveWords } from "./useAbusiveWords";
 
 export const abusiveWordsSchema = z.object({
-  words: z.array(z.string().min(1, "Word cannot be empty")).min(1, "At least one word is required"),
+  word: z.string().min(1, "At least one word is required"),
 });
 
 export type AbusiveWordsFormValues = z.infer<typeof abusiveWordsSchema>;
@@ -23,25 +24,20 @@ export default function useAbusiveWordsForm() {
     reset,
   } = useForm<AbusiveWordsFormValues>({
     resolver: zodResolver(abusiveWordsSchema),
-    defaultValues: { words: [] },
+    defaultValues: { word: "" },
     mode: "onBlur",
   });
 
+  const {word, wordLoading} = useAbusiveWords();
+
   useEffect(() => {
-    (async () => {
-      try {
-        const words = await getAbusiveWords();
-        setValue("words", words || [], { shouldValidate: true });
-      } catch (error: any) {
-        showError({ message: error.message });
-      }
-    })();
-  }, [setValue]);
+    if (word) reset(word);
+  }, [word, reset]);
 
   const { trigger, isMutating } = useSWRMutation(
-    "postAbusiveWords",
+    "patchAbusiveWords",
     async (_: string, { arg }: { arg: AbusiveWordsFormValues }) => {
-      return await postAbusiveWords(arg);
+      return await patchAbusiveWords(arg);
     },
     {
       onError: (error: Error) => {
@@ -53,29 +49,30 @@ export default function useAbusiveWordsForm() {
     }
   );
 
-  const abusiveWords = watch("words");
+  const abusiveWords = watch("word");
 
   const addChip = (word: string) => {
     const trimmed = word.trim();
-    if (trimmed && !abusiveWords.includes(trimmed)) {
-      setValue("words", [...abusiveWords, trimmed], { shouldValidate: true });
+    if (!trimmed) return;
+    const wordsArr = abusiveWords.split(",").map(w => w.trim()).filter(Boolean);
+    if (!wordsArr.includes(trimmed)) {
+      setValue("word", [...wordsArr, trimmed].join(","), { shouldValidate: true });
     }
   };
 
   const removeChip = (valueToRemove: string) => {
+    const wordsArr = abusiveWords.split(",").map(w => w.trim()).filter(Boolean);
     setValue(
-      "words",
-      abusiveWords.filter((value) => value !== valueToRemove),
+      "word",
+      wordsArr.filter((value) => value !== valueToRemove).join(","),
       { shouldValidate: true }
     );
   };
 
   const onSubmit = async (values: AbusiveWordsFormValues) => {
-    const result = await trigger(values);
+    const result = await trigger({ word: values.word });
     if (result?.status === 201) {
       showSuccess("Abusive words saved successfully!");
-      reset();
-      // Optionally, refetch the abusive words here if needed
     }
   };
 
@@ -89,5 +86,6 @@ export default function useAbusiveWordsForm() {
     isLoading: isSubmitting || isMutating,
     setValue,
     reset,
+    wordLoading
   };
-} 
+}

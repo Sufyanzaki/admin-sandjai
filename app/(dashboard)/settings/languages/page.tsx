@@ -12,6 +12,7 @@ import Link from "next/link"
 import { useLanguages } from "../_hooks/useLanguages";
 import AddLanguageForm from "./_components/addLanguageForm"
 import { usePatchLanguageStatus } from "./_hooks/usePatchLanguageStatus";
+import Preloader from "@/components/ui/Preloader"
 
 export default function LanguagesManagementPage() {
     const { languages, languagesLoading, error } = useLanguages();
@@ -31,7 +32,10 @@ export default function LanguagesManagementPage() {
                     </CardHeader>
                     <CardContent>
                         {languagesLoading ? (
-                            <div>Loading languages...</div>
+                             <div className="flex items-center flex-col justify-center h-64">
+                            <Preloader/>
+                            <p className="text-sm">Loading Languages</p>
+                        </div>
                         ) : error ? (
                             <div className="text-red-500">Failed to load languages.</div>
                         ) : (

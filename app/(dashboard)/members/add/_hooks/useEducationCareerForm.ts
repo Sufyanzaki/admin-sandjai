@@ -35,7 +35,7 @@ export default function useEducationCareerForm() {
   }, [params.id, tracker?.id]);
 
   const allowEdit = useMemo(() => {
-    return id || tracker?.educationAndCareer;
+    return id && tracker?.educationAndCareer;
   }, [id, tracker?.educationAndCareer]);
 
   const {

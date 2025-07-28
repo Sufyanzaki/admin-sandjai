@@ -38,7 +38,7 @@ export default function usePartnerExpectationForm() {
   }, [params.id, tracker?.id]);
 
   const allowEdit = useMemo(() => {
-    return id || tracker?.partnerExpectation;
+    return id && tracker?.partnerExpectation;
   }, [id, tracker?.partnerExpectation]);
 
   const {

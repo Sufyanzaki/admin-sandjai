@@ -190,7 +190,7 @@ export default function StaffPage() {
               </Table>
 
             </div>
-            <PaginationSection />
+            {/*<PaginationSection />*/}
           </CardContent>
         </Card>
 

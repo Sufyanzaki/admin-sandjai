@@ -13,6 +13,7 @@ import {useEffect, useState} from "react";
 import useEmailTemplateForm from "../_hooks/useEmailTemplateForm";
 import { Controller } from "react-hook-form";
 import {useLanguages} from "@/app/(dashboard)/settings/_hooks/useLanguages";
+import Preloader from "@/components/ui/Preloader";
 
 export default function EditEmailTemplatePage() {
   const params = useParams();
@@ -28,7 +29,12 @@ export default function EditEmailTemplatePage() {
     setActiveTab(languages[0].code);
   }, [languages])
 
-  if (loading || languagesLoading) return <div className="p-6">Loading template...</div>;
+  if (loading || languagesLoading) return(
+    <div className="flex items-center flex-col justify-center h-64">
+        <Preloader/>
+        <p className="text-sm">Loading Template</p>
+      </div>
+  )
   if (error) return <div className="p-6 text-red-500">Failed to load template.</div>;
   if (!emailTemplate) return <div className="p-6 text-muted-foreground">Template not found.</div>;
 

@@ -31,7 +31,7 @@ export default function useHobbiesInterestsForm() {
   }, [params.id, tracker?.id]);
 
   const allowEdit = useMemo(() => {
-    return id || tracker?.hobbiesAndInterest;
+    return id && tracker?.hobbiesAndInterest;
   }, [id, tracker?.hobbiesAndInterest]);
 
   const {

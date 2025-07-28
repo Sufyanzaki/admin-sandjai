@@ -1,25 +1,50 @@
-import { useSWRFix } from "@/admin-utils/lib/useSwrFix";
+import {useSWRConfig} from "swr";
+import useSWRMutation from "swr/mutation";
+import {showError, showSuccess} from "@/admin-utils";
+import {useState} from "react";
+import {Currency} from "@/app/(dashboard)/settings/other-settings/_api/getCurrencies";
 import { deleteCurrency } from "../_api/deleteCurrency";
-import { useSWRConfig } from "swr";
 
-export function useDeleteCurrency() {
-  const { mutate: globalMutate } = useSWRConfig();
-  const { loading, error, mutate, data, refetch } = useSWRFix({
-    key: '',
-    fetcher: async () => {},
-    enabled: false,
-  });
+export const useDeleteCurrency = () => {
+  const { mutate:globalMutate } = useSWRConfig();
+  const [deletingIds, setDeletingIds] = useState<string[]>([]);
 
-  const deleteMutate = async (id: string) => {
-    await deleteCurrency(id);
-    globalMutate("currencies", (currencies: any[] = []) => currencies.filter(c => c.id !== id), false);
+  const { trigger, isMutating } = useSWRMutation(
+      "delete-currency",
+      async (_, { arg }: { arg: { id: string } }) => {
+        return await deleteCurrency(arg.id);
+      },
+      {
+        onSuccess: () => showSuccess("Member deleted successfully!"),
+        onError: (error) => {
+          globalMutate("currencies");
+          showError({ message: error.message });
+        }
+      }
+  );
+
+  const deleteMemberById = async (id: string) => {
+    setDeletingIds(prev => [...prev, id]);
+    try {
+      await trigger({ id });
+      await globalMutate(
+          "currencies",
+          (currentData: Currency[] | undefined) => {
+            if (!currentData) return currentData;
+            return currentData.filter(currency => currency.id !== id);
+          },
+          false
+      );
+    } finally {
+      setDeletingIds(prev => prev.filter(itemId => itemId !== id));
+    }
   };
+
+  const isItemDeleting = (id: string) => deletingIds.includes(id);
 
   return {
-    mutate: deleteMutate,
-    loading,
-    error,
-    data,
-    refetch,
+    deleteMemberById,
+    isDeleting: isMutating,
+    isItemDeleting
   };
-} 
+};

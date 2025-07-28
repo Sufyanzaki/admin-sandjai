@@ -35,7 +35,7 @@ export default function usePhysicalAppearanceForm() {
   }, [params.id, tracker?.id]);
 
   const allowEdit = useMemo(() => {
-    return id || tracker?.aboutMe;
+    return id && tracker?.aboutMe;
   }, [id, tracker?.aboutMe]);
 
   const {

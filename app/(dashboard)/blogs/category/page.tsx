@@ -28,6 +28,7 @@ import AddCategoryForm from "./_components/addCategoryForm";
 import useDeleteBlogCategory from "./_hooks/useDeleteBlogCategory";
 import {useSWRConfig} from "swr";
 import EditCategoryModal from "./_components/EditCategoryModal";
+import Preloader from "@/components/ui/Preloader"
 
 export default function BlogCategoryManagement() {
     const [search, setSearch] = useState("")
@@ -75,8 +76,9 @@ export default function BlogCategoryManagement() {
                     </CardHeader>
                     <CardContent>
                         {loading ? (
-                            <div className="flex items-center justify-center h-32">
-                                <span>Loading categories...</span>
+                            <div className="flex items-center justify-center flex-col h-32">
+                                <Preloader />
+                                <p>Loading categories</p>
                             </div>
                         ) : error ? (
                             <div className="flex items-center justify-center h-32 text-red-500">
@@ -109,9 +111,7 @@ export default function BlogCategoryManagement() {
                                                 </TableCell>
                                                 <TableCell className="text-right">
                                                     {isDeleting && deletingId === category.id ? (
-                                                        <div className="flex items-center justify-center h-10">
-                                                            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-                                                        </div>
+                                                        <Preloader size="sm" />
                                                     ) : (
                                                         <DropdownMenu>
                                                             <DropdownMenuTrigger asChild>

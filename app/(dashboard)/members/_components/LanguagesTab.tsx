@@ -12,6 +12,7 @@ import { Controller } from "react-hook-form";
 import { useParams } from "next/navigation";
 import { getUserTrackingId } from "@/lib/access-token";
 import { AlertTriangle } from "lucide-react";
+import Preloader from "@/components/ui/Preloader";
 
 export default function LanguagesTab() {
 
@@ -27,6 +28,7 @@ export default function LanguagesTab() {
     errors,
     isLoading,
     onSubmit,
+    languageInfoLoading
   } = useLanguageInfoForm();
 
   const languageOptions = [
@@ -38,6 +40,10 @@ export default function LanguagesTab() {
 
   return (
     <TabsContent value="languages" className="space-y-4 mt-4">
+      {languageInfoLoading ? <div className="flex items-center flex-col justify-center h-64">
+                            <Preloader/>
+                            <p className="text-sm">Loading Languages</p>
+                        </div> :
       <Card>
         <CardHeader>
           <CardTitle>Languages</CardTitle>
@@ -62,7 +68,7 @@ export default function LanguagesTab() {
                   control={control}
                   name="motherTongue"
                   render={({ field }) => (
-                    <Select value={field.value} onValueChange={field.onChange}>
+                    <Select value={field.value} onValueChange={field.onChange} key={field.value}>
                       <SelectTrigger id="mother-tongue" className="w-full">
                         <SelectValue placeholder="Select your mother tongue" />
                       </SelectTrigger>
@@ -107,7 +113,7 @@ export default function LanguagesTab() {
             </div>
           </CardContent>
         </form>
-      </Card>
+      </Card>}
     </TabsContent>
   );
 } 

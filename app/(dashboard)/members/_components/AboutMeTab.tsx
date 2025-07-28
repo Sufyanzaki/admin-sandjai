@@ -13,6 +13,7 @@ import type { FieldErrors } from "react-hook-form";
 import { useParams } from "next/navigation";
 import { getUserTrackingId } from "@/lib/access-token";
 import { AlertTriangle } from "lucide-react";
+import Preloader from "@/components/ui/Preloader";
 
 export default function AboutMeTab() {
 
@@ -28,6 +29,7 @@ export default function AboutMeTab() {
     errors,
     isLoading,
     onSubmit,
+    physicalAppearanceLoading
   } = usePhysicalAppearanceForm();
 
   const lengthOptions = [
@@ -49,6 +51,10 @@ export default function AboutMeTab() {
 
   return (
     <TabsContent value="about_me" className="space-y-4 mt-4">
+      {physicalAppearanceLoading ? <div className="flex items-center flex-col justify-center h-64">
+                            <Preloader/>
+                            <p className="text-sm">Loading Appearence</p>
+                        </div> : 
       <Card>
         <CardHeader className="">
           <CardTitle>Physical Characteristics</CardTitle>
@@ -88,7 +94,7 @@ export default function AboutMeTab() {
                     control={control}
                     name="height"
                     render={({ field }) => (
-                      <Select value={field.value} onValueChange={field.onChange}>
+                      <Select value={field.value} onValueChange={field.onChange} key={field.value}>
                         <SelectTrigger id="length">
                           <SelectValue placeholder="Select length" />
                         </SelectTrigger>
@@ -114,7 +120,7 @@ export default function AboutMeTab() {
                     control={control}
                     name="hairColor"
                     render={({ field }) => (
-                      <Select value={field.value} onValueChange={field.onChange}>
+                      <Select value={field.value} onValueChange={field.onChange} key={field.value}>
                         <SelectTrigger id="hair-color">
                           <SelectValue placeholder="Select hair color" />
                         </SelectTrigger>
@@ -161,7 +167,7 @@ export default function AboutMeTab() {
                     control={control}
                     name="clothing"
                     render={({ field }) => (
-                      <Select value={field.value} onValueChange={field.onChange}>
+                      <Select value={field.value} onValueChange={field.onChange} key={field.value}>
                         <SelectTrigger id="clothing-styles">
                           <SelectValue placeholder="Select clothing style" />
                         </SelectTrigger>
@@ -190,7 +196,7 @@ export default function AboutMeTab() {
                     control={control}
                     name="eyeColor"
                     render={({ field }) => (
-                      <Select value={field.value} onValueChange={field.onChange}>
+                      <Select value={field.value} onValueChange={field.onChange} key={field.value}>
                         <SelectTrigger id="eye-color">
                           <SelectValue placeholder="Select eye color" />
                         </SelectTrigger>
@@ -216,7 +222,7 @@ export default function AboutMeTab() {
                     control={control}
                     name="bodyType"
                     render={({ field }) => (
-                      <Select value={field.value} onValueChange={field.onChange}>
+                      <Select value={field.value} onValueChange={field.onChange} key={field.value}>
                         <SelectTrigger id="body-type">
                           <SelectValue placeholder="Select body type" />
                         </SelectTrigger>
@@ -242,7 +248,7 @@ export default function AboutMeTab() {
                     control={control}
                     name="appearance"
                     render={({ field }) => (
-                      <Select value={field.value} onValueChange={field.onChange}>
+                      <Select value={field.value} onValueChange={field.onChange} key={field.value}>
                         <SelectTrigger id="appearance">
                           <SelectValue placeholder="Select appearance" />
                         </SelectTrigger>
@@ -268,7 +274,7 @@ export default function AboutMeTab() {
                     control={control}
                     name="intelligence"
                     render={({ field }) => (
-                      <Select value={field.value} onValueChange={field.onChange}>
+                      <Select value={field.value} onValueChange={field.onChange} key={field.value}>
                         <SelectTrigger id="intelligence">
                           <SelectValue placeholder="Select intelligence preference" />
                         </SelectTrigger>
@@ -315,7 +321,7 @@ export default function AboutMeTab() {
             </div>
           </CardContent>
         </form>
-      </Card>
+      </Card>}
     </TabsContent>
   );
 } 

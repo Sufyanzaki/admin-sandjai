@@ -36,9 +36,9 @@ interface UserApiResponse {
   partnerExpectation?: any;
   lifestyle?: any;
   hobbiesInterests?: any;
-  languages?: any;
+  language?: any;
   living?: any;
-  aboutMe?: any;
+  physicalAppearance?: any;
 }
 
 const createUserSchema = (requirePassword: boolean) => z.object({
@@ -143,15 +143,9 @@ export default function useCreateUserForm() {
         partnerExpectation: !!u.partnerExpectation,
         lifeStyle: !!u.lifestyle,
         hobbiesAndInterest: !!u.hobbiesInterests,
-        languages: !!u.languages,
+        languages: !!u.language,
         living: !!u.living,
-        aboutMe: !!u.aboutMe,
-      });
-
-      console.log("User data loaded for editing:", {
-        id: id || "",
-        languages: u.languages,
-        aboutMe: u.aboutMe,
+        aboutMe: !!u.physicalAppearance,
       });
     }
   }, [user, id]);

@@ -1,11 +1,11 @@
-import { postRequest } from "@/admin-utils";
+import {patchRequest} from "@/admin-utils";
 
 export interface PostAbusiveWordsPayload {
-  words: string[];
+  word: string;
 }
 
-export async function postAbusiveWords(payload: PostAbusiveWordsPayload) {
-  return postRequest<PostAbusiveWordsPayload>({
+export async function patchAbusiveWords(payload: PostAbusiveWordsPayload) {
+  return patchRequest<PostAbusiveWordsPayload>({
     url: "setting/abusive",
     data: payload,
     useAuth: true,

@@ -37,7 +37,7 @@ export default function useLifeStyleForm() {
   }, [params.id, tracker?.id]);
 
   const allowEdit = useMemo(() => {
-    return id || tracker?.lifeStyle;
+    return id && tracker?.lifeStyle;
   }, [id, tracker?.lifeStyle]);
 
   const {

@@ -1,9 +1,15 @@
-import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { TableHeader, TableRow, TableHead, Table, TableCell, TableBody } from "@/components/ui/table";
+import {Button} from "@/components/ui/button";
+import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card";
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
 import {MoreHorizontal, Pencil, Plus, Save, Settings, Settings2, Trash2} from "lucide-react";
 import {Badge} from "@/components/ui/badge";
-import { DropdownMenuTrigger, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu";
 import {
     Dialog,
     DialogContent,
@@ -17,16 +23,23 @@ import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/c
 import {Input} from "@/components/ui/input";
 import {useState} from "react";
 import {Switch} from "@/components/ui/switch";
-import { useCurrencies } from "../_hooks/useCurrencies";
-import type { Currency } from "../_api/getCurrencies";
+import {useCurrencies} from "../_hooks/useCurrencies";
+import Preloader from "@/components/ui/Preloader";
+import {useDeleteCurrency} from "../_hooks/useDeleteCurrency";
 
 export default function CurrencyTable() {
     const { currencies, loading, error } = useCurrencies();
     const [openAddDialog, setOpenAddDialog] = useState(false);
     const [openFormatDialog, setOpenFormatDialog] = useState(false);
-    const [currencyToDelete, setCurrencyToDelete] = useState<Currency | undefined>(undefined);
 
-    if (loading) return <div className="p-6">Loading currencies...</div>;
+    const { isItemDeleting, deleteMemberById, isDeleting } = useDeleteCurrency();
+
+    if (loading) return(
+        <div className="flex items-center flex-col justify-center h-64">
+            <Preloader/>
+            <p className="text-sm">Currency Info</p>
+        </div>
+    );
     if (error) return <div className="p-6 text-red-500">Failed to load currencies.</div>;
 
   return (
@@ -90,7 +103,9 @@ export default function CurrencyTable() {
                                         <Switch id={`show-${currency.id}`} checked={!!currency.textDirection} />
                                     </TableCell>
                                     <TableCell>
-                                        <DropdownMenu>
+                                        {isDeleting && isItemDeleting(currency.id) ? (
+                                            <Preloader size="sm" />
+                                        ) : <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
                                                 <Button variant="ghost" className="h-8 w-8 p-0 ml-auto">
                                                     <MoreHorizontal className="h-4 w-4" />
@@ -105,13 +120,13 @@ export default function CurrencyTable() {
                                                 <DropdownMenuSeparator />
                                                 <DropdownMenuItem
                                                     className="text-destructive focus:text-destructive"
-                                                    onClick={() => setCurrencyToDelete(currency)}
+                                                    onClick={() => deleteMemberById(currency.id)}
                                                 >
                                                     <Trash2 className="mr-2 h-4 w-4" />
                                                     Delete
                                                 </DropdownMenuItem>
                                             </DropdownMenuContent>
-                                        </DropdownMenu>
+                                        </DropdownMenu>}
                                     </TableCell>
                                 </TableRow>
                             ))}

@@ -11,6 +11,7 @@ import { Controller } from "react-hook-form";
 import { AlertTriangle } from "lucide-react";
 import { useParams } from "next/navigation";
 import { getUserTrackingId } from "@/lib/access-token";
+import Preloader from "@/components/ui/Preloader";
 
 const interestMap: { id: keyof HobbiesInterestsFormValues; label: string; options: string[] }[] = [
   { id: "sports", label: "Sports", options: [
@@ -45,10 +46,15 @@ export default function HobbiesTab() {
     isLoading,
     onSubmit,
     control,
+    hobbiesInterestsLoading
   } = useHobbiesInterestsForm();
 
   return (
     <TabsContent value="hobbies" className="space-y-4 mt-4">
+      {hobbiesInterestsLoading ? <div className="flex items-center flex-col justify-center h-64">
+                            <Preloader/>
+                            <p className="text-sm">Loading Hobbies and Interests</p>
+                        </div> :
       <Card>
         <CardHeader>
           <CardTitle>Interests & Preferences</CardTitle>
@@ -90,7 +96,7 @@ export default function HobbiesTab() {
             </div>
           </CardContent>
         </form>
-      </Card>
+      </Card>}
     </TabsContent>
   );
 } 

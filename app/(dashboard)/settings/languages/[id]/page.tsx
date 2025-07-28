@@ -76,7 +76,7 @@ export default function LanguageTranslatePage() {
                         </TableBody>
                     </Table>
 
-                    <PaginationSection />
+                    {/*<PaginationSection />*/}
                 </CardContent>
             </Card>
         </div>

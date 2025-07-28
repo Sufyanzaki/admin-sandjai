@@ -63,7 +63,7 @@ export default function usePersonalityBehaviorForm() {
   }, [params.id, tracker?.id]);
 
   const allowEdit = useMemo(() => {
-    return id || tracker?.personalityAndBehavior;
+    return id && tracker?.personalityAndBehavior;
   }, [id, tracker?.personalityAndBehavior]);
 
   const {
