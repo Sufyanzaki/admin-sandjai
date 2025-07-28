@@ -14,12 +14,25 @@ import Preloader from "@/components/ui/Preloader";
 
 export default function BasicSettingsForm() {
   const { handleSubmit, control, register, errors, isLoading, onSubmit, loading, data } = useBasicSettingsForm();
+
+  // Helper to get the preview URL for the logo
+  const getLogoPreview = (logo: File | string | undefined) => {
+    if (!logo) return "";
+    if (typeof logo === "string") return logo;
+    if (logo instanceof File) return URL.createObjectURL(logo);
+    return "";
+  };
+
+  // Watch the systemLogo field for preview
+  const systemLogoValue = control._formValues?.systemLogo;
+
   if (loading) return (
     <div className="flex items-center flex-col justify-center h-64">
-        <Preloader />
+        <Preloader/>
         <p className="text-sm">Loading settings</p>
     </div>
-  )
+  );
+
   return (
     <Card>
       <CardHeader>
@@ -44,9 +57,13 @@ export default function BasicSettingsForm() {
                   <div className="space-y-2">
                     <Label>System Logo</Label>
                     <div className="flex items-center gap-4">
-                      <div className="h-24 w-24 rounded-lg border flex items-center justify-center bg-muted/50">
-                        {data?.systemLogo ? (
-                          <img src={data.systemLogo} alt="Logo" className="h-20 w-20 object-contain" />
+                      <div className="h-24 w-24 rounded-lg border flex items-center justify-center bg-muted/50 overflow-hidden">
+                        {getLogoPreview(systemLogoValue) ? (
+                          <img
+                            src={getLogoPreview(systemLogoValue)}
+                            alt="Logo"
+                            className="h-20 w-20 object-contain"
+                          />
                         ) : (
                           <Upload className="h-6 w-6 text-muted-foreground" />
                         )}

@@ -2,9 +2,6 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
 import { MoreHorizontal } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
@@ -16,7 +13,7 @@ import Preloader from "@/components/ui/Preloader"
 
 export default function LanguagesManagementPage() {
     const { languages, languagesLoading, error } = useLanguages();
-    const { mutate: patchStatus, loading: patching } = usePatchLanguageStatus();
+    const { mutate: patchStatus, loading: patching, patchingId } = usePatchLanguageStatus();
 
     return (
         <div className="flex flex-col gap-6 p-4 xl:p-6">
@@ -67,6 +64,11 @@ export default function LanguagesManagementPage() {
                                           </span>
                                         </TableCell>
                                         <TableCell className="text-right">
+                                            {patchingId === language.id ? (
+                                                <div className="flex items-center justify-end">
+                                                    <Preloader size="sm" />
+                                                </div>
+                                            ) : 
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
                                                     <Button variant="ghost" className="h-8 w-8 p-0">
@@ -80,13 +82,13 @@ export default function LanguagesManagementPage() {
                                                     </DropdownMenuItem>
                                                     <DropdownMenuItem
                                                         className="text-red-600"
-                                                        onClick={() => patchStatus(language.id, language.isActive ? false : true)}
-                                                        disabled={patching}
+                                                        onClick={() => patchStatus(language.id, !language.isActive)}
+                                                        disabled={!!patchingId}
                                                     >
                                                         {language.isActive ? "Deactivate" : "Activate"}
                                                     </DropdownMenuItem>
                                                 </DropdownMenuContent>
-                                            </DropdownMenu>
+                                            </DropdownMenu>}
                                         </TableCell>
                                     </TableRow>
                                 )) : (

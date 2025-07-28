@@ -9,6 +9,7 @@ import {updateBanner} from "@/app/(dashboard)/marketing/banners/_api/updateBanne
 import useSWRMutation from "swr/mutation";
 import { useEffect } from "react";
 import { useBannerDetails } from "./useBannerDetails";
+import {imageUpload} from "@/admin-utils/utils/imageUpload";
 
 const editBannerSchema = z.object({
     name: z.string()
@@ -106,16 +107,11 @@ export default function useEditBannerForm(id: string) {
             }
         });
     }, [banner, reset]);
-    // Remove all file/preview logic from the hook
-    // Accepts a File | null as an argument to onSubmit
     const onSubmit = async (values: EditBannerFormValues, bannerImageFile: File | null, callback?: (data: {status: number} | undefined) => void) => {
         try {
             let bannerImageUrl = typeof values.bannerImage === 'string' ? values.bannerImage : '';
-            if (bannerImageFile) {
-                // Use the uploadDocument function to upload the file and get the URL
-                const { uploadDocument } = await import('@/admin-utils/utils/uploadDocument');
-                const uploadResult = await uploadDocument({ name: bannerImageFile.name, type: bannerImageFile.type });
-                bannerImageUrl = uploadResult.url;
+            if (values.bannerImage instanceof File) {
+                bannerImageUrl = await imageUpload(values.bannerImage);
             }
             const result = await trigger({
                 name: values.name,

@@ -1,7 +1,6 @@
 import { uploadDocument } from "@/admin-utils/utils/uploadDocument";
 
 export async function imageUpload(file: File): Promise<string> {
-    return "https://ui.shadcn.com/blocks";
     const fileType = file.name.split('.').pop()?.toLowerCase() || '';
     const { url: presignedUrl, path: filePath } = await uploadDocument({
         name: file.name,

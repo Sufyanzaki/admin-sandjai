@@ -17,7 +17,7 @@ import { getUserTrackingId } from "@/lib/access-token";
 import {useParams} from "next/navigation";
 import Preloader from "@/components/ui/Preloader";
 
-export default function PersonalInfoTab({callback}: {callback: () => void}) {
+export default function PersonalInfoTab({ callback }: { callback: () => void }) {
 
   const params = useParams();
   const {id} = params;
@@ -37,7 +37,7 @@ export default function PersonalInfoTab({callback}: {callback: () => void}) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imageValue = watch("image");
 
-  // Helper to get preview URL from image value
+  // Helper to get preview URL from image value (file or url)
   const getImagePreview = (image: File | string | undefined) => {
     if (!image) return "";
     if (typeof image === "string") return image;
@@ -285,4 +285,4 @@ export default function PersonalInfoTab({callback}: {callback: () => void}) {
       </Card>
     </TabsContent>
   );
-} 
+}

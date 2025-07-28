@@ -7,7 +7,7 @@ import { useEffect } from "react";
 import useSWRMutation from "swr/mutation";
 import { showError } from "@/admin-utils/lib/formErrors";
 import { showSuccess } from "@/admin-utils/lib/formSuccess";
-import { postBasicSettings } from "../_api/postBasicSettings";
+import { patchBasicSettings } from "../_api/patchBasicSettings";
 import { useBasicSettings } from "./useBasicSettings";
 import { imageUpload } from "@/admin-utils/utils/imageUpload";
 import { isFile } from "@/lib/utils";
@@ -35,7 +35,7 @@ export function useBasicSettingsForm() {
   const { trigger, isMutating } = useSWRMutation(
     "postBasicSettings",
     async (_: string, { arg }: { arg: BasicSettingsFormValues }) => {
-      return await postBasicSettings(arg);
+      return await patchBasicSettings(arg);
     },
     {
       onError: (error: Error) => {
