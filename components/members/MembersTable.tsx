@@ -24,7 +24,8 @@ interface MembersTableProps {
   checkedAll: string[];
   onCheckAll: (checked: CheckedState) => void;
   onSingleCheck: (params: { checked: CheckedState; value: string }) => void;
-  onDeleteClick: () => void;
+  onDeleteClick: (val:string) => void;
+  isItemDeleting?: (id: string) => boolean;
 }
 
 export default function MembersTable({
@@ -34,6 +35,7 @@ export default function MembersTable({
   onCheckAll,
   onSingleCheck,
   onDeleteClick,
+  isItemDeleting,
 }: MembersTableProps) {
   return (
     <div className="rounded-md border">
@@ -116,48 +118,54 @@ export default function MembersTable({
                   </Badge>
                 </TableCell>
                 <TableCell className="text-right">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon">
-                        <MoreVertical className="h-4 w-4" />
-                        <span className="sr-only">Actions</span>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem asChild>
-                        <Link href={`/members/${member.id}`} className="flex items-center gap-2">
-                          <Eye className="h-4 w-4" />
-                          View Profile
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link href={`/members/${member.id}/edit`} className="flex items-center gap-2">
-                          <Edit className="h-4 w-4" />
-                          Edit Profile
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem>
-                        {member.isActive ? (
-                          <>
-                            <UserX className="mr-2 h-4 w-4" />
-                            Deactivate
-                          </>
-                        ) : (
-                          <>
-                            <UserCheck className="mr-2 h-4 w-4" />
-                            Activate
-                          </>
-                        )}
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={onDeleteClick} className="text-red-500">
-                        <Trash className="mr-2 h-4 w-4" />
-                        Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  {isItemDeleting && isItemDeleting(member.id) ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-500 ml-auto"></div>
+                      </>
+                  ) : (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon">
+                            <MoreVertical className="h-4 w-4" />
+                            <span className="sr-only">Actions</span>
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem asChild>
+                            <Link href={`/members/${member.id}`} className="flex items-center gap-2">
+                              <Eye className="h-4 w-4" />
+                              View Profile
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem asChild>
+                            <Link href={`/members/${member.id}/edit`} className="flex items-center gap-2">
+                              <Edit className="h-4 w-4" />
+                              Edit Profile
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem>
+                            {member.isActive ? (
+                                <>
+                                  <UserX className="mr-2 h-4 w-4" />
+                                  Deactivate
+                                </>
+                            ) : (
+                                <>
+                                  <UserCheck className="mr-2 h-4 w-4" />
+                                  Activate
+                                </>
+                            )}
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={()=>onDeleteClick(member.id)} className="text-red-500">
+                            <Trash className="mr-2 h-4 w-4" />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                  )}
                 </TableCell>
               </TableRow>
             ))

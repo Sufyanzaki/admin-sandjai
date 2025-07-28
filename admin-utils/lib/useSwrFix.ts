@@ -4,7 +4,7 @@ import useSWR, { SWRConfiguration, SWRResponse } from 'swr';
 import { useEffect, useState } from 'react';
 
 export type UseSWRFixProps<T, U> = {
-    key: string | (() => string | null);
+    key: string | string[] | (() => string | string[] | null);
     fetcher: () => Promise<T>;
     transform?: (data: T) => U;
     config?: SWRConfiguration<T>;

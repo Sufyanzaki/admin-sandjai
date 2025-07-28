@@ -11,8 +11,13 @@ import {
   AlertDialogTitle
 } from "@/components/ui/alert-dialog";
 
+type Props = {
+  key: string;
+  value: boolean;
+}
+
 interface DeleteMemberDialogProps {
-  open: boolean;
+  open: Props;
   onOpenChange: (open: boolean) => void;
   onConfirm: () => void;
 }
@@ -23,12 +28,12 @@ export default function DeleteMemberDialog({
   onConfirm,
 }: DeleteMemberDialogProps) {
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
+    <AlertDialog open={open.value} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Are you sure you want to Delete this staff member?</AlertDialogTitle>
+          <AlertDialogTitle>Are you sure you want to Delete this member?</AlertDialogTitle>
           <AlertDialogDescription>
-            This action will permanently delete the staff member's record from the system. 
+            This action will permanently delete the member's record from the system.
             This action cannot be undone and will remove all associated data including schedules, 
             permissions and attendance records.
           </AlertDialogDescription>

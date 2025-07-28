@@ -4,7 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Ban, Calendar, Edit, Eye, Mail, MapPin, Package, User } from "lucide-react";
+import {Ban, Calendar, Edit, Eye, Mail, MapPin, Package, Trash2, User} from "lucide-react";
 import Link from "next/link";
 import { Member } from "@/app/(dashboard)/members/_types/member";
 
@@ -14,6 +14,8 @@ interface MembersGridProps {
   currentPage: number;
   totalPages?: number;
   onPageChange: (page: number) => void;
+  onDeleteClick: (val:string) => void;
+  isItemDeleting?: (id: string) => boolean;
 }
 
 export default function MembersGrid({
@@ -22,6 +24,8 @@ export default function MembersGrid({
   currentPage,
   totalPages,
   onPageChange,
+  onDeleteClick,
+  isItemDeleting
 }: MembersGridProps) {
   if (isLoading) {
     return (
@@ -99,8 +103,12 @@ export default function MembersGrid({
                     <Ban className="h-4 w-4 text-yellow-600" />
                   </Button>
 
-                  <Button variant="ghost" className="flex-1 rounded-none rounded-br-md border-l py-2 justify-center">
-                    <Ban className="h-4 w-4 text-red-600" />
+                  <Button variant="ghost" className="flex-1 rounded-none rounded-br-md border-l py-2 justify-center" onClick={()=>onDeleteClick(member.id)}>
+                    {isItemDeleting && isItemDeleting(member.id) ? (
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
+                    ) : (
+                      <Trash2 className="h-4 w-4 text-red-600" />
+                    )}
                   </Button>
                 </div>
               </div>
@@ -108,7 +116,7 @@ export default function MembersGrid({
           </Card>
         ))}
       </div>
-      
+
       <div className="mt-4 flex items-center justify-between">
         <div className="text-sm text-muted-foreground">
           Showing <strong>1-{members.length}</strong> of <strong>{members.length}</strong> members
