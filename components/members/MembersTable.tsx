@@ -14,7 +14,7 @@ import {
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { CheckedState } from "@radix-ui/react-checkbox";
-import { Edit, Eye, MoreVertical, Trash, UserCheck, UserX } from "lucide-react";
+import { Edit, Eye, MoreVertical, Trash, UserCheck, UserX, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { Member } from "@/app/(dashboard)/members/_types/member";
 
@@ -24,7 +24,8 @@ interface MembersTableProps {
   checkedAll: string[];
   onCheckAll: (checked: CheckedState) => void;
   onSingleCheck: (params: { checked: CheckedState; value: string }) => void;
-  onDeleteClick: () => void;
+  onDeleteClick: (id: string) => void;
+  deletingMemberId?: string | null;
 }
 
 export default function MembersTable({
@@ -34,6 +35,7 @@ export default function MembersTable({
   onCheckAll,
   onSingleCheck,
   onDeleteClick,
+  deletingMemberId,
 }: MembersTableProps) {
   return (
     <div className="rounded-md border">
@@ -68,99 +70,111 @@ export default function MembersTable({
               </TableCell>
             </TableRow>
           ) : (
-            members.map((member) => (
-              <TableRow key={member.id}>
-                <TableCell>
-                  <Checkbox
-                    id={`member-${member.id}`}
-                    checked={checkedAll.includes(member.id.toString())}
-                    onCheckedChange={(checked) => onSingleCheck({ checked, value: member.id.toString() })}
-                  />
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-3">
-                    <Avatar className="h-8 w-8">
-                      <AvatarImage src={member.image || "/user-2.png"} alt={`${member.firstName} ${member.lastName}`} />
-                      <AvatarFallback>{member.firstName.charAt(0)}</AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <p className="font-medium">{member.firstName} {member.lastName}</p>
-                      <p className="text-xs text-muted-foreground">{member.email}</p>
+            members.map((member) => {
+              const isDeleting = deletingMemberId === member.id.toString();
+              
+              return (
+                <TableRow key={member.id} className={isDeleting ? "opacity-50" : ""}>
+                  <TableCell>
+                    <Checkbox
+                      id={`member-${member.id}`}
+                      checked={checkedAll.includes(member.id.toString())}
+                      onCheckedChange={(checked) => onSingleCheck({ checked, value: member.id.toString() })}
+                      disabled={isDeleting}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-3">
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage src={member.image || "/user-2.png"} alt={`${member.firstName} ${member.lastName}`} />
+                        <AvatarFallback>{member.firstName.charAt(0)}</AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <p className="font-medium">{member.firstName} {member.lastName}</p>
+                        <p className="text-xs text-muted-foreground">{member.email}</p>
+                      </div>
                     </div>
-                  </div>
-                </TableCell>
-                <TableCell>{member.gender}</TableCell>
-                <TableCell>{member.age}</TableCell>
-                <TableCell>
-                  <Badge
-                    variant="outline"
-                    className={
-                      member.isPremium
-                        ? "bg-yellow-100 text-yellow-800 border-yellow-200"
-                        : "bg-blue-100 text-blue-800 border-blue-200"
-                    }
-                  >
-                    {member.isPremium ? "Premium Member" : "Free Member"}
-                  </Badge>
-                </TableCell>
-                <TableCell>
-                  <Badge
-                    variant={member.isActive ? "default" : "secondary"}
-                    className={
-                      member.isActive
-                        ? "bg-green-500 text-white"
-                        : "bg-red-500 text-white"
-                    }
-                  >
-                    {member.isActive ? "Active" : "Inactive"}
-                  </Badge>
-                </TableCell>
-                <TableCell className="text-right">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon">
-                        <MoreVertical className="h-4 w-4" />
-                        <span className="sr-only">Actions</span>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem asChild>
-                        <Link href={`/members/${member.id}`} className="flex items-center gap-2">
-                          <Eye className="h-4 w-4" />
-                          View Profile
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link href={`/members/${member.id}/edit`} className="flex items-center gap-2">
-                          <Edit className="h-4 w-4" />
-                          Edit Profile
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem>
-                        {member.isActive ? (
-                          <>
-                            <UserX className="mr-2 h-4 w-4" />
-                            Deactivate
-                          </>
-                        ) : (
-                          <>
-                            <UserCheck className="mr-2 h-4 w-4" />
-                            Activate
-                          </>
-                        )}
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={onDeleteClick} className="text-red-500">
-                        <Trash className="mr-2 h-4 w-4" />
-                        Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
-              </TableRow>
-            ))
+                  </TableCell>
+                  <TableCell>{member.gender}</TableCell>
+                  <TableCell>{member.age}</TableCell>
+                  <TableCell>
+                    <Badge
+                      variant="outline"
+                      className={
+                        member.isPremium
+                          ? "bg-yellow-100 text-yellow-800 border-yellow-200"
+                          : "bg-blue-100 text-blue-800 border-blue-200"
+                      }
+                    >
+                      {member.isPremium ? "Premium Member" : "Free Member"}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Badge
+                      variant={member.isActive ? "default" : "secondary"}
+                      className={
+                        member.isActive
+                          ? "bg-green-500 text-white"
+                          : "bg-red-500 text-white"
+                      }
+                    >
+                      {member.isActive ? "Active" : "Inactive"}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {isDeleting ? (
+                      <div className="flex items-center justify-end">
+                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                        <span className="text-sm text-muted-foreground">Deleting...</span>
+                      </div>
+                    ) : (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon">
+                            <MoreVertical className="h-4 w-4" />
+                            <span className="sr-only">Actions</span>
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem asChild>
+                            <Link href={`/members/${member.id}`} className="flex items-center gap-2">
+                              <Eye className="h-4 w-4" />
+                              View Profile
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem asChild>
+                            <Link href={`/members/${member.id}/edit`} className="flex items-center gap-2">
+                              <Edit className="h-4 w-4" />
+                              Edit Profile
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem>
+                            {member.isActive ? (
+                              <>
+                                <UserX className="mr-2 h-4 w-4" />
+                                Deactivate
+                              </>
+                            ) : (
+                              <>
+                                <UserCheck className="mr-2 h-4 w-4" />
+                                Activate
+                              </>
+                            )}
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => onDeleteClick(member.id.toString())} className="text-red-500">
+                            <Trash className="mr-2 h-4 w-4" />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    )}
+                  </TableCell>
+                </TableRow>
+              );
+            })
           )}
         </TableBody>
       </Table>
