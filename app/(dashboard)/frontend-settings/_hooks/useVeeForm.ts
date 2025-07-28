@@ -28,7 +28,7 @@ const veeFormSchema = z.object({
 type VeeFormValues = z.infer<typeof veeFormSchema>;
 
 export default function useVeeForm() {
-    const { veeData, mutate } = useVee();
+    const { veeData, mutate, veeLoading } = useVee();
 
     const {
         register,
@@ -115,5 +115,6 @@ export default function useVeeForm() {
         errors,
         isLoading: isMutating,
         onSubmit,
+        veeLoading
     };
 }

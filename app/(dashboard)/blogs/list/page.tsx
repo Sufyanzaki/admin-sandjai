@@ -23,9 +23,12 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useBlogs } from "../_hooks/useBlogs";
+import Preloader from "@/components/ui/Preloader";
+import { useDeleteBlog } from "../_hooks/useDeleteBlog";
 
 export default function BlogListPage() {
   const { blogs = [], loading, error } = useBlogs();
+  const { deleteBlogById, isItemDeleting } = useDeleteBlog();
 
   return (
     <div className="flex flex-col gap-4 p-4 xl:p-6">
@@ -91,10 +94,17 @@ export default function BlogListPage() {
         <CardContent>
           <div className="rounded-md border">
             {loading ? (
-              <div className="flex items-center justify-center h-32">Loading blogs...</div>
+                <div className="flex items-center flex-col justify-center h-64">
+                  <Preloader/>
+                  <p className="text-sm">Loading Blogs...</p>
+                </div>
             ) : error ? (
               <div className="flex items-center justify-center h-32 text-red-500">Error loading blogs</div>
-            ) : (
+            ) : blogs.length === 0 ? (
+              <div className="flex items-center justify-center h-32">
+                No blogs found.
+              </div> )
+            : (
               <Table className="whitespace-nowrap">
                 <TableHeader>
                   <TableRow>
@@ -121,7 +131,10 @@ export default function BlogListPage() {
                         <Badge variant="default">Active</Badge>
                       </TableCell>
                       <TableCell className="text-right">
-                        <DropdownMenu>
+                        {isItemDeleting(blog.id) ? (
+                            <Preloader size="sm" />
+                              ) : (
+                                <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button variant="ghost" className="h-8 w-8 p-0">
                               <MoreHorizontal className="h-4 w-4" />
@@ -138,11 +151,16 @@ export default function BlogListPage() {
                                 <Pencil className="mr-2 h-4 w-4" /> Edit
                               </Link>
                             </DropdownMenuItem>
-                            <DropdownMenuItem className="text-red-600">
+                            <DropdownMenuItem
+                              className="text-red-600"
+                              onClick={() => deleteBlogById(blog.id)}
+                              disabled={isItemDeleting(blog.id)}
+                            >
                               <Trash className="mr-2 h-4 w-4" /> Delete
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
+                              )}
                       </TableCell>
                     </TableRow>
                   ))}

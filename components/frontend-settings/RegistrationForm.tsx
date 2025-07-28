@@ -10,6 +10,7 @@ import {CustomImageUpload} from "@/components/frontend-settings/CustomImageInput
 import Link from "next/link"
 import { Controller } from "react-hook-form"
 import useRegistrationForm from "@/app/(dashboard)/frontend-settings/_hooks/useRegisterationForm";
+import Preloader from "@/components/ui/Preloader";
 
 export default function RegistrationForm() {
     const {
@@ -19,7 +20,15 @@ export default function RegistrationForm() {
         errors,
         isLoading,
         onSubmit,
+        loading
     } = useRegistrationForm();
+
+    if(loading) return (
+        <div className="flex items-center flex-col justify-center h-64">
+            <Preloader/>
+            <p className="text-sm">Loading...</p>
+        </div>
+    )
 
     return (
         <form onSubmit={handleSubmit(onSubmit)}>

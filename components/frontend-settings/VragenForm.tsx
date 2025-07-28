@@ -12,6 +12,7 @@ import Link from "next/link"
 import {SimpleEditor} from "@/components/tiptap-templates/simple/simple-editor"
 import {Controller} from "react-hook-form"
 import useVeeForm from "@/app/(dashboard)/frontend-settings/_hooks/useVeeForm";
+import Preloader from "@/components/ui/Preloader";
 
 export default function VragenForm() {
     const {
@@ -21,9 +22,15 @@ export default function VragenForm() {
         errors,
         isLoading,
         onSubmit,
-        setValue,
-        watch,
+        veeLoading
     } = useVeeForm();
+
+    if(veeLoading) return (
+        <div className="flex items-center flex-col justify-center h-64">
+            <Preloader/>
+            <p className="text-sm">Loading...</p>
+        </div>
+    )
 
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -148,7 +155,6 @@ export default function VragenForm() {
                                     file={field.value instanceof File ? field.value : null}
                                     existingImage={typeof field.value === 'string' ? field.value : undefined}
                                     onFileChange={field.onChange}
-                                    onClear={() => field.onChange('')}
                                     type="meta-image"
                                 />
                             )}

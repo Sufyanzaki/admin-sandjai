@@ -13,6 +13,7 @@ import React, { useEffect } from "react";
 import { AlertTriangle } from "lucide-react";
 import { useParams } from "next/navigation";
 import { getUserTrackingId } from "@/lib/access-token";
+import Preloader from "@/components/ui/Preloader";
 
 export default function ProfessionalTab() {
 
@@ -32,7 +33,14 @@ export default function ProfessionalTab() {
     educationCareerLoading
   } = useEducationCareerForm();
 
-  if (educationCareerLoading) return <div>Loading...</div>;
+  if (educationCareerLoading) {
+      return (
+        <div className="flex items-center flex-col justify-center h-64">
+          <Preloader/>
+          <p className="text-sm">Loading Education, hang tight...</p>
+        </div>
+      );
+    }
 
   return (
     <TabsContent value="professional" className="space-y-4 mt-4">

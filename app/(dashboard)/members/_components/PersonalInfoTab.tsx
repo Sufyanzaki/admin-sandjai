@@ -15,8 +15,9 @@ import { Controller } from "react-hook-form";
 import { useRef } from "react";
 import { getUserTrackingId } from "@/lib/access-token";
 import {useParams} from "next/navigation";
+import Preloader from "@/components/ui/Preloader";
 
-export default function PersonalInfoTab() {
+export default function PersonalInfoTab({callback}: {callback: () => void}) {
 
   const params = useParams();
   const {id} = params;
@@ -56,7 +57,14 @@ export default function PersonalInfoTab() {
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  if(userLoading) return <div>Loading...</div>;
+  if (userLoading) {
+    return (
+      <div className="flex items-center flex-col justify-center h-64">
+        <Preloader/>
+        <p className="text-sm">Loading basic info, hang tight...</p>
+      </div>
+    );
+  }
 
   return (
     <TabsContent value="personal" className="space-y-4 mt-4">
@@ -65,7 +73,7 @@ export default function PersonalInfoTab() {
           <CardTitle>Personal Information</CardTitle>
           <CardDescription>Enter your personal details.</CardDescription>
         </CardHeader>
-        <form onSubmit={handleSubmit((values) => onSubmit(values))}>
+        <form onSubmit={handleSubmit((values) => onSubmit(values, callback))}>
           <CardContent className="space-y-4">
             <div className="flex flex-col items-center space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
               <div className="flex h-32 w-32 items-center justify-center rounded-md border border-dashed relative">

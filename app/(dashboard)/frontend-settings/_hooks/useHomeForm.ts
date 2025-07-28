@@ -173,10 +173,11 @@ export default function useHomeForm() {
     handleSubmit,
     onSubmit,
     errors,
-    isLoading: isSubmitting || isMutating || homeLoading,
+    isLoading: isSubmitting || isMutating,
     register,
     setValue,
     watch,
     homeSettings,
+    homeLoading
   };
 }

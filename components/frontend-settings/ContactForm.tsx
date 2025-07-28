@@ -11,12 +11,22 @@ import { SimpleEditor } from "../tiptap-templates/simple/simple-editor"
 import { CustomImageUpload } from "./CustomImageInput"
 import useContactForm from "@/app/(dashboard)/frontend-settings/_hooks/useContactForm"
 import { Controller } from "react-hook-form"
+import Preloader from "@/components/ui/Preloader";
 
 export default function ContactForm() {
-    const { handleSubmit, onSubmit, errors, isLoading, register, setValue, watch, control } = useContactForm();
+    const { handleSubmit, onSubmit, errors, isLoading, register, setValue, watch, control, contactLoading } = useContactForm();
 
     const handleImageUpload = (file: File | null) => {
         setValue('contactBannerImage', file)
+    }
+
+    if(contactLoading){
+        return (
+            <div className="flex items-center flex-col justify-center h-64">
+                <Preloader/>
+                <p className="text-sm">Loading...</p>
+            </div>
+        )
     }
 
     return (

@@ -10,6 +10,7 @@ import Link from "next/link";
 import { SimpleEditor } from "../tiptap-templates/simple/simple-editor"
 import { Controller } from "react-hook-form";
 import useHowWorkForm from "@/app/(dashboard)/frontend-settings/_hooks/useHowWorkForm";
+import Preloader from "@/components/ui/Preloader";
 
 export default function HowItWorks(){
     const {
@@ -21,12 +22,22 @@ export default function HowItWorks(){
         onSubmit,
         setValue,
         watch,
+        howWorkLoading
     } = useHowWorkForm();
 
     const bannerImage = watch("bannerImage");
 
     const handleImageUpload = (file: File | null) => {
         setValue("bannerImage", file);
+    }
+
+    if(howWorkLoading) {
+        return (
+            <div className="flex items-center flex-col justify-center h-64">
+                <Preloader/>
+                <p className="text-sm">Loading...</p>
+            </div>
+        )
     }
 
     return (

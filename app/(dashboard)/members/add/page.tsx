@@ -6,7 +6,6 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
-// Import your tab components
 import PersonalInfoTab from "@/app/(dashboard)/members/_components/PersonalInfoTab";
 import ProfessionalTab from "@/app/(dashboard)/members/_components/ProfessionalTab";
 import BehaviorTab from "@/app/(dashboard)/members/_components/BehaviorTab";
@@ -19,7 +18,7 @@ import AboutMeTab from "@/app/(dashboard)/members/_components/AboutMeTab";
 
 export default function AddMemberPage() {
   const [activeTab, setActiveTab] = useState("personal");
-
+  
   return (
       <div className="flex flex-col gap-5 p-4 xl:p-6">
         <div className="flex items-center gap-4">
@@ -38,6 +37,7 @@ export default function AddMemberPage() {
         <Tabs
             defaultValue="personal"
             className="space-y-4"
+            value={activeTab}
             onValueChange={setActiveTab}
         >
           <TabsList>
@@ -53,7 +53,7 @@ export default function AddMemberPage() {
           </TabsList>
 
           {/* Only render the active tab */}
-          {activeTab === "personal" && <PersonalInfoTab />}
+          {activeTab === "personal" && <PersonalInfoTab callback={()=>setActiveTab("professional")} />}
           {activeTab === "professional" && <ProfessionalTab />}
           {activeTab === "behavior" && <BehaviorTab />}
           {activeTab === "partner" && <PartnerTab />}

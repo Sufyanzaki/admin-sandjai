@@ -34,7 +34,7 @@ const contactFormSchema = z.object({
 type ContactFormValues = z.infer<typeof contactFormSchema>;
 
 export default function useContactForm() {
-  const { contactSettings, mutate } = useContact();
+  const { contactSettings, mutate, contactLoading } = useContact();
   
   const {
     register,
@@ -131,5 +131,6 @@ export default function useContactForm() {
     isLoading: isMutating,
     onSubmit,
     contactSettings,
+    contactLoading
   };
 }

@@ -12,6 +12,7 @@ import Link from "next/link";
 import {SimpleEditor} from "@/components/tiptap-templates/simple/simple-editor";
 import { Controller } from "react-hook-form";
 import useTOSForm from "@/app/(dashboard)/frontend-settings/_hooks/useTOSForm";
+import Preloader from "@/components/ui/Preloader";
 
 export default function TOSForm(){
     const {
@@ -21,15 +22,15 @@ export default function TOSForm(){
         errors,
         isLoading,
         onSubmit,
-        setValue,
-        watch,
+       tosLoading
     } = useTOSForm();
 
-    const metaImage = watch("metaImage");
-
-    const handleImageUpload = (file: File | null) => {
-        setValue("metaImage", file);
-    }
+    if(tosLoading) return (
+        <div className="flex items-center flex-col justify-center h-64">
+            <Preloader/>
+            <p className="text-sm">Loading...</p>
+        </div>
+    )
 
     return (
         <form onSubmit={handleSubmit(onSubmit)}>

@@ -44,6 +44,7 @@ import {
 import {Badge} from "@/components/ui/badge";
 import AttributeForm from "./_components/attribute-form";
 import { useProfileAttributes } from "./_hooks/useProfileAttributes";
+import Preloader from "@/components/ui/Preloader";
 
 function getAttributeIcon(label: string) {
   const iconProps = { className: "h-4 w-4" };
@@ -122,7 +123,12 @@ export default function AppointmentsPage() {
   const { attributes, loading } = useProfileAttributes();
 
   if (loading || !attributes) {
-    return <div className="p-8 text-center">Loading...</div>;
+    return (
+      <div className="flex items-center flex-col justify-center h-64">
+        <Preloader/>
+        <p className="text-sm">Loading Atrributes</p>
+      </div>
+    )
   }
 
   return (

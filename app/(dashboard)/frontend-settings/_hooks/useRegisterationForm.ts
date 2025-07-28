@@ -49,7 +49,7 @@ const registrationFormSchema = z.object({
 type RegistrationFormValues = z.infer<typeof registrationFormSchema>;
 
 export default function useRegistrationForm() {
-    const { registrationSettings, mutate } = useRegisteration();
+    const { registrationSettings, mutate, loading } = useRegisteration();
 
     const {
         register,
@@ -160,5 +160,6 @@ export default function useRegistrationForm() {
         errors,
         isLoading: isMutating,
         onSubmit,
+        loading
     };
 }

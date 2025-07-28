@@ -11,6 +11,7 @@ import Link from "next/link"
 import {SimpleEditor} from "@/components/tiptap-templates/simple/simple-editor"
 import {Controller} from "react-hook-form"
 import useBasicEditForm from "@/app/(dashboard)/frontend-settings/_hooks/useBasicEditForm";
+import Preloader from "@/components/ui/Preloader"
 
 export default function EditPage() {
     const {
@@ -31,7 +32,12 @@ export default function EditPage() {
         setValue("metaImage", file);
     }
 
-    if(pageLoading) return <div className="p-4">Loading...</div>
+    if(pageLoading) return(
+        <div className="flex items-center flex-col justify-center h-64">
+            <Preloader/>
+            <p className="text-sm">Loading...</p>
+        </div>
+    )
 
     return (
         <form onSubmit={handleSubmit(onSubmit)}>

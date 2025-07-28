@@ -1,12 +1,12 @@
 'use client';
 
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
+import {useForm} from 'react-hook-form';
+import {zodResolver} from '@hookform/resolvers/zod';
+import {z} from 'zod';
 import useSWRMutation from "swr/mutation";
-import { imageUpload } from '@/admin-utils/utils/imageUpload';
+import {imageUpload} from '@/admin-utils/utils/imageUpload';
 import {showError, showSuccess} from "@/admin-utils";
-import { postBasicPage } from '../_api/basicPageApi';
+import {postBasicPage} from '../_api/basicPageApi';
 
 const basicFormSchema = z.object({
     Title: z.string().min(1, 'Title is required'),
@@ -72,6 +72,20 @@ export default function useBasicForm() {
 
         const result = await trigger(payload);
         if (result) {
+            // await globalMutate(
+            //     "all-members",
+            //     (currentData: GetAllMembersResponse) => {
+            //         if (!currentData?.users) return currentData;
+            //         return {
+            //             ...currentData,
+            //             users: [...currentData.users, {
+            //                 id: Date.now(),
+            //                 ...payload
+            //             }]
+            //         };
+            //     },
+            //     false
+            // );
             showSuccess(`Basic page added successfully!`);
         }
     };

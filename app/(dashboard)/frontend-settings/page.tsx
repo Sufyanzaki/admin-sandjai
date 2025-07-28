@@ -8,6 +8,7 @@ import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/compo
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
 import {useBasicPages} from "@/app/(dashboard)/frontend-settings/_hooks/useBasicPages";
 import {useDeleteBasicPage} from "@/app/(dashboard)/frontend-settings/_hooks/useDeleteBasicPage";
+import Preloader from "@/components/ui/Preloader";
 
 const staticSettings = [
     {
@@ -107,7 +108,7 @@ export default function SettingPage() {
                                     <TableCell className="text-right align-top">
                                         <div className="flex justify-end gap-2">
                                             <Button variant="outline" size="icon" className="h-8 w-8" asChild>
-                                                <Link href={`/frontend-settings/edit/${setting.slug}`}>
+                                                <Link href={`/frontend-settings/edit?slug=${setting.slug}`}>
                                                     <Edit className="h-4 w-4" />
                                                     <span className="sr-only">Edit</span>
                                                 </Link>
@@ -130,8 +131,9 @@ export default function SettingPage() {
                 </CardHeader>
                 <CardContent>
                     {isLoading ? (
-                        <div className="text-center py-10">
-                            <p className="text-muted-foreground">Loading pages...</p>
+                        <div className="flex items-center flex-col justify-center h-64">
+                            <Preloader/>
+                            <p className="text-sm">Loading Pages</p>
                         </div>
                     ) : error ? (
                         <div className="text-center py-10">
@@ -156,7 +158,7 @@ export default function SettingPage() {
                                         <TableCell className="text-right align-top">
                                             <div className="flex justify-end gap-2">
                                                 <Button variant="outline" size="icon" className="h-8 w-8" asChild>
-                                                    <Link href={`/frontend-settings/edit/${page.id}/basic`}>
+                                                    <Link href={`/app/(dashboard)/frontend-settings/edit/page.tsx/basic`}>
                                                         <Edit className="h-4 w-4" />
                                                         <span className="sr-only">Edit</span>
                                                     </Link>

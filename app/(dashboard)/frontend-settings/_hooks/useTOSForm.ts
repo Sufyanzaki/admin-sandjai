@@ -32,7 +32,7 @@ const tosFormSchema = z.object({
 type TOSFormValues = z.infer<typeof tosFormSchema>;
 
 export default function useTOSForm() {
-    const { tosSettings, mutate } = useTOS();
+    const { tosSettings, mutate, tosLoading } = useTOS();
 
     const {
         register,
@@ -121,5 +121,6 @@ export default function useTOSForm() {
         errors,
         isLoading: isMutating,
         onSubmit,
+        tosLoading,
     };
 }

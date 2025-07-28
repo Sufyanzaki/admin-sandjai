@@ -29,7 +29,7 @@ const howItWorksFormSchema = z.object({
 type HowItWorksFormValues = z.infer<typeof howItWorksFormSchema>;
 
 export default function useHowWorkForm() {
-    const { howWorkSettings, mutate } = useHowWork();
+    const { howWorkSettings, mutate, howWorkLoading } = useHowWork();
 
     const {
         register,
@@ -118,5 +118,6 @@ export default function useHowWorkForm() {
         isLoading: isMutating,
         onSubmit,
         howWorkSettings,
+        howWorkLoading
     };
 }

@@ -1,7 +1,7 @@
 import { getRequest } from "@/admin-utils";
 
 export type Blog = {
-    id: number;
+    id: string;
     title: string;
     slug: string;
     categoryId: number;

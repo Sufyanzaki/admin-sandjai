@@ -10,6 +10,7 @@ import type { PersonalityBehaviorFormValues } from "../add/_hooks/usePersonality
 import { AlertTriangle } from "lucide-react";
 import { useParams } from "next/navigation";
 import { getUserTrackingId } from "@/lib/access-token";
+import Preloader from "@/components/ui/Preloader";
 
 const traitMap: { key: keyof PersonalityBehaviorFormValues; label: string }[] = [
   { key: "simple", label: "simpel" },
@@ -64,8 +65,18 @@ export default function BehaviorTab() {
     isLoading,
     setValue,
     watch,
+    personalityBehaviorLoading,
     onSubmit,
   } = usePersonalityBehaviorForm();
+
+  if (personalityBehaviorLoading) {
+    return (
+      <div className="flex items-center flex-col justify-center h-64">
+        <Preloader/>
+        <p className="text-sm">Loading Personality & Behavior, Hang tight...</p>
+      </div>
+    );
+  }
 
   return (
     <TabsContent value="behavior" className="space-y-4 mt-4">

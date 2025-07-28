@@ -4,9 +4,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Ban, Calendar, Edit, Eye, Mail, MapPin, Package, User } from "lucide-react";
+import {Ban, Calendar, Edit, Eye, Mail, MapPin, Package, Trash2, User} from "lucide-react";
 import Link from "next/link";
 import { Member } from "@/app/(dashboard)/members/_types/member";
+import Preloader from "../ui/Preloader";
 
 interface MembersGridProps {
   members: Member[];
@@ -14,22 +15,31 @@ interface MembersGridProps {
   currentPage: number;
   totalPages?: number;
   onPageChange: (page: number) => void;
+  onDeleteClick: (val:string) => void;
+  isItemDeleting?: (id: string) => boolean;
 }
 
 export default function MembersGrid({
   members,
   isLoading,
-  currentPage,
-  totalPages,
-  onPageChange,
+  onDeleteClick,
+  isItemDeleting
 }: MembersGridProps) {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading members...</p>
-        </div>
+        <div className="flex items-center flex-col justify-center">
+            <Preloader />
+            <p className="text-muted-foreground">Loading members...</p>
+          </div>
+      </div>
+    );
+  }
+
+  if (!members || members.length === 0) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <p className="text-sm">No members found.</p>
       </div>
     );
   }
@@ -99,38 +109,16 @@ export default function MembersGrid({
                     <Ban className="h-4 w-4 text-yellow-600" />
                   </Button>
 
-                  <Button variant="ghost" className="flex-1 rounded-none rounded-br-md border-l py-2 justify-center">
-                    <Ban className="h-4 w-4 text-red-600" />
+                  <Button variant="ghost" className="flex-1 rounded-none rounded-br-md border-l py-2 justify-center" onClick={()=>onDeleteClick(member.id)}>
+                    {isItemDeleting && isItemDeleting(member.id) ? <Preloader />: (
+                      <Trash2 className="h-4 w-4 text-red-600" />
+                    )}
                   </Button>
                 </div>
               </div>
             </CardContent>
           </Card>
         ))}
-      </div>
-      
-      <div className="mt-4 flex items-center justify-between">
-        <div className="text-sm text-muted-foreground">
-          Showing <strong>1-{members.length}</strong> of <strong>{members.length}</strong> members
-        </div>
-        <div className="flex items-center gap-2">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            disabled={currentPage === 1} 
-            onClick={() => onPageChange(currentPage - 1)}
-          >
-            Previous
-          </Button>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            disabled={!totalPages || currentPage >= totalPages} 
-            onClick={() => onPageChange(currentPage + 1)}
-          >
-            Next
-          </Button>
-        </div>
       </div>
     </>
   );

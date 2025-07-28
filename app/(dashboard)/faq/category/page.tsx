@@ -10,6 +10,7 @@ import useFaqCategories from "./_hooks/useFaqCategories";
 import CategoryModal from "./_components/category-modal";
 import useFaqCategoryDelete from "./_hooks/useFaqCategoryDelete";
 import { useRouter, useSearchParams } from "next/navigation";
+import Preloader from "@/components/ui/Preloader";
 
 export default function CategoryPage() {
     const [open, setOpen] = useState(false);
@@ -80,8 +81,9 @@ export default function CategoryPage() {
 
                 <CardContent>
                     {isLoading ? (
-                        <div className="text-center py-10">
-                            <p className="text-muted-foreground">Loading...</p>
+                        <div className="flex items-center flex-col justify-center h-64">
+                            <Preloader/>
+                            <p className="text-sm">Loading...</p>
                         </div>
                     ) : categories && categories.length > 0 ? (
                         <Table>
@@ -111,7 +113,7 @@ export default function CategoryPage() {
                                                     disabled={isDeleting && deletingId === category.id}
                                                 >
                                                     {isDeleting && deletingId === category.id ? (
-                                                        <span className="animate-spin">⏳</span>
+                                                        <Preloader size="sm"/>
                                                     ) : (
                                                         <Trash2 className="h-4 w-4" />
                                                     )}

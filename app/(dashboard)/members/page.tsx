@@ -17,11 +17,12 @@ import MembersGrid from "@/components/members/MembersGrid";
 import MembersFilters from "@/components/members/MembersFilters";
 import MembersOverview from "@/components/members/MembersOverview";
 import DeleteMemberDialog from "@/components/members/DeleteMemberDialog";
+import {useDeleteMember} from "@/app/(dashboard)/members/_hooks/useDeleteMember";
 
 export default function StaffPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState({key: '', value:false});
   const [selectedMemberships, setSelectedMemberships] = useState<string[]>([]);
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
   const [selectedGender, setSelectedGender] = useState<string[]>([]);
@@ -43,6 +44,7 @@ export default function StaffPage() {
   };
 
   const { data: membersData, error, isLoading } = useAllMembers(params);
+  const { deleteMemberById, isItemDeleting } = useDeleteMember();
 
   const members = membersData?.users || [];
   const stats = membersData?.stats;
@@ -113,8 +115,7 @@ export default function StaffPage() {
   };
 
   const handleDeleteConfirm = () => {
-    setDeleteDialogOpen(false);
-    // Add delete logic here
+    deleteMemberById(deleteDialogOpen.key).finally(() => setDeleteDialogOpen({key: '', value:false}));
   };
 
   if (error) {
@@ -188,9 +189,9 @@ export default function StaffPage() {
                     checkedAll={checkedAll}
                     onCheckAll={handleCheckAll}
                     onSingleCheck={handleSingleCheck}
-                    onDeleteClick={() => setDeleteDialogOpen(true)}
+                    onDeleteClick={(id) => setDeleteDialogOpen({value: true, key: id})}
+                    isItemDeleting={isItemDeleting}
                   />
-                  <PaginationSection />
                 </TabsContent>
                 <TabsContent value="grid" className="mt-0">
                   <MembersGrid
@@ -199,9 +200,15 @@ export default function StaffPage() {
                     currentPage={currentPage}
                     totalPages={membersData?.pagination?.totalPages}
                     onPageChange={setCurrentPage}
+                    onDeleteClick={(id) => setDeleteDialogOpen({value: true, key: id})}
+                    isItemDeleting={isItemDeleting}
                   />
                 </TabsContent>
               </Tabs>
+              <PaginationSection
+                pagination={membersData?.pagination || { total: 0, page: 1, limit: 20, totalPages: 1 }}
+                onPageChange={setCurrentPage}
+              />
             </CardContent>
           </Card>
 
@@ -214,7 +221,7 @@ export default function StaffPage() {
 
       <DeleteMemberDialog
         open={deleteDialogOpen}
-        onOpenChange={setDeleteDialogOpen}
+        onOpenChange={value=>setDeleteDialogOpen({...deleteDialogOpen, value: value})}
         onConfirm={handleDeleteConfirm}
       />
     </>

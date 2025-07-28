@@ -11,6 +11,8 @@ import {isFile} from "@/lib/utils";
 import {useEffect, useMemo} from "react";
 import {useBasicInfo} from "../../_hooks/useBasicInfo";
 import {useParams} from "next/navigation";
+import { useSWRConfig } from "swr";
+import { GetAllMembersResponse, Member } from "../../_types/member";
 
 interface UserApiResponse {
   email?: string;
@@ -28,6 +30,15 @@ interface UserApiResponse {
   children?: boolean;
   religion?: string;
   shortDescription?: string;
+
+  educationCareer?: any;
+  personalityBehavior?: any;
+  partnerExpectation?: any;
+  lifestyle?: any;
+  hobbiesInterests?: any;
+  languages?: any;
+  living?: any;
+  aboutMe?: any;
 }
 
 const createUserSchema = (requirePassword: boolean) => z.object({
@@ -54,7 +65,7 @@ const createUserSchema = (requirePassword: boolean) => z.object({
 export type CreateUserFormValues = z.infer<ReturnType<typeof createUserSchema>>;
 
 export default function useCreateUserForm() {
-
+ const { mutate:globalMutate } = useSWRConfig(); 
   const params = useParams();
   const tracker = getUserTrackingId();
 
@@ -123,6 +134,25 @@ export default function useCreateUserForm() {
         religion: u.religion || "",
         shortDescription: u.shortDescription || "",
       });
+
+      setUserTrackingId({
+        id: id || "",
+        basicInformation: true,
+        educationAndCareer: !!u.educationCareer,
+        personalityAndBehavior: !!u.personalityBehavior,
+        partnerExpectation: !!u.partnerExpectation,
+        lifeStyle: !!u.lifestyle,
+        hobbiesAndInterest: !!u.hobbiesInterests,
+        languages: !!u.languages,
+        living: !!u.living,
+        aboutMe: !!u.aboutMe,
+      });
+
+      console.log("User data loaded for editing:", {
+        id: id || "",
+        languages: u.languages,
+        aboutMe: u.aboutMe,
+      });
     }
   }, [user, id]);
 
@@ -152,16 +182,43 @@ export default function useCreateUserForm() {
     const imageUrl =
         isFile(values.image) ? await imageUpload(values.image as File) : (values.image as string);
 
-    callback?.(true);
     const result = await trigger({ ...values, image: imageUrl });
-    callback?.(false);
 
     if (result?.status === 200 || result?.status === 201) {
-      showSuccess("User created successfully!");
+      showSuccess("User updated successfully!");
+      globalMutate(
+        "all-members",
+        (current: GetAllMembersResponse | undefined) => {
+          if (!current) return current;
+          const updatedUser = result.response as Member;
+          let users: Member[];
 
+          if (id) {
+            users = current.users.map(u => u.id === updatedUser.id ? updatedUser : u);
+          } else {
+            users = [updatedUser, ...current.users];
+          }
+
+          return {
+            ...current,
+            users,
+            stats: {
+              ...current.stats,
+              total: id ? current.stats.total : current.stats.total + 1,
+            },
+            pagination: {
+              ...current.pagination,
+              total: id ? current.pagination.total : current.pagination.total + 1,
+            },
+          };
+        },
+        false
+      );
+      callback?.(result.response);
       if (id) {
         updateUserTrackingId({ basicInformation: true });
-      } else {
+      }
+      else {
         setUserTrackingId({
           id: result.response.id,
           basicInformation: true,

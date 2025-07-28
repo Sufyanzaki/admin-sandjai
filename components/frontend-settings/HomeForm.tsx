@@ -11,9 +11,10 @@ import { CustomImageUpload } from "./CustomImageInput"
 import Link from "next/link";
 import {ArrowLeft} from "lucide-react";
 import useHomeForm from "@/app/(dashboard)/frontend-settings/_hooks/useHomeForm";
+import Preloader from "@/components/ui/Preloader";
 
 export default function HomeForm() {
-    const { handleSubmit, onSubmit, errors, isLoading, register, setValue, watch, homeSettings } = useHomeForm();
+    const { handleSubmit, onSubmit, errors, isLoading, register, setValue, watch, homeLoading } = useHomeForm();
 
     const handleImageUpload = (file: File | null, type: string) => {
         if (type === "banner") {
@@ -22,6 +23,15 @@ export default function HomeForm() {
             const imageNumber = type.replace('image', '')
             setValue(`datingSiteImage${imageNumber}` as any, file)
         }
+    }
+
+    if(homeLoading){
+        return (
+            <div className="flex items-center flex-col justify-center h-64">
+                <Preloader/>
+                <p className="text-sm">Loading...</p>
+            </div>
+        )
     }
 
     return (
