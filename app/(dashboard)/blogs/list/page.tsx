@@ -9,7 +9,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  Ambulance,
   Ban,
   Car,
   CheckCircle,
@@ -131,7 +130,7 @@ export default function BlogListPage() {
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem asChild>
                               <Link href={`/blogs/list/${blog.id}`}>
-                                <Pencil className="mr-2 h-4 w-4" /> View
+                                <Eye className="mr-2 h-4 w-4" /> View
                               </Link>
                             </DropdownMenuItem>
                             <DropdownMenuItem asChild>

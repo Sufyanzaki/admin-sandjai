@@ -1,3 +1,5 @@
+"use client"
+
 import useSWR, { SWRConfiguration, SWRResponse } from 'swr';
 import { useEffect, useState } from 'react';
 
@@ -23,7 +25,7 @@ export function useSWRFix<T, U = T>({
         isValidating,
         mutate,
     } = useSWR<T>(enabled ? key : null, fetcher, {
-        revalidateOnFocus: true,
+        revalidateOnFocus: false,
         ...config,
     });
 

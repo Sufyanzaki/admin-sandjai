@@ -5,9 +5,10 @@ import {showError} from "@/admin-utils/lib/formErrors";
 import {showSuccess} from "@/admin-utils/lib/formSuccess";
 import {updateProfile} from "@/app/(dashboard)/profile/_api/updateProfile";
 import useSWRMutation from "swr/mutation";
-import { useSession } from "next-auth/react";
-import { useEffect } from "react";
-import { useProfile } from "./useProfile";
+import { imageUpload } from "@/admin-utils/utils/imageUpload";
+import { isFile } from "@/lib/utils";
+import { useProfile } from './useProfile';
+import { useEffect } from 'react';
 
 const profileSchema = z.object({
     firstName: z.string()
@@ -19,7 +20,6 @@ const profileSchema = z.object({
     email: z.string()
         .min(1, "Email is required")
         .email("Please enter a valid email address"),
-    phone: z.string().optional(),
     location: z.string()
         .min(1, "Location is required")
         .min(2, "Location must be at least 2 characters"),
@@ -32,13 +32,11 @@ type UpdateProfileProps = {
     username: string;
     email: string;
     location: string;
-    phone?: string;
     image?: string;
 }
 
 export default function useProfileForm() {
-    const { data: session } = useSession();
-    const { mutate } = useProfile();
+    const { user, mutate } = useProfile();
     
     const { trigger, isMutating } = useSWRMutation(
         'updateProfile',
@@ -58,56 +56,50 @@ export default function useProfileForm() {
         formState: { errors, isSubmitting },
         register,
         setValue,
-        reset,
         watch,
+        reset,
     } = useForm<ProfileFormValues>({
         resolver: zodResolver(profileSchema),
         defaultValues: {
             firstName: "",
             lastName: "",
             email: "",
-            phone: "",
             location: "",
         },
         mode: 'onBlur'
     });
 
-    console.log(session)
+    useEffect(()=>{
+        if(!user) return;
 
-    useEffect(() => {
-        const user = session?.user as any;
-        if (user) {
-            setValue("firstName", user.firstName || "");
-            setValue("lastName", user.lastName || "");
-            setValue("email", user.email || "");
-            setValue("phone", user.phone || "");
-            setValue("location", user.location || "");
-        }
-    }, [session, setValue]);
+        reset({
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
+            location: user.location,
+        })
+    }, [])
 
     const onSubmit = async (values: ProfileFormValues, callback?: (data: {status: number} | undefined) => void) => {
         try {
             let imageUrl: string | undefined;
 
-            if (values.image && values.image instanceof File) {
-                imageUrl = "https://example.com/admin.jpg";
+            if (values.image && isFile(values.image)) {
+                imageUrl = await imageUpload(values.image);
             }
 
-            // Combine firstName and lastName for the username field
             const fullName = `${values.firstName} ${values.lastName}`.trim();
 
             const result = await trigger({
                 username: fullName,
                 email: values.email,
                 location: values.location,
-                phone: values.phone,
                 image: imageUrl,
             });
 
             if (result?.status === 200) {
                 await mutate();
                 showSuccess('Profile updated successfully!');
-                reset();
                 callback?.(result);
             }
         } catch (error: any) {

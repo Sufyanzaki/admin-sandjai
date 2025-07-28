@@ -10,27 +10,22 @@ import {Checkbox} from "@/components/ui/checkbox"
 import { CustomImageUpload } from "./CustomImageInput"
 import Link from "next/link";
 import {ArrowLeft} from "lucide-react";
+import useHomeForm from "@/app/(dashboard)/frontend-settings/_hooks/useHomeForm";
 
 export default function HomeForm() {
-    const [bannerImage, setBannerImage] = useState<File | null>(null)
-    const [datingImages, setDatingImages] = useState<{ [key: string]: File | null }>({
-        image1: null,
-        image2: null,
-        image3: null,
-        image4: null,
-    })
-    const [showOnHeader, setShowOnHeader] = useState(false)
+    const { handleSubmit, onSubmit, errors, isLoading, register, setValue, watch, homeSettings } = useHomeForm();
 
     const handleImageUpload = (file: File | null, type: string) => {
         if (type === "banner") {
-            setBannerImage(file)
+            setValue('bannerImage', file)
         } else {
-            setDatingImages((prev) => ({ ...prev, [type]: file }))
+            const imageNumber = type.replace('image', '')
+            setValue(`datingSiteImage${imageNumber}` as any, file)
         }
     }
 
     return (
-        <div className="space-y-6 p-4 xl:p-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 p-4 xl:p-6">
             <div className="flex items-center gap-4">
                 <Button variant="outline" size="icon" asChild>
                     <Link href="/frontend-settings">
@@ -57,8 +52,11 @@ export default function HomeForm() {
                         <Input
                             id="banner-title"
                             placeholder="Dating leuk genoaakt... zonder de spelletjes."
-                            defaultValue="Dating leuk genoaakt... zonder de spelletjes."
+                            {...register('bannerTitle')}
                         />
+                        {errors.bannerTitle && (
+                            <p className="text-sm text-red-500">{errors.bannerTitle.message}</p>
+                        )}
                     </div>
 
                     <div className="space-y-2">
@@ -66,13 +64,17 @@ export default function HomeForm() {
                         <Input
                             id="banner-subtitle"
                             placeholder="AI 13 jaar ontwikkeld simplex met elkaar verbinden."
-                            defaultValue="AI 13 jaar ontwikkeld simplex met elkaar verbinden."
+                            {...register('bannerSubTitle')}
                         />
+                        {errors.bannerSubTitle && (
+                            <p className="text-sm text-red-500">{errors.bannerSubTitle.message}</p>
+                        )}
                     </div>
 
                     <CustomImageUpload
                         label="Banner Image (Recommended size 1920x1080)"
-                        file={bannerImage}
+                        file={watch('bannerImage') instanceof File ? watch('bannerImage') : null}
+                        existingImage={typeof watch('bannerImage') === 'string' ? watch('bannerImage') : undefined}
                         onFileChange={(file) => handleImageUpload(file, "banner")}
                         type="banner-image"
                     />
@@ -90,8 +92,11 @@ export default function HomeForm() {
                         <Input
                             id="faq-title"
                             placeholder="Het antwoord al simplex op onze datingsites?"
-                            defaultValue="Het antwoord al simplex op onze datingsites?"
+                            {...register('faqsTitle')}
                         />
+                        {errors.faqsTitle && (
+                            <p className="text-sm text-red-500">{errors.faqsTitle.message}</p>
+                        )}
                     </div>
 
                     <div className="space-y-2">
@@ -99,8 +104,11 @@ export default function HomeForm() {
                         <Input
                             id="faq-subtitle"
                             placeholder="Je bent maar 3 stappen verwijderd van een geweldige date."
-                            defaultValue="Je bent maar 3 stappen verwijderd van een geweldige date."
+                            {...register('faqsSubTitle')}
                         />
+                        {errors.faqsSubTitle && (
+                            <p className="text-sm text-red-500">{errors.faqsSubTitle.message}</p>
+                        )}
                     </div>
 
                     <div className="space-y-2">
@@ -109,19 +117,36 @@ export default function HomeForm() {
                             id="faq-description"
                             rows={4}
                             placeholder="Humsafar.nl is een van Nederlands toonaangevende Nederlandse datingsites die vele leden heeft geholpen bij het vinden van hun perfecte levensparnter..."
-                            defaultValue="Humsafar.nl is een van Nederlands toonaangevende Nederlandse datingsites die vele leden heeft geholpen bij het vinden van hun perfecte levensparnter. Of je nu nieuw bent of Humsafar.nl voor het eerst ontdekt, meld je vandaag nog gratis aan en maak contact met andere mensen die op zoek zijn naar echte online dating en een in Humsafar.nl Humsafar.nl"
+                            {...register('faqsDescription')}
                         />
+                        {errors.faqsDescription && (
+                            <p className="text-sm text-red-500">{errors.faqsDescription.message}</p>
+                        )}
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
                             <Label htmlFor="faq-name">Name</Label>
-                            <Input id="faq-name" placeholder="Maak gratis je profiel aan" defaultValue="Maak gratis je profiel aan" />
+                            <Input 
+                                id="faq-name" 
+                                placeholder="Maak gratis je profiel aan" 
+                                {...register('faqname')} 
+                            />
+                            {errors.faqname && (
+                                <p className="text-sm text-red-500">{errors.faqname.message}</p>
+                            )}
                         </div>
 
                         <div className="space-y-2">
                             <Label htmlFor="latest-title">Latest Title</Label>
-                            <Input id="latest-title" placeholder="Zo worden ontmoet leuk" defaultValue="Zo worden ontmoet leuk" />
+                            <Input 
+                                id="latest-title" 
+                                placeholder="Zo worden ontmoet leuk" 
+                                {...register('faqlatestTitle')} 
+                            />
+                            {errors.faqlatestTitle && (
+                                <p className="text-sm text-red-500">{errors.faqlatestTitle.message}</p>
+                            )}
                         </div>
                     </div>
 
@@ -131,13 +156,23 @@ export default function HomeForm() {
                             <Input
                                 id="latest-subtitle"
                                 placeholder="Online daten is makkelijk en de drempel is niet eens wat lager dan in de kroeg iemand aanspreken..."
-                                defaultValue="Online daten is makkelijk en de drempel is niet eens wat lager dan in de kroeg iemand aanspreken. Bovendien ben je op internet anoniem. Maar daarnaast is het grootste voordeel dat je op een datingsite de Humsafar zeker weet dat iedereen serious op zoek"
+                                {...register('faqlatestSubTitle')}
                             />
+                            {errors.faqlatestSubTitle && (
+                                <p className="text-sm text-red-500">{errors.faqlatestSubTitle.message}</p>
+                            )}
                         </div>
 
                         <div className="space-y-2">
                             <Label htmlFor="blog-title">Blog Title</Label>
-                            <Input id="blog-title" placeholder="Magazine" defaultValue="Magazine" />
+                            <Input 
+                                id="blog-title" 
+                                placeholder="Magazine" 
+                                {...register('blogTitle')} 
+                            />
+                            {errors.blogTitle && (
+                                <p className="text-sm text-red-500">{errors.blogTitle.message}</p>
+                            )}
                         </div>
                     </div>
                 </CardContent>
@@ -154,35 +189,42 @@ export default function HomeForm() {
                         <Input
                             id="dating-title"
                             placeholder="Hoe kun je daten met dat je kiest ben voor een serieuze ervaring op een online datingsites?"
-                            defaultValue="Hoe kun je daten met dat je kiest ben voor een serieuze ervaring op een online datingsites?"
+                            {...register('datingSiteTitle')}
                         />
+                        {errors.datingSiteTitle && (
+                            <p className="text-sm text-red-500">{errors.datingSiteTitle.message}</p>
+                        )}
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <CustomImageUpload
                             label="Dating Site Image Title1"
-                            file={datingImages.image1}
+                            file={watch('datingSiteImage1') instanceof File ? watch('datingSiteImage1') : null}
+                            existingImage={typeof watch('datingSiteImage1') === 'string' ? watch('datingSiteImage1') : undefined}
                             onFileChange={(file) => handleImageUpload(file, "image1")}
                             type="dating-image-1"
                         />
 
                         <CustomImageUpload
                             label="Dating Site Image Title2"
-                            file={datingImages.image2}
+                            file={watch('datingSiteImage2') instanceof File ? watch('datingSiteImage2') : null}
+                            existingImage={typeof watch('datingSiteImage2') === 'string' ? watch('datingSiteImage2') : undefined}
                             onFileChange={(file) => handleImageUpload(file, "image2")}
                             type="dating-image-2"
                         />
 
                         <CustomImageUpload
                             label="Dating Site Image Title3"
-                            file={datingImages.image3}
+                            file={watch('datingSiteImage3') instanceof File ? watch('datingSiteImage3') : null}
+                            existingImage={typeof watch('datingSiteImage3') === 'string' ? watch('datingSiteImage3') : undefined}
                             onFileChange={(file) => handleImageUpload(file, "image3")}
                             type="dating-image-3"
                         />
 
                         <CustomImageUpload
                             label="Dating Site Image Title4"
-                            file={datingImages.image4}
+                            file={watch('datingSiteImage4') instanceof File ? watch('datingSiteImage4') : null}
+                            existingImage={typeof watch('datingSiteImage4') === 'string' ? watch('datingSiteImage4') : undefined}
                             onFileChange={(file) => handleImageUpload(file, "image4")}
                             type="dating-image-4"
                         />
@@ -191,8 +233,8 @@ export default function HomeForm() {
                     <div className="flex items-center space-x-2">
                         <Checkbox
                             id="show-header"
-                            checked={showOnHeader}
-                            onCheckedChange={(checked) => setShowOnHeader(checked as boolean)}
+                            checked={watch('showOnHeader')}
+                            onCheckedChange={(checked) => setValue('showOnHeader', checked as boolean)}
                         />
                         <Label htmlFor="show-header">Show on Header</Label>
                     </div>
@@ -202,8 +244,10 @@ export default function HomeForm() {
             {/* Action Buttons */}
             <div className="flex justify-end gap-4">
                 <Button variant="outline">Back to Humsafar</Button>
-                <Button type="submit">Update</Button>
+                <Button type="submit" disabled={isLoading}>
+                    {isLoading ? 'Updating...' : 'Update'}
+                </Button>
             </div>
-        </div>
+        </form>
     )
 }

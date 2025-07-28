@@ -9,7 +9,7 @@ import Link from "next/link";
 import {ArrowLeft, Mail, Phone, Save, Upload} from "lucide-react";
 import {ChangeEvent, useState} from "react";
 
-export default function ChatAndVideoSetting() {
+export default function EditStaffPage() {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',

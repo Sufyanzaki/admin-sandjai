@@ -31,8 +31,8 @@ export function UserNav() {
   };
 
   const getUserName = () => {
-    if (session?.user?.name) {
-      return session.user.name;
+    if (session?.user?.username) {
+      return session.user.username;
     }
     return "User";
   };

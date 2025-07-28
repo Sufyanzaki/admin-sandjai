@@ -1,16 +1,17 @@
+"use client"
+
 import { Controller } from "react-hook-form";
 import { SimpleEditor } from "@/components/tiptap-templates/simple/simple-editor";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 
-import useCookieSettingsForm from "../_hooks/useCookieSettingsForm"; // adjust path if needed
+import useCookieSettingsForm from "../_hooks/useCookieSettingsForm";
 
 export default function CookiesForm() {
   const {
     handleSubmit,
     onSubmit,
-    errors,
     isLoading,
     setValue,
     control,

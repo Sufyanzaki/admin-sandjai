@@ -1,11 +1,13 @@
+"use client"
+
 import { Button } from "@/components/ui/button";
 import { CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Upload } from "lucide-react";
 import useSeoSettingsForm from "../_hooks/useSeoSettingsForm";
-import { useRef } from "react";
+import { Controller } from "react-hook-form";
+import { CustomImageUpload } from "@/components/frontend-settings/CustomImageInput";
 
 export default function SEOForm() {
   const {
@@ -15,11 +17,11 @@ export default function SEOForm() {
     isLoading,
     setValue,
     watch,
+    control,
   } = useSeoSettingsForm();
 
   const keywordsValue = watch("keywords");
   const metaImageValue = watch("metaImage");
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   return (
     <CardContent className="space-y-6 pt-6">
@@ -61,35 +63,18 @@ export default function SEOForm() {
 
         <div className="space-y-4">
           <h3 className="text-lg font-medium">Meta Image</h3>
-          <div className="flex items-center gap-4">
-            <div className="h-24 w-24 shrink-0 rounded-md bg-muted flex items-center justify-center">
-              <Upload className="h-8 w-8 text-muted-foreground" />
-            </div>
-            <div className="space-y-2">
-              <input
-                type="file"
-                id="system-logo"
-                className="hidden"
-                ref={fileInputRef}
-                onChange={e => {
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    // In a real app, upload the file and get the URL, then:
-                    setValue("metaImage", "https://example.com/meta-image.jpg", { shouldValidate: true });
-                  }
-                }}
+          <Controller
+            name="metaImage"
+            control={control}
+            render={({ field }) => (
+              <CustomImageUpload
+                label="Meta Image"
+                file={field.value instanceof File ? field.value : null}
+                onFileChange={file => field.onChange(file)}
               />
-              <Button
-                variant="outline"
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-              >
-                Upload Photo
-              </Button>
-              <p className="text-sm text-muted-foreground">Upload a profile photo. JPG, PNG or GIF. Max 2MB.</p>
-            </div>
-          </div>
-          {metaImageValue && (
+            )}
+          />
+          {metaImageValue && typeof metaImageValue === "string" && (
             <div className="text-xs text-muted-foreground">Image URL: {metaImageValue}</div>
           )}
           {errors.metaImage && <div className="text-red-500 text-sm">{errors.metaImage.message}</div>}

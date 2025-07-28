@@ -38,11 +38,9 @@ export default function BannerEditPage() {
         register,
         control,
         setValue,
-        watch,
         banner,
     } = useEditBannerForm(id);
 
-    // Set preview and form value when editing existing banner
     useEffect(() => {
         if (banner && typeof banner.bannerImage === 'string') {
             setImagePreview(banner.bannerImage);

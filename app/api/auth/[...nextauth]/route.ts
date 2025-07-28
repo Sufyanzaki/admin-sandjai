@@ -2,12 +2,12 @@ import {NextAuthOptions} from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import NextAuth from "next-auth/next";
 import {z} from "zod";
-import {postLoginForm} from "@/app/auth/_api/postLoginForm";
+import { postOtp } from "@/app/auth/_api/postOtp";
 
 
-const loginSchema = z.object({
+const otpSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
-  password: z.string().min(6, { message: "Password must be at least 6 characters" }),
+  otp: z.string().min(5, { message: "otp must be at least 5 characters" }),
 });
 
 export const authOptions: NextAuthOptions = {
@@ -16,62 +16,46 @@ export const authOptions: NextAuthOptions = {
       name: "credentials",
       credentials: {
         email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" }
+        otp: { label: "Otp", type: "text" }
       },
       async authorize(credentials) {
-        const parsedCredentials = loginSchema.safeParse(credentials);
-        if (!parsedCredentials.success) {
-          return null;
-        }
-
-        const { email, password } = parsedCredentials.data;
-
         try {
-          const response = await postLoginForm({
-            email,
-            password,
-          });
-
-
-          if (response) {
-            console.log('Login success:', response);
-            return {
-              id: response.user?.id || "1",
-              name: response.user?.name || "Admin User",
-              email: response.user?.email || email,
-              role: response.user?.role || "admin",
-              token: response.token || "",
-            };
+          const parsedCredentials = otpSchema.safeParse(credentials);
+          if (!parsedCredentials.success) {
+            throw new Error(JSON.stringify(parsedCredentials.error.flatten().fieldErrors));
           }
-          return null;
-        } catch (error) {
-          console.error('Login error:', error);
-          return null;
+
+          const { email, otp } = parsedCredentials.data;
+          const response = await postOtp({ email, otp });
+
+          console.log(response);
+
+          if(!response) return null;
+
+          return {
+            ...response.user,
+            token: response.tokens.access.token,
+          };
+        } catch (error: any) {
+          console.error('Authorization error:', error.message);
+          throw new Error(error.message || "Invalid OTP");
         }
       }
     })
   ],
   pages: {
-    signIn: "/auth/login",
+    signIn: "/auth/otp",
   },
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id;
-        token.name = user.name;
-        token.email = user.email;
-        token.role = user.role;
-        token.token = user.token;
+        token.user = user;
       }
       return token;
     },
     async session({ session, token }) {
-      session.user.id = token.id as string;
-      session.user.name = token.name as string;
-      session.user.email = token.email as string;
-      session.user.role = token.role as string;
-      session.token = token.token as string;
-      
+      session.user = token.user as typeof session.user;
+      session.token = (token.user as any).token;
       return session;
     },
   },

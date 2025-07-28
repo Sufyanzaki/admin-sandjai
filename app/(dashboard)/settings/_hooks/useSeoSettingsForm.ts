@@ -1,3 +1,5 @@
+"use client"
+
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -23,6 +25,7 @@ export default function useSeoSettingsForm() {
     watch,
     formState: { errors, isSubmitting },
     reset,
+    control,
   } = useForm<SeoSettingsFormValues>({
     resolver: zodResolver(seoSettingsSchema),
     defaultValues: {
@@ -37,7 +40,26 @@ export default function useSeoSettingsForm() {
   const { trigger, isMutating } = useSWRMutation(
     "postSeoSettings",
     async (_: string, { arg }: { arg: SeoSettingsFormValues }) => {
-      return await postSeoSettings(arg);
+      let metaImageUrl: string | null = null;
+      if (arg.metaImage instanceof File) {
+        try {
+          metaImageUrl = await imageUpload(arg.metaImage);
+        } catch (error: any) {
+          showError({ message: error.message });
+          throw error;
+        }
+      } else if (typeof arg.metaImage === "string") {
+        metaImageUrl = arg.metaImage;
+      } else {
+        metaImageUrl = null;
+      }
+      const apiPayload = {
+        metaTitle: arg.metaTitle,
+        metaDescription: arg.metaDescription,
+        keywords: arg.keywords,
+        metaImage: metaImageUrl,
+      };
+      return await postSeoSettings(apiPayload);
     },
     {
       onError: (error: Error) => {
@@ -50,24 +72,7 @@ export default function useSeoSettingsForm() {
   );
 
   const onSubmit = async (values: SeoSettingsFormValues) => {
-    let metaImageUrl = null;
-    if (values.metaImage instanceof File) {
-      try {
-        metaImageUrl = await imageUpload(values.metaImage);
-      } catch (error: any) {
-        showError({ message: error.message });
-        return;
-      }
-    } else if (typeof values.metaImage === "string") {
-      metaImageUrl = values.metaImage;
-    }
-    const apiPayload = {
-      metaTitle: values.metaTitle,
-      metaDescription: values.metaDescription,
-      keywords: values.keywords,
-      metaImage: metaImageUrl,
-    };
-    const result = await trigger(apiPayload);
+    const result = await trigger(values);
     if (result?.status === 201) {
       showSuccess("SEO settings saved successfully!");
       reset();
@@ -82,5 +87,6 @@ export default function useSeoSettingsForm() {
     setValue,
     watch,
     reset,
+    control,
   };
 } 

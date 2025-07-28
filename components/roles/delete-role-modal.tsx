@@ -16,9 +16,10 @@ interface DeleteRoleModalProps {
   onOpenChange: (open: boolean) => void
   roleName: string
   onConfirm: () => void
+  isLoading?: boolean
 }
 
-export function DeleteRoleModal({ open, onOpenChange, roleName, onConfirm }: DeleteRoleModalProps) {
+export function DeleteRoleModal({ open, onOpenChange, roleName, onConfirm, isLoading }: DeleteRoleModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="bg-background">
@@ -45,8 +46,8 @@ export function DeleteRoleModal({ open, onOpenChange, roleName, onConfirm }: Del
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button variant="destructive" onClick={onConfirm}>
-            Delete Role
+          <Button variant="destructive" onClick={onConfirm} disabled={isLoading}>
+            {isLoading ? "Deleting..." : "Delete Role"}
           </Button>
         </DialogFooter>
       </DialogContent>

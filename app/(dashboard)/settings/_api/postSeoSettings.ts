@@ -9,7 +9,7 @@ export interface PostSeoSettingsPayload {
 
 export async function postSeoSettings(payload: PostSeoSettingsPayload) {
   return postRequest<PostSeoSettingsPayload>({
-    url: "seo-settings",
+    url: "setting/seo-settings",
     data: payload,
     useAuth: true,
   });
