@@ -120,7 +120,7 @@ export default function MembersTable({
                 </TableCell>
                 <TableCell className="text-right">
                   {isItemDeleting && isItemDeleting(member.id) ? (
-                      <div className="flex justify-end"><Preloader size="sm" /></div> 
+                      <div className="flex justify-end"><Preloader size="sm" /></div>
                   ) : (
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -173,4 +173,4 @@ export default function MembersTable({
       </Table>
     </div>
   );
-} 
+}
