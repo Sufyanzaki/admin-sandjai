@@ -3,7 +3,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import useSWRMutation from "swr/mutation";
 import { showError } from "@/admin-utils/lib/formErrors";
 import { showSuccess } from "@/admin-utils/lib/formSuccess";
@@ -32,6 +32,8 @@ export type BasicSettingsFormValues = z.infer<typeof basicSettingsSchema>;
 
 export function useBasicSettingsForm() {
   const { data, loading } = useBasicSettings();
+  const [systemLogoPreview, setSystemLogoPreview] = useState<string | null>(null);
+  const [loginImagePreview, setLoginImagePreview] = useState<string | null>(null);
   const { trigger, isMutating } = useSWRMutation(
     "postBasicSettings",
     async (_: string, { arg }: { arg: BasicSettingsFormValues }) => {
@@ -51,6 +53,8 @@ export function useBasicSettingsForm() {
     control,
     register,
     reset,
+    setValue,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<BasicSettingsFormValues>({
     resolver: zodResolver(basicSettingsSchema),
@@ -73,8 +77,46 @@ export function useBasicSettingsForm() {
   });
 
   useEffect(() => {
-    if (data) reset(data);
+    if (data) {
+      reset(data);
+      // Set initial image previews
+      setSystemLogoPreview(data.systemLogo || null);
+      setLoginImagePreview(data.loginImage || null);
+    }
   }, [data, reset]);
+
+  // Image handling functions
+  const handleSystemLogoChange = (file: File | null) => {
+    if (file) {
+      setValue("systemLogo", file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setSystemLogoPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeSystemLogo = () => {
+    setValue("systemLogo", "");
+    setSystemLogoPreview(null);
+  };
+
+  const handleLoginImageChange = (file: File | null) => {
+    if (file) {
+      setValue("loginImage", file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setLoginImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeLoginImage = () => {
+    setValue("loginImage", "");
+    setLoginImagePreview(null);
+  };
 
   const onSubmit = async (values: BasicSettingsFormValues) => {
     if (values.systemLogo && isFile(values.systemLogo)) {
@@ -104,5 +146,13 @@ export function useBasicSettingsForm() {
     onSubmit,
     loading,
     data,
+    setValue,
+    watch,
+    systemLogoPreview,
+    loginImagePreview,
+    handleSystemLogoChange,
+    removeSystemLogo,
+    handleLoginImageChange,
+    removeLoginImage,
   };
 } 

@@ -57,6 +57,7 @@ export default function CreatePage() {
                             <Input
                                 id="title"
                                 {...register("Title")}
+                                placeholder="Page title"
                             />
                             {errors.Title && (
                                 <p className="text-sm font-medium text-destructive">{errors.Title.message}</p>
@@ -68,6 +69,7 @@ export default function CreatePage() {
                             <Input
                                 id="Url"
                                 {...register("Url")}
+                                placeholder="Page URL"
                             />
                             {errors.Url && (
                                 <p className="text-sm font-medium text-destructive">{errors.Url.message}</p>
@@ -103,6 +105,7 @@ export default function CreatePage() {
                             <Input
                                 id="meta-title"
                                 {...register("metaTitle")}
+                                placeholder="Meta Title"
                             />
                             {errors.metaTitle && (
                                 <p className="text-sm font-medium text-destructive">{errors.metaTitle.message}</p>
@@ -114,6 +117,7 @@ export default function CreatePage() {
                             <Input
                                 id="meta-description"
                                 {...register("metaDescription")}
+                                placeholder="Meta Description"
                             />
                             {errors.metaDescription && (
                                 <p className="text-sm font-medium text-destructive">{errors.metaDescription.message}</p>
@@ -126,6 +130,7 @@ export default function CreatePage() {
                                 id="keywords"
                                 {...register("keywords")}
                                 className="min-h-[100px]"
+                                placeholder="Comma separated keywords"
                             />
                             <p className="text-sm text-muted-foreground">Separate with comma</p>
                             {errors.keywords && (

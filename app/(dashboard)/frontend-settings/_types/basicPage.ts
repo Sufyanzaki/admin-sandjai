@@ -11,4 +11,5 @@ export type BasicPageDto = {
     isActive: boolean;
     createdAt: string;
     updatedAt: string;
+    type: string;
 }

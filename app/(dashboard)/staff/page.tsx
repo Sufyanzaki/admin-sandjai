@@ -8,50 +8,60 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Award, Building, Calendar, Clipboard, Clock, Download, Edit, Eye, FileText, Filter, Mail, MoreVertical, Phone, RefreshCw, Search, Shield, Trash, UserCheck, UserPlus, Users, UserX } from "lucide-react";
+import { Filter, MoreVertical, RefreshCw, Search, Shield, Trash, UserPlus, Users, Edit } from "lucide-react";
 import Link from "next/link";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { useState } from "react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { useState, useMemo } from "react";
 import PaginationSection from "@/components/Pagination";
-
-const staffData = [
-  {
-    id: 1,
-    name: "Admin",
-    email: "info@rajmedia.nl",
-    password: "-",
-    role: "admin",
-    status: "active" // Added status
-  },
-  {
-    id: 2,
-    name: "sandjai p",
-    email: "sandjai@netblue.nl",
-    password: "-",
-    role: "Mod",
-    status: "active" // Added status
-  },
-  {
-    id: 3,
-    name: "kareemn sas",
-    email: "kareembakhs112244@gmail.com",
-    password: "1234341",
-    role: "admin",
-    status: "inactive" // Added status
-  },
-  {
-    id: 4,
-    name: "sufyan zaki",
-    email: "sufyan.zaki.789@gmail.com",
-    password: "122132342345",
-    role: "admin",
-    status: "active" // Added status
-  }
-];
+import { useStaffMembers } from "./_hooks/useStaffMembers";
+import Preloader from "@/components/ui/Preloader";
+import { useDebounce } from "@/hooks/useDebounce";
+import useRoles from "./roles/_hook/useRoles";
+import {useDeleteStaff} from "@/app/(dashboard)/staff/_hooks/useDeleteStaff";
 
 export default function StaffPage() {
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState({key: '', value:false});
+  const [currentPage, setCurrentPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [roleFilter, setRoleFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
+
+  const { deleteStaffById, isItemDeleting } = useDeleteStaff();
+
+  const debouncedSearchQuery = useDebounce(searchQuery, 500);
+
+  const params = {
+    page: currentPage,
+    limit,
+    search: debouncedSearchQuery || undefined,
+    allow: roleFilter !== "all" ? roleFilter : undefined,
+    isActive:
+      statusFilter === "all"
+        ? undefined
+        : statusFilter === "active"
+        ? true
+        : statusFilter === "inactive"
+        ? false
+        : undefined,
+  };
+
+  const { staffList, loading, error } = useStaffMembers(params);
+  const { roles, loading: rolesLoading } = useRoles();
+
+  const staffData = staffList?.staffMembers ?? [];
+
+  const pagination = useMemo(() => ({
+    total: staffList?.totalStaff ?? 0,
+    page: staffList?.page ?? 1,
+    limit: staffList?.limit ?? limit,
+    totalPages: staffList ? Math.ceil(staffList.totalStaff / (staffList.limit || limit)) : 1,
+  }), [staffList, limit]);
+
+  const handleDeleteConfirm = () => {
+    deleteStaffById(deleteDialogOpen.key).finally(() => setDeleteDialogOpen({key: '', value:false}));
+  };
+
   return (
     <>
     <div className="flex flex-col gap-6 p-4 xl:p-6">
@@ -78,7 +88,13 @@ export default function StaffPage() {
               <div className="flex flex-col gap-2 sm:flex-row">
                 <div className="relative">
                   <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                  <Input type="search" placeholder="Search staff..." className="w-full pl-8 sm:w-[300px]" />
+                  <Input
+                    type="search"
+                    placeholder="Search staff..."
+                    className="w-full pl-8 sm:w-[300px]"
+                    value={searchQuery}
+                    onChange={e => setSearchQuery(e.target.value)}
+                  />
                 </div>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -90,20 +106,24 @@ export default function StaffPage() {
                   <DropdownMenuContent align="end" className="w-[200px]">
                     <DropdownMenuLabel>Filter By</DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem>
-                      <Select>
+                    <DropdownMenuItem asChild>
+                      <Select value={roleFilter} onValueChange={setRoleFilter} disabled={rolesLoading}>
                         <SelectTrigger className="w-full border-none p-0 shadow-none">
                           <SelectValue placeholder="Role" />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="all">All Roles</SelectItem>
-                          <SelectItem value="doctor">Admin</SelectItem>
-                          <SelectItem value="nurse">Moderator</SelectItem>
+                          {roles &&
+                            roles.map((role) => (
+                              <SelectItem key={role.id} value={role.name}>
+                                {role.name}
+                              </SelectItem>
+                            ))}
                         </SelectContent>
                       </Select>
                     </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <Select>
+                    <DropdownMenuItem asChild>
+                      <Select value={statusFilter} onValueChange={setStatusFilter}>
                         <SelectTrigger className="w-full border-none p-0 shadow-none">
                           <SelectValue placeholder="Status" />
                         </SelectTrigger>
@@ -115,8 +135,17 @@ export default function StaffPage() {
                       </Select>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem>
-                      <Button variant="outline" size="sm" className="w-full">
+                    <DropdownMenuItem asChild>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full"
+                        onClick={() => {
+                          setRoleFilter("all");
+                          setStatusFilter("all");
+                          setSearchQuery("");
+                        }}
+                      >
                         <RefreshCw className="mr-2 h-3 w-3" />
                         Reset Filters
                       </Button>
@@ -128,6 +157,20 @@ export default function StaffPage() {
           </CardHeader>
           <CardContent>
             <div className="rounded-md border">
+              {loading ? (
+                <div className="flex items-center flex-col justify-center h-64">
+                    <Preloader />
+                    <p className="text-sm">Loading Staff</p>
+                </div>
+              ) : error ? (
+                <div className="flex items-center justify-center h-32 text-red-500">
+                  Failed to load staff.
+                </div>
+              ) : staffData.length === 0 ? (
+                <div className="flex items-center justify-center h-32 text-muted-foreground">
+                  No staff members found.
+                </div>
+              ) : (
               <Table className="whitespace-nowrap">
                 <TableHeader>
                   <TableRow>
@@ -145,52 +188,63 @@ export default function StaffPage() {
                         <TableCell>
                           <div className="flex items-center gap-3">
                             <Avatar className="h-8 w-8">
-                              <AvatarImage src={"/user-2.png?height=32&width=32&query=person"} alt={staff.name} />
-                              <AvatarFallback>{staff.name.slice(0, 2).toUpperCase()}</AvatarFallback>
+                              <AvatarImage src={staff.image || "/user-2.png?height=32&width=32&query=person"} alt={staff.firstName || staff.email} />
+                              <AvatarFallback>{(staff.firstName || staff.email).slice(0, 2).toUpperCase()}</AvatarFallback>
                             </Avatar>
-                            <div className="font-medium">{staff.name}</div>
+                            <div className="font-medium">{staff.firstName} {staff.lastName}</div>
                           </div>
                         </TableCell>
                         <TableCell>{staff.role}</TableCell>
                         <TableCell className="hidden md:table-cell">
                           <span className="text-xs text-muted-foreground">{staff.email}</span>
                         </TableCell>
-                        <TableCell className="hidden md:table-cell">Today</TableCell>
+                        <TableCell className="hidden md:table-cell">
+                          {staff.createdAt ? new Date(staff.createdAt).toLocaleDateString() : "-"}
+                        </TableCell>
                         <TableCell>
-                          <Badge variant="success">Active</Badge>
+                          <Badge variant={staff.isActive ? "success" : "destructive"}>
+                            {staff.isActive ? "Active" : "Inactive"}
+                          </Badge>
                         </TableCell>
                         <TableCell className="text-right">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon">
-                                <MoreVertical className="h-4 w-4" />
-                                <span className="sr-only">Actions</span>
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem asChild>
-                                <Link href={`/staff/${staff.id}/edit`}>
-                                  <Edit className="mr-2 h-4 w-4" />
-                                  Edit
-                                </Link>
-                              </DropdownMenuItem>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem onClick={() => setDeleteDialogOpen(true)} className="text-red-500">
-                                <Trash className="mr-2 h-4 w-4" />
-                                Delete
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
+                          {isItemDeleting(staff.id) ? (
+                            <div className="flex justify-end"><Preloader size="sm" /></div>
+                          ) : (
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="icon">
+                                  <MoreVertical className="h-4 w-4" />
+                                  <span className="sr-only">Actions</span>
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem asChild>
+                                  <Link href={`/staff/${staff.id}/edit`}>
+                                    <Edit className="mr-2 h-4 w-4" />
+                                    Edit
+                                  </Link>
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem onClick={(id) => setDeleteDialogOpen({value: true, key: staff.id})} className="text-red-500">
+                                  <Trash className="mr-2 h-4 w-4" />
+                                  Delete
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          )}
                         </TableCell>
                       </TableRow>
                   ))}
                 </TableBody>
               </Table>
-
+              )}
             </div>
-            {/*<PaginationSection />*/}
+            <PaginationSection
+                pagination={pagination}
+                onPageChange={setCurrentPage}
+            />
           </CardContent>
         </Card>
 
@@ -203,7 +257,7 @@ export default function StaffPage() {
             <CardContent>
               <div className="flex items-center justify-between">
                 <div className="flex flex-col">
-                  <span className="text-3xl font-bold">{staffData.length}</span>
+                  <span className="text-3xl font-bold">{staffList?.totalStaff ?? 0}</span>
                   <span className="text-xs text-muted-foreground">Total Staff</span>
                 </div>
               </div>
@@ -212,22 +266,28 @@ export default function StaffPage() {
                   <span>Active</span>
                   <div className="flex items-center gap-2">
                     <Badge variant="outline">
-                      {staffData.filter(staff => staff.status === 'active').length}
+                      {staffList?.activeStaffCount ?? 0}
                     </Badge>
                     <span className="text-xs text-muted-foreground">
-            {Math.round((staffData.filter(staff => staff.status === 'active').length / staffData.length) * 100)}%
-          </span>
+                      {staffList && staffList.totalStaff > 0
+                        ? Math.round((staffList.activeStaffCount / staffList.totalStaff) * 100)
+                        : 0
+                      }%
+                    </span>
                   </div>
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span>Inactive</span>
                   <div className="flex items-center gap-2">
                     <Badge variant="outline">
-                      {staffData.filter(staff => staff.status === 'inactive').length}
+                      {staffList?.inactiveStaffCount ?? 0}
                     </Badge>
                     <span className="text-xs text-muted-foreground">
-            {Math.round((staffData.filter(staff => staff.status === 'inactive').length / staffData.length) * 100)}%
-          </span>
+                      {staffList && staffList.totalStaff > 0
+                        ? Math.round((staffList.inactiveStaffCount / staffList.totalStaff) * 100)
+                        : 0
+                      }%
+                    </span>
                   </div>
                 </div>
               </div>
@@ -240,42 +300,16 @@ export default function StaffPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {/* Count admin roles */}
-                <div className="flex items-center gap-2">
-                  <div className="h-3 w-3 rounded-md bg-blue-500" />
-                  <div className="flex flex-1 items-center justify-between">
-                    <span className="text-sm">Admins</span>
-                    <Badge variant="outline">
-                      {staffData.filter(staff => staff.role === 'admin').length}
-                    </Badge>
-                  </div>
-                </div>
-
-                {/* Count Mod roles */}
-                <div className="flex items-center gap-2">
-                  <div className="h-3 w-3 rounded-md bg-green-500" />
-                  <div className="flex flex-1 items-center justify-between">
-                    <span className="text-sm">Moderators</span>
-                    <Badge variant="outline">
-                      {staffData.filter(staff => staff.role === 'Mod').length}
-                    </Badge>
-                  </div>
-                </div>
-
-                {/* Count other roles if they exist */}
-                {Array.from(new Set(staffData.map(staff => staff.role)))
-                    .filter(role => !['admin', 'Mod'].includes(role))
-                    .map(role => (
-                        <div key={role} className="flex items-center gap-2">
-                          <div className="h-3 w-3 rounded-md bg-purple-500" />
-                          <div className="flex flex-1 items-center justify-between">
-                            <span className="text-sm">{role.charAt(0).toUpperCase() + role.slice(1)}</span>
-                            <Badge variant="outline">
-                              {staffData.filter(staff => staff.role === role).length}
-                            </Badge>
-                          </div>
-                        </div>
-                    ))}
+                {staffList?.countByRoles &&
+                  Object.entries(staffList.countByRoles).map(([role, count]) => (
+                    <div key={role} className="flex items-center gap-2">
+                      <div className="h-3 w-3 rounded-md bg-blue-500" />
+                      <div className="flex flex-1 items-center justify-between">
+                        <span className="text-sm">{role}</span>
+                        <Badge variant="outline">{count}</Badge>
+                      </div>
+                    </div>
+                  ))}
               </div>
             </CardContent>
           </Card>
@@ -305,7 +339,7 @@ export default function StaffPage() {
       </div>
     </div>
 
-    <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+      <AlertDialog open={deleteDialogOpen.value} onOpenChange={value=>setDeleteDialogOpen({...deleteDialogOpen, value: value})}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure you want to Delete this staff member?</AlertDialogTitle>
@@ -313,7 +347,7 @@ export default function StaffPage() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={() => setDeleteDialogOpen(false)} className="bg-red-500 text-neutral-50 hover:bg-red-700">
+            <AlertDialogAction onClick={handleDeleteConfirm} className="bg-red-500 text-neutral-50 hover:bg-red-700">
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>

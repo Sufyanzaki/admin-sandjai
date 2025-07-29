@@ -14,7 +14,7 @@ export type RolePayload = {
 };
 
 export type RoleDto = {
-  id: number;
+  id: string;
   name: string;
   description: string | null;
   isDefault: boolean;

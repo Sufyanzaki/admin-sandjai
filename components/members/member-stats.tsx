@@ -33,8 +33,8 @@ export default function MemberStats({ monthlyData = [] }: MemberStatsProps) {
   const chartData = transformData(monthlyData)
 
   // Calculate Y-axis labels based on the data
-  const maxCount = Math.max(...chartData.map(item => item.count), 10) // Minimum of 10
-  const yAxisStep = Math.ceil(maxCount / 5) // Create about 5 steps
+  const maxCount = Math.max(...chartData.map(item => item.count), 40)
+  const yAxisStep = Math.ceil(maxCount / 5)
   const yAxisLabels = Array.from(
       { length: Math.ceil(maxCount / yAxisStep) + 1 },
       (_, i) => i * yAxisStep

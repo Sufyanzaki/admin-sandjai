@@ -1,7 +1,9 @@
 import { postRequest, patchRequest } from "@/admin-utils";
 
 export interface UserLocationPayload {
-  location: string;
+  city?: string;
+  state?: string;
+  country?: string;
   id?: string;
 }
 

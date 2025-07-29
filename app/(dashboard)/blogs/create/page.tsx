@@ -12,7 +12,6 @@ import {SimpleEditor} from "@/components/tiptap-templates/simple/simple-editor";
 import { useBlogCategories } from "../category/_hooks/useBlogCategories";
 import useCreateBlog from "../_hooks/useCreateBlog";
 import { Controller } from "react-hook-form";
-import {imageUpload} from "@/admin-utils/utils/imageUpload";
 
 export default function AddBlogPage() {
 
@@ -25,7 +24,7 @@ export default function AddBlogPage() {
         isLoading,
         register,
         control,
-    } = useCreateBlog(imageUpload);
+    } = useCreateBlog();
 
     return (
         <div className="flex flex-col gap-4 p-4 xl:p-6">

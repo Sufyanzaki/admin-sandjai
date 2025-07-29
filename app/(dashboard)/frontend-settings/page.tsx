@@ -10,51 +10,6 @@ import {useBasicPages} from "@/app/(dashboard)/frontend-settings/_hooks/useBasic
 import {useDeleteBasicPage} from "@/app/(dashboard)/frontend-settings/_hooks/useDeleteBasicPage";
 import Preloader from "@/components/ui/Preloader";
 
-const staticSettings = [
-    {
-        id: "1",
-        category: "Home",
-        slug: "home",
-        url: "https://ticketprijs.nl"
-    },
-    {
-        id: "2",
-        category: "Contact",
-        slug: "contact",
-        url: "https://ticketprijs.nl/contact"
-    },
-    {
-        id: "3",
-        category: "How Work",
-        slug: "how-work",
-        url: "https://ticketprijs.nl/how-work"
-    },
-    {
-        id: "4",
-        category: "Registration",
-        slug: "registration",
-        url: "https://ticketprijs.nl/profile-create"
-    },
-    {
-        id: "5",
-        category: "Term and conditions",
-        slug: "terms-and-conditions",
-        url: "https://ticketprijs.nl/terms"
-    },
-    {
-        id: "6",
-        category: "Veelgestelde Vragen",
-        slug: "veelgestelde-vragen",
-        url: "https://ticketprijs.nl/veelgestelde-vragen"
-    },
-    {
-        id: "7",
-        category: "Agenda",
-        slug: "agenda",
-        url: "https://ticketprijs.nl/agenda"
-    }
-];
-
 export default function SettingPage() {
     const { basicPages, isLoading, error } = useBasicPages();
     const { deletePageById, isDeleting } = useDeleteBasicPage();
@@ -62,6 +17,18 @@ export default function SettingPage() {
     const handleDelete = async (id: number) => {
         await deletePageById(id);
     };
+
+    if(isLoading){
+        return (
+            <div className="flex items-center flex-col justify-center h-64">
+                <Preloader/>
+                <p className="text-sm">Loading Pages</p>
+            </div>
+        )
+    }
+
+    const customPages = basicPages?.filter(page => page.type.toLowerCase() === 'custom') || [];
+    const corePages = basicPages?.filter(page => page.type.toLowerCase() !== 'custom') || [];
 
     return (
         <div className="container space-y-6 p-4 xl:p-6">
@@ -101,14 +68,15 @@ export default function SettingPage() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {staticSettings.map((setting) => (
-                                <TableRow key={setting.id}>
-                                    <TableCell className="font-medium align-top">{setting.category}</TableCell>
-                                    <TableCell className="align-top">{setting.url}</TableCell>
+                            {corePages.map((page) => (
+                                <TableRow key={page.id}>
+                                    <TableCell className="font-medium align-top">{page.Title}</TableCell>
+                                    <TableCell className="align-top">{page.Url}</TableCell>
+                                    <TableCell className="align-top capitalize">{page.pageType?.toLowerCase()}</TableCell>
                                     <TableCell className="text-right align-top">
                                         <div className="flex justify-end gap-2">
                                             <Button variant="outline" size="icon" className="h-8 w-8" asChild>
-                                                <Link href={`/frontend-settings/edit?slug=${setting.slug}`}>
+                                                <Link href={`/app/(dashboard)/frontend-settings/edit/page.tsx/basic`}>
                                                     <Edit className="h-4 w-4" />
                                                     <span className="sr-only">Edit</span>
                                                 </Link>
@@ -130,16 +98,11 @@ export default function SettingPage() {
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    {isLoading ? (
-                        <div className="flex items-center flex-col justify-center h-64">
-                            <Preloader/>
-                            <p className="text-sm">Loading Pages</p>
-                        </div>
-                    ) : error ? (
+                    {error ? (
                         <div className="text-center py-10">
                             <p className="text-destructive">Error loading pages</p>
                         </div>
-                    ) : basicPages && basicPages.length > 0 ? (
+                    ) : customPages && customPages.length > 0 ? (
                         <Table>
                             <TableHeader>
                                 <TableRow>
@@ -150,7 +113,7 @@ export default function SettingPage() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {basicPages.map((page) => (
+                                {customPages.map((page) => (
                                     <TableRow key={page.id}>
                                         <TableCell className="font-medium align-top">{page.Title}</TableCell>
                                         <TableCell className="align-top">{page.Url}</TableCell>

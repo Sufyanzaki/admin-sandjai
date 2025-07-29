@@ -1,5 +1,6 @@
 import type { Attrs, Node } from "@tiptap/pm/model"
 import type { Editor } from "@tiptap/react"
+import { imageUpload } from "@/admin-utils/utils/imageUpload"
 
 export const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
 
@@ -150,19 +151,35 @@ export const handleImageUpload = async (
     )
   }
 
-  // For demo/testing: Simulate upload progress
-  for (let progress = 0; progress <= 100; progress += 10) {
+  try {
+    // Check if upload was cancelled before starting
     if (abortSignal?.aborted) {
       throw new Error("Upload cancelled")
     }
-    await new Promise((resolve) => setTimeout(resolve, 500))
-    onProgress?.({ progress })
+
+    // Report initial progress
+    onProgress?.({ progress: 0 })
+
+    // Use the imageUpload function from admin-utils
+    const uploadedUrl = await imageUpload(file)
+
+    // Check if upload was cancelled during the process
+    if (abortSignal?.aborted) {
+      throw new Error("Upload cancelled")
+    }
+
+    // Report completion
+    onProgress?.({ progress: 100 })
+
+    return uploadedUrl
+  } catch (error) {
+    if (abortSignal?.aborted) {
+      throw new Error("Upload cancelled")
+    }
+    
+    // Re-throw the original error
+    throw error
   }
-
-  return "/images/placeholder-image.png"
-
-  // Uncomment for production use:
-  // return convertFileToBase64(file, abortSignal);
 }
 
 /**

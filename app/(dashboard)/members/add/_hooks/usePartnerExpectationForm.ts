@@ -22,7 +22,10 @@ const partnerExpectationSchema = z.object({
   goingOut: z.boolean(),
   ageFrom: z.coerce.number().min(0, "From age is required"),
   ageTo: z.coerce.number().min(0, "To age is required"),
-  location: z.string().min(1, "Location is required"),
+  // Updated location fields - all optional
+  city: z.string().optional(),
+  state: z.string().optional(),
+  country: z.string().optional(),
 });
 
 export type PartnerExpectationFormValues = z.infer<typeof partnerExpectationSchema>;
@@ -64,26 +67,29 @@ export default function usePartnerExpectationForm() {
       goingOut: false,
       ageFrom: 0,
       ageTo: 0,
-      location: "",
+      // Updated location defaults
+      city: "",
+      state: "",
+      country: "",
     },
     mode: "onBlur",
   });
 
   const { trigger, isMutating } = useSWRMutation(
-    "updatePartnerExpectation",
-    async (_: string, { arg }: { arg: PartnerExpectationFormValues }) => {
-      if (!id) return showError({ message: "You need to initialize a new member profile before you can add other details. Go back to basic Information to initialze a member" });
+      "updatePartnerExpectation",
+      async (_: string, { arg }: { arg: PartnerExpectationFormValues }) => {
+        if (!id) return showError({ message: "You need to initialize a new member profile before you can add other details. Go back to basic Information to initialize a member" });
 
-      if (id && allowEdit) return await patchPartnerExpectation(id, arg);
-      else return await postPartnerExpectation(id, arg);
-    },
-    {
-      onError: (error: any) => {
-        showError({ message: error.message || "Failed to update partner expectation info" });
+        if (id && allowEdit) return await patchPartnerExpectation(id, arg);
+        else return await postPartnerExpectation(id, arg);
       },
-      revalidate: false,
-      populateCache: false,
-    }
+      {
+        onError: (error: any) => {
+          showError({ message: error.message || "Failed to update partner expectation info" });
+        },
+        revalidate: false,
+        populateCache: false,
+      }
   );
 
   const onSubmit = async (values: PartnerExpectationFormValues, callback?: (data: any) => void) => {
@@ -106,4 +112,4 @@ export default function usePartnerExpectationForm() {
     watch,
     onSubmit,
   };
-} 
+}

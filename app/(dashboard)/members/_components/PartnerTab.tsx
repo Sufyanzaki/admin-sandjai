@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { TabsContent } from "@/components/ui/tabs";
-import LocationSearchInput from "@/components/location-search";
 import { Button } from "@/components/ui/button";
 import usePartnerExpectationForm from "../add/_hooks/usePartnerExpectationForm";
 import { Controller } from "react-hook-form";
@@ -14,24 +13,7 @@ import React from "react";
 import { useParams } from "next/navigation";
 import { getUserTrackingId } from "@/lib/access-token";
 import { AlertTriangle } from "lucide-react";
-
-interface LocationData {
-  x: number;
-  y: number;
-  label: string;
-  bounds: [[number, number], [number, number]] | null;
-  raw: {
-    address: {
-      city?: string;
-      town?: string;
-      village?: string;
-      state?: string;
-      country?: string;
-      [key: string]: any;
-    };
-    [key: string]: any;
-  };
-}
+import LocationSearchInput, { LocationData } from "@/components/location-search";
 
 export default function PartnerTab() {
 
@@ -49,12 +31,20 @@ export default function PartnerTab() {
     setValue,
     control,
     onSubmit,
+    watch,
   } = usePartnerExpectationForm();
 
   const handleLocationSelect = (location: LocationData) => {
-    const address = location.label;
-    setValue("location", address, { shouldValidate: true });
+    setValue("city", location.city);
+    setValue("state", location.state);
+    setValue("country", location.country);
   };
+
+  const city = watch("city");
+  const state = watch("state");
+  const country = watch("country");
+
+  const currentLocation = city || state || country ? { city, state, country } : null;
 
   return (
     <TabsContent value="partner" className="space-y-4 mt-4">
@@ -193,10 +183,9 @@ export default function PartnerTab() {
             <div className="space-y-4">
               <h3 className="text-lg font-medium">Location</h3>
               <LocationSearchInput
-                onSelect={handleLocationSelect}
-                placeholder="Search for your city, state, or country"
+                  value={currentLocation}
+                  onSelect={handleLocationSelect}
               />
-              {errors.location && <p className="text-sm text-red-500">{errors.location.message}</p>}
             </div>
             <div className="flex justify-end">
               <Button type="submit" disabled={isLoading}>

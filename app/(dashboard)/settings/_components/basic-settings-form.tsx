@@ -9,22 +9,26 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Settings, Upload } from "lucide-react";
+import { Settings, Upload, X } from "lucide-react";
 import Preloader from "@/components/ui/Preloader";
 
 export default function BasicSettingsForm() {
-  const { handleSubmit, control, register, errors, isLoading, onSubmit, loading, data } = useBasicSettingsForm();
-
-  // Helper to get the preview URL for the logo
-  const getLogoPreview = (logo: File | string | undefined) => {
-    if (!logo) return "";
-    if (typeof logo === "string") return logo;
-    if (logo instanceof File) return URL.createObjectURL(logo);
-    return "";
-  };
-
-  // Watch the systemLogo field for preview
-  const systemLogoValue = control._formValues?.systemLogo;
+  const { 
+    handleSubmit, 
+    control, 
+    register, 
+    errors, 
+    isLoading, 
+    onSubmit, 
+    loading, 
+    data,
+    systemLogoPreview,
+    loginImagePreview,
+    handleSystemLogoChange,
+    removeSystemLogo,
+    handleLoginImageChange,
+    removeLoginImage,
+  } = useBasicSettingsForm();
 
   if (loading) return (
     <div className="flex items-center flex-col justify-center h-64">
@@ -57,15 +61,28 @@ export default function BasicSettingsForm() {
                   <div className="space-y-2">
                     <Label>System Logo</Label>
                     <div className="flex items-center gap-4">
-                      <div className="h-24 w-24 rounded-lg border flex items-center justify-center bg-muted/50 overflow-hidden">
-                        {getLogoPreview(systemLogoValue) ? (
-                          <img
-                            src={getLogoPreview(systemLogoValue)}
-                            alt="Logo"
-                            className="h-20 w-20 object-contain"
-                          />
-                        ) : (
-                          <Upload className="h-6 w-6 text-muted-foreground" />
+                      <div className="relative">
+                        <div className="h-24 w-24 rounded-lg border flex items-center justify-center bg-muted/50 overflow-hidden">
+                          {systemLogoPreview ? (
+                            <img
+                              src={systemLogoPreview}
+                              alt="Logo"
+                              className="h-20 w-20 object-contain"
+                            />
+                          ) : (
+                            <Upload className="h-6 w-6 text-muted-foreground" />
+                          )}
+                        </div>
+                        {systemLogoPreview && (
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0"
+                            onClick={removeSystemLogo}
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
                         )}
                       </div>
                       <div className="flex-1 space-y-2">
@@ -91,7 +108,12 @@ export default function BasicSettingsForm() {
                               id="system-logo"
                               className="hidden"
                               accept="image/*"
-                              onChange={e => field.onChange(e.target.files?.[0] || null)}
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  handleSystemLogoChange(file);
+                                }
+                              }}
                             />
                           )}
                         />
@@ -160,6 +182,30 @@ export default function BasicSettingsForm() {
                   <div className="space-y-2">
                     <Label>Login Background</Label>
                     <div className="flex items-center gap-4">
+                      <div className="relative">
+                        <div className="h-24 w-32 rounded-lg border flex items-center justify-center bg-muted/50 overflow-hidden">
+                          {loginImagePreview ? (
+                            <img
+                              src={loginImagePreview}
+                              alt="Login Background"
+                              className="h-full w-full object-cover"
+                            />
+                          ) : (
+                            <Upload className="h-6 w-6 text-muted-foreground" />
+                          )}
+                        </div>
+                        {loginImagePreview && (
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0"
+                            onClick={removeLoginImage}
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
+                        )}
+                      </div>
                       <div className="flex-1 space-y-2">
                         <div className="flex gap-2">
                           <Button
@@ -183,7 +229,12 @@ export default function BasicSettingsForm() {
                               id="admin-bg"
                               className="hidden"
                               accept="image/*"
-                              onChange={e => field.onChange(e.target.files?.[0] || null)}
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  handleLoginImageChange(file);
+                                }
+                              }}
                             />
                           )}
                         />
@@ -200,9 +251,6 @@ export default function BasicSettingsForm() {
             </div>
           </div>
           <div className="flex justify-end gap-4 pt-4">
-            <Button variant="outline" type="button">
-              Cancel
-            </Button>
             <Button type="submit" disabled={isLoading}>
               {isLoading ? "Saving..." : "Save Configuration"}
             </Button>

@@ -1,32 +1,42 @@
 "use client";
 
-import {Button} from "@/components/ui/button";
-import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} from "@/components/ui/card";
-import {Input} from "@/components/ui/input";
-import {Label} from "@/components/ui/label";
-import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
-import {ArrowLeft, Mail, Phone, Save, Upload} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {ArrowLeft, Mail, Phone, Save, Upload, X} from "lucide-react";
 import Link from "next/link";
-import {ChangeEvent, useState} from "react";
+import { Controller } from "react-hook-form";
+import { useCreateStaffForm } from "../_hooks/useCreateStaff";
+import useRoles from "../roles/_hook/useRoles";
+import {useState} from "react";
 
 export default function AddStaffPage() {
-   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    password: '',
-    role: '',
-    status: 'active' // Default status
-  });
+  const {
+    register,
+    handleSubmit,
+    errors,
+    isLoading,
+    onSubmit,
+    control,
+    setValue,
+    watch,
+  } = useCreateStaffForm();
 
-  const handleSubmit = () => {
+  const { roles, loading: rolesLoading } = useRoles();
 
-  };
+  const image = watch("image");
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setValue("image", file);
+      const previewUrl = URL.createObjectURL(file);
+      setImagePreview(previewUrl);
+      return () => URL.revokeObjectURL(previewUrl);
+    }
   };
 
   return (
@@ -44,7 +54,7 @@ export default function AddStaffPage() {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit(v => onSubmit(v, () => {}))}>
         <Card>
           <CardHeader>
             <CardTitle>Personal Information</CardTitle>
@@ -52,35 +62,61 @@ export default function AddStaffPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex flex-col items-center space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
-              <div className="flex h-32 w-32 items-center justify-center rounded-md border border-dashed">
-                <label htmlFor="photo" className="flex flex-col items-center space-y-2">
-                  <Upload className="h-8 w-8 text-muted-foreground" />
-                  <input type="file" id="photo" className="hidden" />
-                  <span className="text-xs text-muted-foreground">Upload photo</span>
-                </label>
+              <div className="relative">
+                <div className="flex h-32 w-32 items-center justify-center rounded-md border border-dashed">
+                  <label htmlFor="photo" className="flex flex-col items-center space-y-2 cursor-pointer">
+                    {imagePreview ? (
+                        <img src={imagePreview} alt="Preview" className="h-full w-full object-cover rounded-md" />
+                    ) : (
+                        <Upload className="h-8 w-8 text-muted-foreground" />
+                    )}
+                    <input
+                        type="file"
+                        id="photo"
+                        className="hidden"
+                        accept="image/*"
+                        onChange={handleFileChange}
+                    />
+                    <span className="text-xs text-muted-foreground">Upload photo</span>
+                  </label>
+                </div>
+                {(imagePreview || image) && (
+                    <Button
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0"
+                        onClick={() => {
+                          setValue("image", undefined);
+                          setImagePreview(null);
+                        }}
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                )}
               </div>
               <div className="grid flex-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="firstName">First Name</Label>
                   <Input
-                      id="firstName"
-                      name="firstName"
-                      placeholder="Enter first name"
-                      value={formData.firstName}
-                      onChange={handleChange}
-                      required
+                    id="firstName"
+                    placeholder="Enter first name"
+                    {...register("firstName")}
                   />
+                  {errors.firstName && (
+                    <p className="text-xs text-red-500">{errors.firstName.message}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="lastName">Last Name</Label>
                   <Input
-                      id="lastName"
-                      name="lastName"
-                      placeholder="Enter last name"
-                      value={formData.lastName}
-                      onChange={handleChange}
-                      required
+                    id="lastName"
+                    placeholder="Enter last name"
+                    {...register("lastName")}
                   />
+                  {errors.lastName && (
+                    <p className="text-xs text-red-500">{errors.lastName.message}</p>
+                  )}
                 </div>
               </div>
             </div>
@@ -91,15 +127,15 @@ export default function AddStaffPage() {
                 <div className="relative">
                   <Mail className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                   <Input
-                      id="email"
-                      type="email"
-                      name="email"
-                      placeholder="Enter email address"
-                      className="pl-8"
-                      value={formData.email}
-                      onChange={handleChange}
-                      required
+                    id="email"
+                    type="email"
+                    placeholder="Enter email address"
+                    className="pl-8"
+                    {...register("email")}
                   />
+                  {errors.email && (
+                    <p className="text-xs text-red-500">{errors.email.message}</p>
+                  )}
                 </div>
               </div>
               <div className="space-y-2">
@@ -107,56 +143,64 @@ export default function AddStaffPage() {
                 <div className="relative">
                   <Phone className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                   <Input
-                      id="phone"
-                      type="tel"
-                      name="phone"
-                      placeholder="Enter phone number"
-                      className="pl-8"
-                      value={formData.phone}
-                      onChange={handleChange}
-                      required
+                    id="phone"
+                    type="tel"
+                    placeholder="Enter phone number"
+                    className="pl-8"
+                    {...register("phone")}
                   />
+                  {errors.phone && (
+                    <p className="text-xs text-red-500">{errors.phone.message}</p>
+                  )}
                 </div>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
                 <Input
-                    id="password"
-                    type="password"
-                    name="password"
-                    placeholder="Enter password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    required
+                  id="password"
+                  type="password"
+                  placeholder="Enter password"
+                  {...register("password")}
                 />
+                {errors.password && (
+                  <p className="text-xs text-red-500">{errors.password.message}</p>
+                )}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="role">User Role</Label>
-                <Select
-                    name="role"
-                    value={formData.role}
-                    onValueChange={(value) => setFormData({ ...formData, role: value })}
-                    required
-                >
-                  <SelectTrigger id="role">
-                    <SelectValue placeholder="Select role" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="admin">Admin</SelectItem>
-                    <SelectItem value="Mod">Moderator</SelectItem>
-                    <SelectItem value="staff">Staff</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Label htmlFor="roleId">User Role</Label>
+                <Controller
+                  name="roleId"
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value}
+                      disabled={rolesLoading}
+                    >
+                      <SelectTrigger id="roleId">
+                        <SelectValue placeholder={rolesLoading ? "Loading roles..." : "Select role"} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {roles &&
+                          roles.map((role) => (
+                            <SelectItem key={role.id} value={String(role.id)}>
+                              {role.name}
+                            </SelectItem>
+                          ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+                {errors.roleId && (
+                  <p className="text-xs text-red-500">{errors.roleId.message}</p>
+                )}
               </div>
             </div>
           </CardContent>
-          <CardFooter className="flex justify-between">
-            <Button variant="outline" asChild>
-              <Link href="/staff">Cancel</Link>
-            </Button>
-            <Button type="submit">
+          <CardFooter className="flex justify-end">
+            <Button type="submit" disabled={isLoading}>
               <Save className="mr-2 h-4 w-4" />
-              Save Staff
+              {isLoading ? "Saving..." : "Save Staff"}
             </Button>
           </CardFooter>
         </Card>

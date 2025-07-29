@@ -361,10 +361,9 @@ export default function PatientVisitReportPage() {
 
       <div className="flex flex-col gap-4">
         <Tabs defaultValue="links">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="links">Links</TabsTrigger>
             <TabsTrigger value="countries">Countries</TabsTrigger>
-            <TabsTrigger value="browsers">Browsers</TabsTrigger>
           </TabsList>
 
           <TabsContent value="links">
@@ -420,7 +419,6 @@ export default function PatientVisitReportPage() {
               </CardContent>
             </Card>
           </TabsContent>
-
           <TabsContent value="countries">
             <Card>
               <CardHeader>
@@ -475,80 +473,6 @@ export default function PatientVisitReportPage() {
                       <TableCell>27.35%</TableCell>
                       <TableCell>
                         <TrendingUpIcon className="h-4 w-4 text-green-500" />
-                      </TableCell>
-                    </TableRow>
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="browsers">
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between gap-4 flex-wrap">
-                  <div>
-                    <CardTitle>Browsers</CardTitle>
-                    <CardDescription>Visitor distribution by browser</CardDescription>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Input placeholder="Search browsers..." className="h-8 w-[150px] lg:w-[250px]" />
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <Table className="whitespace-nowrap">
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Browser</TableHead>
-                      <TableHead>Sessions</TableHead>
-                      <TableHead>Percentage</TableHead>
-                      <TableHead>Device</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    <TableRow>
-                      <TableCell className="font-medium">Chrome</TableCell>
-                      <TableCell>84</TableCell>
-                      <TableCell>71.79%</TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <SmartphoneIcon className="h-4 w-4" />
-                          <span>Mobile</span>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell className="font-medium">Safari</TableCell>
-                      <TableCell>18</TableCell>
-                      <TableCell>15.38%</TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <LaptopIcon className="h-4 w-4" />
-                          <span>Desktop</span>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell className="font-medium">Firefox</TableCell>
-                      <TableCell>9</TableCell>
-                      <TableCell>7.69%</TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <TabletIcon className="h-4 w-4" />
-                          <span>Tablet</span>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell className="font-medium">Edge</TableCell>
-                      <TableCell>6</TableCell>
-                      <TableCell>5.13%</TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <LaptopIcon className="h-4 w-4" />
-                          <span>Desktop</span>
-                        </div>
                       </TableCell>
                     </TableRow>
                   </TableBody>
