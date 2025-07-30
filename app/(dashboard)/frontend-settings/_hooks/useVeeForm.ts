@@ -6,14 +6,13 @@ import { z } from 'zod';
 import { showError } from "@/admin-utils/lib/formErrors";
 import { showSuccess } from "@/admin-utils/lib/formSuccess";
 import useSWRMutation from "swr/mutation";
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { patchVeeSettings } from "../_api/veeApi";
 import { useVee } from "./useVee";
 import { imageUpload } from '@/admin-utils/utils/imageUpload';
 
 const veeFormSchema = z.object({
     Title: z.string().min(1, 'Title is required'),
-    Url: z.string().url('Invalid URL format').min(1, 'URL is required'),
     PageContentitle: z.string().min(1, 'Page content title is required'),
     link: z.string().min(1, 'Link is required'),
     content: z.string().min(1, 'Content is required'),
@@ -29,6 +28,7 @@ type VeeFormValues = z.infer<typeof veeFormSchema>;
 
 export default function useVeeForm() {
     const { veeData, mutate, veeLoading } = useVee();
+    const [isUploading, setIsUploading] = useState(false);
 
     const {
         register,
@@ -42,7 +42,6 @@ export default function useVeeForm() {
         resolver: zodResolver(veeFormSchema),
         defaultValues: {
             Title: '',
-            Url: '',
             PageContentitle: '',
             link: '',
             content: '',
@@ -68,12 +67,10 @@ export default function useVeeForm() {
         }
     );
 
-    // Reset form with fetched data
     useEffect(() => {
         if (veeData) {
             reset({
                 Title: veeData.Title || '',
-                Url: veeData.Url || '',
                 PageContentitle: veeData.PageContentitle || '',
                 link: veeData.link || '',
                 content: veeData.content || '',
@@ -88,21 +85,29 @@ export default function useVeeForm() {
     }, [veeData, reset]);
 
     const onSubmit = async (values: VeeFormValues) => {
-        let metaImageUrl = values.metaImage;
+        try {
+            let metaImageUrl = values.metaImage;
 
-        if (values.metaImage instanceof File) {
-            metaImageUrl = await imageUpload(values.metaImage);
-        }
+            if (values.metaImage instanceof File) {
+                setIsUploading(true);
+                metaImageUrl = await imageUpload(values.metaImage);
+                setIsUploading(false);
+            }
 
-        const payload = {
-            ...values,
-            metaImage: metaImageUrl,
-        };
+            const payload = {
+                ...values,
+                metaImage: metaImageUrl,
+            };
 
-        const result = await trigger(payload);
-        if (result) {
-            await mutate();
-            showSuccess('Vee page settings updated successfully!');
+            const result = await trigger(payload);
+            if (result) {
+                await mutate();
+                showSuccess('Vee page settings updated successfully!');
+            }
+        } catch (error) {
+            setIsUploading(false);
+            showError({ message: 'Failed to upload image' });
+            console.error('Image upload error:', error);
         }
     };
 
@@ -113,7 +118,9 @@ export default function useVeeForm() {
         watch,
         control,
         errors,
-        isLoading: isMutating,
+        isLoading: isMutating || isUploading,
+        isUploading,
+        isFormSubmitting: isMutating,
         onSubmit,
         veeLoading
     };

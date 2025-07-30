@@ -6,15 +6,14 @@ import { z } from 'zod';
 import { showError } from "@/admin-utils/lib/formErrors";
 import { showSuccess } from "@/admin-utils/lib/formSuccess";
 import useSWRMutation from "swr/mutation";
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { imageUpload } from '@/admin-utils/utils/imageUpload';
 import {useHowWork} from "@/app/(dashboard)/frontend-settings/_hooks/useHowWork";
 import {patchHowWorkSettings} from "@/app/(dashboard)/frontend-settings/_api/howWorkApi";
 
 const howItWorksFormSchema = z.object({
     Title: z.string().min(1, 'Title is required'),
-    Url: z.string().url('Invalid URL format').min(1, 'URL is required'),
-    bannerImage: z.any().optional(), // Accept File or string
+    bannerImage: z.any().optional(),
     bannerTitle: z.string().min(1, 'Banner title is required'),
     bannerSubTitle: z.string().min(1, 'Banner subtitle is required'),
     contactName: z.string().min(1, 'Contact name is required'),
@@ -30,6 +29,7 @@ type HowItWorksFormValues = z.infer<typeof howItWorksFormSchema>;
 
 export default function useHowWorkForm() {
     const { howWorkSettings, mutate, howWorkLoading } = useHowWork();
+    const [isUploading, setIsUploading] = useState(false);
 
     const {
         register,
@@ -43,7 +43,6 @@ export default function useHowWorkForm() {
         resolver: zodResolver(howItWorksFormSchema),
         defaultValues: {
             Title: '',
-            Url: '',
             bannerTitle: '',
             bannerSubTitle: '',
             contactName: '',
@@ -69,12 +68,10 @@ export default function useHowWorkForm() {
         }
     );
 
-    // Reset form with fetched data
     useEffect(() => {
         if (howWorkSettings) {
             reset({
                 Title: howWorkSettings.Title || '',
-                Url: howWorkSettings.Url || '',
                 bannerImage: howWorkSettings.bannerImage || '',
                 bannerTitle: howWorkSettings.bannerTitle || '',
                 bannerSubTitle: howWorkSettings.bannerSubTitle || '',
@@ -90,21 +87,29 @@ export default function useHowWorkForm() {
     }, [howWorkSettings, reset]);
 
     const onSubmit = async (values: HowItWorksFormValues) => {
-        let bannerImageUrl = values.bannerImage;
+        try {
+            let bannerImageUrl = values.bannerImage;
 
-        if (values.bannerImage instanceof File) {
-            bannerImageUrl = await imageUpload(values.bannerImage);
-        }
+            if (values.bannerImage instanceof File) {
+                setIsUploading(true);
+                bannerImageUrl = await imageUpload(values.bannerImage);
+                setIsUploading(false);
+            }
 
-        const payload = {
-            ...values,
-            bannerImage: bannerImageUrl,
-        };
+            const payload = {
+                ...values,
+                bannerImage: bannerImageUrl,
+            };
 
-        const result = await trigger(payload);
-        if (result) {
-            await mutate();
-            showSuccess('How It Works settings updated successfully!');
+            const result = await trigger(payload);
+            if (result) {
+                await mutate();
+                showSuccess('How It Works settings updated successfully!');
+            }
+        } catch (error) {
+            setIsUploading(false);
+            showError({ message: 'Failed to upload image' });
+            console.error('Image upload error:', error);
         }
     };
 
@@ -115,7 +120,9 @@ export default function useHowWorkForm() {
         watch,
         control,
         errors,
-        isLoading: isMutating,
+        isLoading: isMutating || isUploading,
+        isUploading,
+        isFormSubmitting: isMutating,
         onSubmit,
         howWorkSettings,
         howWorkLoading

@@ -2,10 +2,10 @@ import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
 import {Button} from "@/components/ui/button";
 import {Controller} from "react-hook-form";
-import useUpdateMemberStatus from "@/app/(dashboard)/members/_hooks/useUpdateMemberStatus";
+import useUpdateMemberStatusForm from "@/app/(dashboard)/members/_hooks/useUpdateMemberStatusForm";
 
 export default function ManageStatus() {
-    const { handleSubmit, onSubmit, errors, isLoading, control } = useUpdateMemberStatus();
+    const { handleSubmit, onSubmit, errors, isLoading, control } = useUpdateMemberStatusForm();
 
     return (
         <Card>

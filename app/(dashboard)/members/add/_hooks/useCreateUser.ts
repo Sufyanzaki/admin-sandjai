@@ -176,12 +176,60 @@ export default function useCreateUserForm() {
     const imageUrl =
         isFile(values.image) ? await imageUpload(values.image as File) : (values.image as string);
 
+    // Create a temporary user object for optimistic update
+    const tempUser: Partial<Member> = {
+      id: id || `temp-${Date.now()}`,
+      email: values.email,
+      username: values.username,
+      firstName: values.firstName,
+      lastName: values.lastName,
+      role: values.role,
+      dob: values.dob,
+      image: imageUrl,
+      phone: values.phone,
+      origin: values.origin,
+      gender: values.gender,
+      age: values.age,
+      relationshipStatus: values.relationshipStatus,
+      children: values.children,
+      religion: values.religion,
+      shortDescription: values.shortDescription,
+      isActive: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    } as Member;
+
+    // Optimistic update - update the cache before the API call completes
+    if (!id) {
+      globalMutate(
+        (key) => typeof key === 'string' && key.startsWith('all-members'),
+        (current: GetAllMembersResponse | undefined) => {
+          if (!current) return current;
+          return {
+            ...current,
+            users: [tempUser, ...current.users],
+            stats: {
+              ...current.stats,
+              total: current.stats.total + 1,
+            },
+            pagination: {
+              ...current.pagination,
+              total: current.pagination.total + 1,
+            },
+          };
+        },
+        false
+      );
+    }
+
     const result = await trigger({ ...values, image: imageUrl });
 
     if (result?.status === 200 || result?.status === 201) {
       showSuccess("User updated successfully!");
+
+      // Update the cache with the actual response data
       globalMutate(
-        "all-members",
+        (key) => typeof key === 'string' && key.startsWith('all-members'),
         (current: GetAllMembersResponse | undefined) => {
           if (!current) return current;
           const updatedUser = result.response as Member;
@@ -190,7 +238,9 @@ export default function useCreateUserForm() {
           if (id) {
             users = current.users.map(u => u.id === updatedUser.id ? updatedUser : u);
           } else {
-            users = [updatedUser, ...current.users];
+            // Replace the temporary user with the actual user from the response
+            users = current.users.filter(u => u.id !== tempUser.id);
+            users = [updatedUser, ...users];
           }
 
           return {
@@ -207,6 +257,11 @@ export default function useCreateUserForm() {
           };
         },
         false
+      );
+
+      // Invalidate the query to fetch the correct data
+      globalMutate(
+        (key) => typeof key === 'string' && key.startsWith('all-members'),
       );
       callback?.(result.response);
       if (id) {

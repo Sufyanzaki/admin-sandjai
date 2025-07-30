@@ -60,10 +60,9 @@ export default function MembersFilters({
           <SelectItem value="all">All Members</SelectItem>
           <SelectItem value="active">Active</SelectItem>
           <SelectItem value="inactive">Inactive</SelectItem>
-          <SelectItem value="blocked">Blocked</SelectItem>
         </SelectContent>
       </Select>
-      
+
       <div className="relative">
         <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
         <Input
@@ -74,7 +73,7 @@ export default function MembersFilters({
           onChange={(e) => onSearchChange(e.target.value)}
         />
       </div>
-      
+
       <Popover open={isFilterOpen} onOpenChange={onFilterOpenChange}>
         <PopoverTrigger asChild>
           <Button variant="outline" size="icon" className={activeFilters > 0 ? "relative bg-primary/10" : ""}>
@@ -135,20 +134,21 @@ export default function MembersFilters({
             <Separator />
             <div className="space-y-2">
               <h5 className="text-sm font-medium">Gender</h5>
-              <div className="grid grid-cols-1 gap-2">
-                {genderOptions.map((gender) => (
-                  <div key={gender} className="flex items-center space-x-2">
-                    <Checkbox 
-                      id={`experience-${gender}`} 
-                      checked={selectedGender.includes(gender)} 
-                      onCheckedChange={() => onToggleGender(gender)} 
-                    />
-                    <Label htmlFor={`experience-${gender}`} className="text-sm font-normal">
+              <Select 
+                value={selectedGender.length === 1 ? selectedGender[0] : ""} 
+                onValueChange={(value) => onToggleGender(value)}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select gender" />
+                </SelectTrigger>
+                <SelectContent>
+                  {genderOptions.map((gender) => (
+                    <SelectItem key={gender} value={gender}>
                       {gender}
-                    </Label>
-                  </div>
-                ))}
-              </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
           <div className="flex items-center justify-between p-4 border-t">

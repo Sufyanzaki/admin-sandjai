@@ -5,7 +5,7 @@ import {Input} from "@/components/ui/input"
 import {Label} from "@/components/ui/label"
 import {Checkbox} from "@/components/ui/checkbox";
 import {Button} from "@/components/ui/button";
-import {ArrowLeft, Upload, X} from "lucide-react"
+import {ArrowLeft, Upload, X, Loader2} from "lucide-react"
 import Link from "next/link";
 import { SimpleEditor } from "../tiptap-templates/simple/simple-editor"
 import { Controller } from "react-hook-form";
@@ -19,6 +19,8 @@ export default function HowItWorks(){
         control,
         errors,
         isLoading,
+        isUploading,
+        isFormSubmitting,
         onSubmit,
         setValue,
         watch,
@@ -72,6 +74,7 @@ export default function HowItWorks(){
                                         accept="image/*"
                                         onChange={(e) => handleImageUpload(e.target.files?.[0] || null)}
                                         className="hidden"
+                                        disabled={isLoading}
                                     />
                                     <div className="flex items-center gap-2">
                                         <Button
@@ -79,22 +82,34 @@ export default function HowItWorks(){
                                             variant="outline"
                                             onClick={() => document.getElementById("banner-image")?.click()}
                                             className="flex items-center gap-2"
+                                            disabled={isLoading}
                                         >
-                                            <Upload className="h-4 w-4" />
-                                            Choose File
+                                            {isUploading ? (
+                                                <Loader2 className="h-4 w-4 animate-spin" />
+                                            ) : (
+                                                <Upload className="h-4 w-4" />
+                                            )}
+                                            {isUploading ? "Uploading..." : "Choose File"}
                                         </Button>
                                         <span className="text-sm text-muted-foreground">
-                                            {bannerImage instanceof File ? bannerImage.name :
-                                                bannerImage ? "Image uploaded" : "No file chosen"}
+                                            {isUploading ? "Uploading..." :
+                                                bannerImage instanceof File ? bannerImage.name :
+                                                    bannerImage ? "Image uploaded" : "No file chosen"}
                                         </span>
-                                        {(bannerImage) && (
-                                            <Button type="button" variant="ghost" size="sm" onClick={() => handleImageUpload(null)}>
+                                        {(bannerImage && !isUploading) && (
+                                            <Button
+                                                type="button"
+                                                variant="ghost"
+                                                size="sm"
+                                                onClick={() => handleImageUpload(null)}
+                                                disabled={isLoading}
+                                            >
                                                 <X className="h-4 w-4" />
                                             </Button>
                                         )}
                                     </div>
                                 </div>
-                                {bannerImage && (
+                                {bannerImage && !isUploading && (
                                     <div className="w-20 h-20 border rounded-lg overflow-hidden">
                                         <img
                                             src={bannerImage instanceof File ? URL.createObjectURL(bannerImage) : bannerImage}
@@ -111,6 +126,7 @@ export default function HowItWorks(){
                             <Input
                                 id="title"
                                 {...register("bannerTitle")}
+                                disabled={isLoading}
                             />
                             {errors.bannerTitle && (
                                 <p className="text-sm font-medium text-destructive">{errors.bannerTitle.message}</p>
@@ -139,6 +155,7 @@ export default function HowItWorks(){
                             <Input
                                 id="name"
                                 {...register("contactName")}
+                                disabled={isLoading}
                             />
                             {errors.contactName && (
                                 <p className="text-sm font-medium text-destructive">{errors.contactName.message}</p>
@@ -151,6 +168,7 @@ export default function HowItWorks(){
                                 id="search"
                                 placeholder="Search"
                                 {...register("searchPlaceholder")}
+                                disabled={isLoading}
                             />
                             {errors.searchPlaceholder && (
                                 <p className="text-sm font-medium text-destructive">{errors.searchPlaceholder.message}</p>
@@ -170,6 +188,7 @@ export default function HowItWorks(){
                             <Input
                                 id="faq-title"
                                 {...register("faqTitle")}
+                                disabled={isLoading}
                             />
                             {errors.faqTitle && (
                                 <p className="text-sm font-medium text-destructive">{errors.faqTitle.message}</p>
@@ -215,6 +234,7 @@ export default function HowItWorks(){
                             <Input
                                 id="faq-name"
                                 {...register("faqProfileName")}
+                                disabled={isLoading}
                             />
                             {errors.faqProfileName && (
                                 <p className="text-sm font-medium text-destructive">{errors.faqProfileName.message}</p>
@@ -236,13 +256,19 @@ export default function HowItWorks(){
                                             id="show-header"
                                             checked={field.value}
                                             onCheckedChange={field.onChange}
+                                            disabled={isLoading}
                                         />
                                     )}
                                 />
                                 <Label htmlFor="show-header">Show on Header</Label>
                             </div>
                             <Button type="submit" disabled={isLoading}>
-                                {isLoading ? "Updating..." : "Update"}
+                                {isLoading ? (
+                                    <>
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                        {isUploading ? "Uploading..." : "Updating..."}
+                                    </>
+                                ) : "Update"}
                             </Button>
                         </div>
                     </CardContent>

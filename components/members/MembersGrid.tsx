@@ -4,7 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import {Ban, Calendar, Edit, Eye, Mail, MapPin, Package, Trash2, User} from "lucide-react";
+import {Ban, Calendar, Edit, Eye, Mail, MapPin, Package, Trash2, User, UserCheck} from "lucide-react";
 import Link from "next/link";
 import { Member } from "@/app/(dashboard)/members/_types/member";
 import Preloader from "../ui/Preloader";
@@ -16,14 +16,18 @@ interface MembersGridProps {
   totalPages?: number;
   onPageChange: (page: number) => void;
   onDeleteClick: (val:string) => void;
+  onStatusChange?: (id: string, isActive: boolean) => void;
   isItemDeleting?: (id: string) => boolean;
+  isItemUpdating?: (id: string) => boolean;
 }
 
 export default function MembersGrid({
   members,
   isLoading,
   onDeleteClick,
-  isItemDeleting
+  onStatusChange,
+  isItemDeleting,
+  isItemUpdating
 }: MembersGridProps) {
   if (isLoading) {
     return (
@@ -105,8 +109,18 @@ export default function MembersGrid({
                     </Link>
                   </Button>
 
-                  <Button variant="ghost" className="flex-1 rounded-none border-l py-2 justify-center">
-                    <Ban className="h-4 w-4 text-yellow-600" />
+                  <Button 
+                    variant="ghost" 
+                    className="flex-1 rounded-none border-l py-2 justify-center"
+                    onClick={() => onStatusChange && onStatusChange(member.id, !member.isActive)}
+                  >
+                    {isItemUpdating && isItemUpdating(member.id) ? (
+                      <Preloader size="sm" />
+                    ) : member.isActive ? (
+                      <Ban className="h-4 w-4 text-yellow-600" />
+                    ) : (
+                      <UserCheck className="h-4 w-4 text-green-600" />
+                    )}
                   </Button>
 
                   <Button variant="ghost" className="flex-1 rounded-none rounded-br-md border-l py-2 justify-center" onClick={()=>onDeleteClick(member.id)}>

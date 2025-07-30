@@ -53,7 +53,16 @@ export const CustomImageUpload = ({ label, file, existingImage, onFileChange, ty
                         </p>
                         <p className="text-sm font-medium ">Click to upload image</p>
                     </div>
-                    <Button variant="outline" size="sm" className="mt-2" type="button" onClick={openFileDialog}>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        className="mt-2"
+                        type="button"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            openFileDialog();
+                        }}
+                    >
                         <Upload className="w-4 h-4 mr-2" />
                         Browse
                     </Button>

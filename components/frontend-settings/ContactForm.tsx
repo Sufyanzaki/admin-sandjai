@@ -5,7 +5,7 @@ import {Input} from "@/components/ui/input"
 import {Label} from "@/components/ui/label"
 import {Checkbox} from "@/components/ui/checkbox";
 import {Button} from "@/components/ui/button";
-import {ArrowLeft} from "lucide-react"
+import {ArrowLeft, Loader2} from "lucide-react"
 import Link from "next/link"
 import { SimpleEditor } from "../tiptap-templates/simple/simple-editor"
 import { CustomImageUpload } from "./CustomImageInput"
@@ -14,7 +14,18 @@ import { Controller } from "react-hook-form"
 import Preloader from "@/components/ui/Preloader";
 
 export default function ContactForm() {
-    const { handleSubmit, onSubmit, errors, isLoading, register, setValue, watch, control, contactLoading } = useContactForm();
+    const {
+        handleSubmit,
+        onSubmit,
+        errors,
+        isLoading,
+        isUploading,
+        register,
+        setValue,
+        watch,
+        control,
+        contactLoading
+    } = useContactForm();
 
     const handleImageUpload = (file: File | null) => {
         setValue('contactBannerImage', file)
@@ -53,10 +64,11 @@ export default function ContactForm() {
                         <CardContent className="space-y-4">
                             <div className="space-y-2">
                                 <Label htmlFor="contact-name">Contact Name</Label>
-                                <Input 
-                                    id="contact-name" 
+                                <Input
+                                    id="contact-name"
                                     {...register('contactName')}
                                     placeholder="Contact"
+                                    disabled={isLoading}
                                 />
                                 {errors.contactName && (
                                     <p className="text-sm text-red-500">{errors.contactName.message}</p>
@@ -71,14 +83,21 @@ export default function ContactForm() {
                                     onFileChange={(file) => handleImageUpload(file)}
                                     type="contact-banner-image"
                                 />
+                                {isUploading && (
+                                    <p className="text-sm text-muted-foreground flex items-center gap-2">
+                                        <Loader2 className="h-4 w-4 animate-spin" />
+                                        Uploading image...
+                                    </p>
+                                )}
                             </div>
 
                             <div className="space-y-2">
                                 <Label htmlFor="title">Title</Label>
-                                <Input 
-                                    id="title" 
+                                <Input
+                                    id="title"
                                     {...register('bannerTitle')}
                                     placeholder="Welkom bij help & contact"
+                                    disabled={isLoading}
                                 />
                                 {errors.bannerTitle && (
                                     <p className="text-sm text-red-500">{errors.bannerTitle.message}</p>
@@ -87,10 +106,11 @@ export default function ContactForm() {
 
                             <div className="space-y-2">
                                 <Label htmlFor="sub-title">Sub Title</Label>
-                                <Input 
-                                    id="sub-title" 
+                                <Input
+                                    id="sub-title"
                                     {...register('bannerSubTitle')}
                                     placeholder="Contact Sub title"
+                                    disabled={isLoading}
                                 />
                                 {errors.bannerSubTitle && (
                                     <p className="text-sm text-red-500">{errors.bannerSubTitle.message}</p>
@@ -100,7 +120,7 @@ export default function ContactForm() {
                             <div className="space-y-2">
                                 <Label>Description</Label>
                                 <Controller
-                                    name="description"
+                                    name="bannerDescription"
                                     control={control}
                                     render={({ field, fieldState }) => (
                                         <>
@@ -120,10 +140,11 @@ export default function ContactForm() {
 
                             <div className="space-y-2">
                                 <Label htmlFor="address-name">Address Name</Label>
-                                <Input 
-                                    id="address-name" 
+                                <Input
+                                    id="address-name"
                                     {...register('addressName')}
                                     placeholder="Wil je een vraag over het gebruik van humsafar"
+                                    disabled={isLoading}
                                 />
                                 {errors.addressName && (
                                     <p className="text-sm text-red-500">{errors.addressName.message}</p>
@@ -132,10 +153,11 @@ export default function ContactForm() {
 
                             <div className="space-y-2">
                                 <Label htmlFor="address-value">Address Value</Label>
-                                <Input 
-                                    id="address-value" 
+                                <Input
+                                    id="address-value"
                                     {...register('addressValue')}
                                     placeholder="stuur dan een e-mail naar: hello@humsafar.nl"
+                                    disabled={isLoading}
                                 />
                                 {errors.addressValue && (
                                     <p className="text-sm text-red-500">{errors.addressValue.message}</p>
@@ -144,10 +166,11 @@ export default function ContactForm() {
 
                             <div className="space-y-2">
                                 <Label htmlFor="phone-name">Phone Name</Label>
-                                <Input 
-                                    id="phone-name" 
+                                <Input
+                                    id="phone-name"
                                     {...register('phoneName')}
                                     placeholder="Wil je contact opnemen met de afdeling Marketing?"
+                                    disabled={isLoading}
                                 />
                                 {errors.phoneName && (
                                     <p className="text-sm text-red-500">{errors.phoneName.message}</p>
@@ -156,10 +179,11 @@ export default function ContactForm() {
 
                             <div className="space-y-2">
                                 <Label htmlFor="phone-value">Phone Value</Label>
-                                <Input 
-                                    id="phone-value" 
+                                <Input
+                                    id="phone-value"
                                     {...register('phoneValue')}
                                     placeholder="Stuur een e-mail naar biz@humsafar.nl"
+                                    disabled={isLoading}
                                 />
                                 {errors.phoneValue && (
                                     <p className="text-sm text-red-500">{errors.phoneValue.message}</p>
@@ -168,10 +192,11 @@ export default function ContactForm() {
 
                             <div className="space-y-2">
                                 <Label htmlFor="email-name">Email Name</Label>
-                                <Input 
-                                    id="email-name" 
+                                <Input
+                                    id="email-name"
                                     {...register('emailName')}
                                     placeholder="Misbruik melden"
+                                    disabled={isLoading}
                                 />
                                 {errors.emailName && (
                                     <p className="text-sm text-red-500">{errors.emailName.message}</p>
@@ -180,10 +205,11 @@ export default function ContactForm() {
 
                             <div className="space-y-2">
                                 <Label htmlFor="email-value">Email Value</Label>
-                                <Input 
-                                    id="email-value" 
+                                <Input
+                                    id="email-value"
                                     {...register('emailValue')}
                                     placeholder="abuse@humsafar.nl"
+                                    disabled={isLoading}
                                 />
                                 {errors.emailValue && (
                                     <p className="text-sm text-red-500">{errors.emailValue.message}</p>
@@ -199,11 +225,12 @@ export default function ContactForm() {
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="space-y-2">
-                                <Label htmlFor="email-title">Email Title</Label>
-                                <Input 
-                                    id="email-title" 
+                                <Label htmlFor="contactFormTitle">Email Title</Label>
+                                <Input
+                                    id="email-title"
                                     {...register('contactFormTitle')}
                                     placeholder="Hoe kunnen we je helpen?"
+                                    disabled={isLoading}
                                 />
                                 {errors.contactFormTitle && (
                                     <p className="text-sm text-red-500">{errors.contactFormTitle.message}</p>
@@ -213,7 +240,7 @@ export default function ContactForm() {
                             <div className="space-y-2">
                                 <Label>Email Description</Label>
                                 <Controller
-                                    name="emailDescription"
+                                    name="contactFormDescription"
                                     control={control}
                                     render={({ field, fieldState }) => (
                                         <>
@@ -236,6 +263,7 @@ export default function ContactForm() {
                                     id="show-header"
                                     checked={watch('showOnHeader')}
                                     onCheckedChange={(checked) => setValue('showOnHeader', checked as boolean)}
+                                    disabled={isLoading}
                                 />
                                 <Label htmlFor="show-header">Show on Header</Label>
                             </div>
@@ -245,7 +273,12 @@ export default function ContactForm() {
                     {/* Action Buttons */}
                     <div className="flex justify-end">
                         <Button type="submit" disabled={isLoading}>
-                            {isLoading ? 'Updating...' : 'Update'}
+                            {isLoading ? (
+                                <>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    {isUploading ? "Uploading..." : "Saving..."}
+                                </>
+                            ) : "Update"}
                         </Button>
                     </div>
                 </form>

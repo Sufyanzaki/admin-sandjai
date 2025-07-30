@@ -18,6 +18,7 @@ import MembersFilters from "@/components/members/MembersFilters";
 import MembersOverview from "@/components/members/MembersOverview";
 import DeleteMemberDialog from "@/components/members/DeleteMemberDialog";
 import {useDeleteMember} from "@/app/(dashboard)/members/_hooks/useDeleteMember";
+import {useUpdateMemberStatus} from "@/app/(dashboard)/members/_hooks/useUpdateMemberStatus";
 
 export default function StaffPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -40,18 +41,21 @@ export default function StaffPage() {
     search: debouncedSearchQuery || undefined,
     status: selectedStatuses.length === 1 ? selectedStatuses[0].toLowerCase() : undefined,
     gender: selectedGender.length === 1 ? selectedGender[0] : undefined,
-    isPremium: selectedMemberships.length === 1 ? selectedMemberships[0] === "Premium Member" : undefined,
+    isPremium: selectedMemberships.length === 1 
+      ? (selectedMemberships[0] === "Premium" ? true : false) 
+      : undefined,
   };
 
   const { data: membersData, error, isLoading } = useAllMembers(params);
   const { deleteMemberById, isItemDeleting } = useDeleteMember();
+  const { updateMemberStatus, isItemUpdating } = useUpdateMemberStatus();
 
   const members = membersData?.users || [];
   const stats = membersData?.stats;
 
-  const statuses = [...new Set(members.map((member) => member.isActive ? "Active" : "Inactive"))];
-  const membershipOptions = [...new Set(members.map((member) => member.isPremium ? "Premium Member" : "Free Member"))];
-  const genderOptions = [...new Set(members.map((member) => member.gender))];
+  const statuses = ["Active", "Inactive"];
+  const membershipOptions = ["Premium", "Freemember"];
+  const genderOptions = ["Male", "Female", "Other"];
   const activeFilters = selectedMemberships.length + selectedStatuses.length + selectedGender.length;
 
   const handleBulkSelectChange = (value: string) => {
@@ -60,8 +64,6 @@ export default function StaffPage() {
       setSelectedStatuses(["Active"]);
     } else if (value === "inactive") {
       setSelectedStatuses(["Inactive"]);
-    } else if (value === "blocked") {
-      setSelectedStatuses(["Blocked"]);
     } else {
       setSelectedStatuses([]);
     }
@@ -83,9 +85,7 @@ export default function StaffPage() {
   };
 
   const toggleGender = (gender: string) => {
-    setSelectedGender((prev) =>
-      prev.includes(gender) ? prev.filter((s) => s !== gender) : [...prev, gender]
-    );
+    setSelectedGender(gender ? [gender] : []);
   };
 
   // Clear all filters
@@ -190,7 +190,9 @@ export default function StaffPage() {
                     onCheckAll={handleCheckAll}
                     onSingleCheck={handleSingleCheck}
                     onDeleteClick={(id) => setDeleteDialogOpen({value: true, key: id})}
+                    onStatusChange={updateMemberStatus}
                     isItemDeleting={isItemDeleting}
+                    isItemUpdating={isItemUpdating}
                   />
                 </TabsContent>
                 <TabsContent value="grid" className="mt-0">
@@ -201,7 +203,9 @@ export default function StaffPage() {
                     totalPages={membersData?.pagination?.totalPages}
                     onPageChange={setCurrentPage}
                     onDeleteClick={(id) => setDeleteDialogOpen({value: true, key: id})}
+                    onStatusChange={updateMemberStatus}
                     isItemDeleting={isItemDeleting}
+                    isItemUpdating={isItemUpdating}
                   />
                 </TabsContent>
               </Tabs>

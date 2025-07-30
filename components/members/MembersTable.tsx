@@ -26,7 +26,9 @@ interface MembersTableProps {
   onCheckAll: (checked: CheckedState) => void;
   onSingleCheck: (params: { checked: CheckedState; value: string }) => void;
   onDeleteClick: (val:string) => void;
+  onStatusChange?: (id: string, isActive: boolean) => void;
   isItemDeleting?: (id: string) => boolean;
+  isItemUpdating?: (id: string) => boolean;
 }
 
 export default function MembersTable({
@@ -36,7 +38,9 @@ export default function MembersTable({
   onCheckAll,
   onSingleCheck,
   onDeleteClick,
+  onStatusChange,
   isItemDeleting,
+  isItemUpdating,
 }: MembersTableProps) {
   return (
     <div className="rounded-md border">
@@ -119,7 +123,7 @@ export default function MembersTable({
                   </Badge>
                 </TableCell>
                 <TableCell className="text-right">
-                  {isItemDeleting && isItemDeleting(member.id) ? (
+                  {(isItemDeleting && isItemDeleting(member.id)) || (isItemUpdating && isItemUpdating(member.id)) ? (
                       <div className="flex justify-end"><Preloader size="sm" /></div>
                   ) : (
                       <DropdownMenu>
@@ -145,7 +149,7 @@ export default function MembersTable({
                             </Link>
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => onStatusChange && onStatusChange(member.id, !member.isActive)}>
                             {member.isActive ? (
                                 <>
                                   <UserX className="mr-2 h-4 w-4" />

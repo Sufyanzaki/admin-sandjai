@@ -4,6 +4,7 @@ import {useForm} from 'react-hook-form';
 import {zodResolver} from '@hookform/resolvers/zod';
 import {z} from 'zod';
 import useSWRMutation from "swr/mutation";
+import { useState } from 'react'; // Add this import
 import {imageUpload} from '@/admin-utils/utils/imageUpload';
 import {showError, showSuccess} from "@/admin-utils";
 import {postBasicPage} from '../_api/basicPageApi';
@@ -23,6 +24,7 @@ const basicFormSchema = z.object({
 type BasicFormValues = z.infer<typeof basicFormSchema>;
 
 export default function useBasicForm() {
+    const [isUploading, setIsUploading] = useState(false); // New state for image upload
 
     const {
         register,
@@ -61,32 +63,27 @@ export default function useBasicForm() {
     const onSubmit = async (values: BasicFormValues) => {
         let metaImageUrl = values.metaImage;
 
-        if (values.metaImage instanceof File) {
-            metaImageUrl = await imageUpload(values.metaImage);
-        }
+        try {
+            // Start image upload loading
+            if (values.metaImage instanceof File) {
+                setIsUploading(true);
+                metaImageUrl = await imageUpload(values.metaImage);
+                setIsUploading(false);
+            }
 
-        const payload = {
-            ...values,
-            metaImage: metaImageUrl,
-        };
+            const payload = {
+                ...values,
+                metaImage: metaImageUrl,
+            };
 
-        const result = await trigger(payload);
-        if (result) {
-            // await globalMutate(
-            //     "all-members",
-            //     (currentData: GetAllMembersResponse) => {
-            //         if (!currentData?.users) return currentData;
-            //         return {
-            //             ...currentData,
-            //             users: [...currentData.users, {
-            //                 id: Date.now(),
-            //                 ...payload
-            //             }]
-            //         };
-            //     },
-            //     false
-            // );
-            showSuccess(`Basic page added successfully!`);
+            const result = await trigger(payload);
+            if (result) {
+                showSuccess(`Basic page added successfully!`);
+            }
+        } catch (error: any) {
+            setIsUploading(false);
+            showError({ message: error.message });
+            console.error('Image upload error:', error);
         }
     };
 
@@ -97,7 +94,9 @@ export default function useBasicForm() {
         watch,
         control,
         errors,
-        isLoading: isMutating,
+        isLoading: isMutating || isUploading, // Combine both loading states
+        isFormSubmitting: isMutating, // Separate state for form submission
+        isUploading, // Separate state for image upload
         onSubmit,
     };
 }

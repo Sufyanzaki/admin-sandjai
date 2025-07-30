@@ -5,7 +5,7 @@ import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card"
 import {Input} from "@/components/ui/input"
 import {Label} from "@/components/ui/label"
 import {Textarea} from "@/components/ui/textarea"
-import {ArrowLeft} from "lucide-react"
+import {ArrowLeft, Loader2} from "lucide-react"
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select"
 import {CustomImageUpload} from "@/components/frontend-settings/CustomImageInput"
 import Link from "next/link"
@@ -22,7 +22,8 @@ export default function VragenForm() {
         errors,
         isLoading,
         onSubmit,
-        veeLoading
+        veeLoading,
+        isUploading
     } = useVeeForm();
 
     if(veeLoading) return (
@@ -169,6 +170,7 @@ export default function VragenForm() {
                                     <Select
                                         value={field.value}
                                         onValueChange={field.onChange}
+                                        key={field.value}
                                     >
                                         <SelectTrigger>
                                             <SelectValue placeholder="Select page type" />
@@ -191,7 +193,14 @@ export default function VragenForm() {
                 {/* Action Buttons */}
                 <div className="flex justify-end">
                     <Button type="submit" disabled={isLoading}>
-                        {isLoading ? "Updating..." : "Update"}
+                        {isLoading ? (
+                            <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                {isUploading ? "Uploading Image..." : "Updating..."}
+                            </>
+                        ) : (
+                            "Update"
+                        )}
                     </Button>
                 </div>
             </div>

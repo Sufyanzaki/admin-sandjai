@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { showError } from "@/admin-utils/lib/formErrors";
 import { showSuccess } from "@/admin-utils/lib/formSuccess";
 import useSWRMutation from "swr/mutation";
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react'; // Added useState
 import { imageUpload } from '@/admin-utils/utils/imageUpload';
 import {patchTermsConditionsSettings} from "@/app/(dashboard)/frontend-settings/_api/tosApi";
 import {useTOS} from "@/app/(dashboard)/frontend-settings/_hooks/useTOS";
@@ -19,13 +19,10 @@ const tosFormSchema = z.object({
     pageSectiontitle: z.string().min(1, 'Section title is required'),
     link: z.string().min(1, 'Link is required'),
     content: z.string().min(1, 'Content is required'),
-
-    // SEO fields
     metaTitle: z.string().min(1, 'Meta title is required'),
     metaDescription: z.string().min(1, 'Meta description is required'),
     keywords: z.string().min(1, 'Keywords are required'),
     metaImage: z.any().optional(),
-
     pageType: z.literal('terms'),
 });
 
@@ -33,6 +30,7 @@ type TOSFormValues = z.infer<typeof tosFormSchema>;
 
 export default function useTOSForm() {
     const { tosSettings, mutate, tosLoading } = useTOS();
+    const [isUploading, setIsUploading] = useState(false); // New state for image upload
 
     const {
         register,
@@ -73,7 +71,6 @@ export default function useTOSForm() {
         }
     );
 
-    // Reset form with fetched data
     useEffect(() => {
         if (tosSettings) {
             reset({
@@ -94,21 +91,30 @@ export default function useTOSForm() {
     }, [tosSettings, reset]);
 
     const onSubmit = async (values: TOSFormValues) => {
-        let metaImageUrl = values.metaImage;
+        try {
+            let metaImageUrl = values.metaImage;
 
-        if (values.metaImage instanceof File) {
-            metaImageUrl = await imageUpload(values.metaImage);
-        }
+            // Start image upload loading
+            if (values.metaImage instanceof File) {
+                setIsUploading(true);
+                metaImageUrl = await imageUpload(values.metaImage);
+                setIsUploading(false);
+            }
 
-        const payload = {
-            ...values,
-            metaImage: metaImageUrl,
-        };
+            const payload = {
+                ...values,
+                metaImage: metaImageUrl,
+            };
 
-        const result = await trigger(payload);
-        if (result) {
-            await mutate();
-            showSuccess('Terms of Service settings updated successfully!');
+            const result = await trigger(payload);
+            if (result) {
+                await mutate();
+                showSuccess('Terms of Service settings updated successfully!');
+            }
+        } catch (error) {
+            setIsUploading(false);
+            showError({ message: 'Failed to upload image' });
+            console.error('Image upload error:', error);
         }
     };
 
@@ -119,7 +125,9 @@ export default function useTOSForm() {
         watch,
         control,
         errors,
-        isLoading: isMutating,
+        isLoading: isMutating || isUploading, // Combined loading state
+        isUploading, // Separate image upload state
+        isFormSubmitting: isMutating, // Separate form submission state
         onSubmit,
         tosLoading,
     };

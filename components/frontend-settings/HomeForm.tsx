@@ -253,7 +253,6 @@ export default function HomeForm() {
 
             {/* Action Buttons */}
             <div className="flex justify-end gap-4">
-                <Button variant="outline">Back to Humsafar</Button>
                 <Button type="submit" disabled={isLoading}>
                     {isLoading ? 'Updating...' : 'Update'}
                 </Button>

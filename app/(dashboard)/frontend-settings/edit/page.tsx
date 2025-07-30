@@ -17,13 +17,13 @@ export default function SettingPage() {
 
     return(
         <>
-            {slug === "home" && <HomeForm />}
+            {slug === "homepage" && <HomeForm />}
             {slug === "contact" && <ContactForm />}
             {slug === "agenda" && <AgendaForm />}
-            {slug === "how-work" && <HowItWorks />}
+            {slug === "how-it-works" && <HowItWorks />}
             {slug === "registration" && <RegistrationForm />}
-            {slug === "veelgestelde-vragen" && <VragenForm />}
-            {slug === "terms-and-conditions" && <TOSForm />}
+            {slug === "vee" && <VragenForm />}
+            {slug === "terms" && <TOSForm />}
         </>
     )
 }

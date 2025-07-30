@@ -6,7 +6,7 @@ import {Input} from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {Textarea} from "@/components/ui/textarea"
 import {Checkbox} from "@/components/ui/checkbox"
-import {ArrowLeft } from "lucide-react"
+import {ArrowLeft, Loader2} from "lucide-react"
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
 import {CustomImageUpload} from "@/components/frontend-settings/CustomImageInput";
 import Link from "next/link";
@@ -22,6 +22,7 @@ export default function AgendaForm() {
         errors,
         isLoading,
         onSubmit,
+        isUploading
     } = useAgendaForm();
 
     return (
@@ -179,14 +180,13 @@ export default function AgendaForm() {
                                 name="pageType"
                                 control={control}
                                 render={({ field }) => (
-                                    <Select value={field.value} onValueChange={field.onChange}>
+                                    <Select value={field.value} onValueChange={field.onChange} key={field.value}>
                                         <SelectTrigger>
                                             <SelectValue placeholder="Select page type" />
                                         </SelectTrigger>
                                         <SelectContent>
                                             <SelectItem value="Public">Public</SelectItem>
                                             <SelectItem value="Private">Private</SelectItem>
-                                            <SelectItem value="Draft">Draft</SelectItem>
                                         </SelectContent>
                                     </Select>
                                 )}
@@ -219,7 +219,14 @@ export default function AgendaForm() {
                 {/* Action Buttons */}
                 <div className="flex justify-end">
                     <Button type="submit" disabled={isLoading}>
-                        {isLoading ? "Updating..." : "Update"}
+                        {isLoading ? (
+                            <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                {isUploading ? "Uploading Image..." : "Updating..."}
+                            </>
+                        ) : (
+                            "Update"
+                        )}
                     </Button>
                 </div>
             </div>

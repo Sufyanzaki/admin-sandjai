@@ -6,7 +6,7 @@ import {Input} from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {Textarea} from "@/components/ui/textarea"
 import {Checkbox} from "@/components/ui/checkbox"
-import {ArrowLeft} from "lucide-react"
+import {ArrowLeft, Loader2} from "lucide-react"
 import {CustomImageUpload} from "@/components/frontend-settings/CustomImageInput";
 import Link from "next/link";
 import {SimpleEditor} from "@/components/tiptap-templates/simple/simple-editor";
@@ -21,8 +21,10 @@ export default function TOSForm(){
         control,
         errors,
         isLoading,
+        isUploading,
+        isFormSubmitting,
         onSubmit,
-       tosLoading
+        tosLoading
     } = useTOSForm();
 
     if(tosLoading) return (
@@ -59,6 +61,7 @@ export default function TOSForm(){
                             <Input
                                 id="title"
                                 {...register("Title")}
+                                disabled={isLoading}
                             />
                             {errors.Title && (
                                 <p className="text-sm font-medium text-destructive">{errors.Title.message}</p>
@@ -70,6 +73,7 @@ export default function TOSForm(){
                             <Input
                                 id="link"
                                 {...register("link")}
+                                disabled={isLoading}
                             />
                             {errors.link && (
                                 <p className="text-sm font-medium text-destructive">{errors.link.message}</p>
@@ -81,6 +85,7 @@ export default function TOSForm(){
                             <Input
                                 id="pageSectiontitle"
                                 {...register("pageSectiontitle")}
+                                disabled={isLoading}
                             />
                             {errors.pageSectiontitle && (
                                 <p className="text-sm font-medium text-destructive">{errors.pageSectiontitle.message}</p>
@@ -116,6 +121,7 @@ export default function TOSForm(){
                             <Input
                                 id="meta-title"
                                 {...register("metaTitle")}
+                                disabled={isLoading}
                             />
                             {errors.metaTitle && (
                                 <p className="text-sm font-medium text-destructive">{errors.metaTitle.message}</p>
@@ -127,6 +133,7 @@ export default function TOSForm(){
                             <Input
                                 id="meta-description"
                                 {...register("metaDescription")}
+                                disabled={isLoading}
                             />
                             {errors.metaDescription && (
                                 <p className="text-sm font-medium text-destructive">{errors.metaDescription.message}</p>
@@ -139,6 +146,7 @@ export default function TOSForm(){
                                 id="keywords"
                                 {...register("keywords")}
                                 className="min-h-[100px]"
+                                disabled={isLoading}
                             />
                             <p className="text-sm text-muted-foreground">Separate with comma</p>
                             {errors.keywords && (
@@ -169,6 +177,7 @@ export default function TOSForm(){
                                         id="show-header"
                                         checked={field.value}
                                         onCheckedChange={field.onChange}
+                                        disabled={isLoading}
                                     />
                                 )}
                             />
@@ -183,7 +192,12 @@ export default function TOSForm(){
                 {/* Action Buttons */}
                 <div className="flex justify-end">
                     <Button type="submit" disabled={isLoading}>
-                        {isLoading ? "Updating..." : "Update"}
+                        {isLoading ? (
+                            <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                {isUploading ? "Uploading..." : "Updating..."}
+                            </>
+                        ) : "Update"}
                     </Button>
                 </div>
             </div>

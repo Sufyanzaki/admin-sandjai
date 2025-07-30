@@ -12,6 +12,7 @@ import { useSearchParams } from "next/navigation";
 import useEditFaq from "../_hooks/useEditFaq";
 import useFaq from "../_hooks/useFaq";
 import useFaqCategories from "../../faq/category/_hooks/useFaqCategories";
+import Preloader from "@/components/ui/Preloader";
 
 export function FAQModal({ isOpen, onClose }: { isOpen: boolean; onClose: (value: boolean) => void }) {
     const searchParams = useSearchParams();
@@ -57,7 +58,7 @@ export function FAQModal({ isOpen, onClose }: { isOpen: boolean; onClose: (value
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="categoryId">Category</Label>
-                            <Controller
+                            {categoriesLoading ? <div className="flex justify-center"><Preloader size="md" /></div> : <Controller
                                 name="categoryId"
                                 control={control}
                                 render={({ field }) => (
@@ -81,7 +82,7 @@ export function FAQModal({ isOpen, onClose }: { isOpen: boolean; onClose: (value
                                         </SelectContent>
                                     </Select>
                                 )}
-                            />
+                            />}
                             {errors.categoryId && (
                                 <p className="text-sm text-red-500 mt-1">{errors.categoryId.message}</p>
                             )}

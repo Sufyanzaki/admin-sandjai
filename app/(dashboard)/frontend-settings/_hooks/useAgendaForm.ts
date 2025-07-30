@@ -6,14 +6,13 @@ import { z } from 'zod';
 import { showError } from "@/admin-utils/lib/formErrors";
 import { showSuccess } from "@/admin-utils/lib/formSuccess";
 import useSWRMutation from "swr/mutation";
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { patchAgendaSettings } from "../_api/agendaApi";
 import { useAgenda } from "./useAgenda";
 import { imageUpload } from '@/admin-utils/utils/imageUpload';
 
 const agendaFormSchema = z.object({
     Title: z.string().min(1, 'Title is required'),
-    Url: z.string().min(1, 'URL is required'),
     pageTitle: z.string().min(1, 'Page title is required'),
     pageSubtitle: z.string().min(1, 'Page subtitle is required'),
     titleContentSection: z.string().min(1, 'Content section title is required'),
@@ -44,7 +43,6 @@ export default function useAgendaForm() {
         resolver: zodResolver(agendaFormSchema),
         defaultValues: {
             Title: '',
-            Url: '',
             pageTitle: '',
             pageSubtitle: '',
             titleContentSection: '',
@@ -58,6 +56,8 @@ export default function useAgendaForm() {
             showOnHeader: true
         },
     });
+
+    const [isUploading, setIsUploading] = useState(false);
 
     const { trigger, isMutating } = useSWRMutation(
         'updateAgendaSettings',
@@ -77,7 +77,6 @@ export default function useAgendaForm() {
         if (agendaSettings) {
             reset({
                 Title: agendaSettings.Title || '',
-                Url: agendaSettings.Url || '',
                 pageTitle: agendaSettings.pageTitle || '',
                 pageSubtitle: agendaSettings.pageSubtitle || '',
                 titleContentSection: agendaSettings.titleContentSection || '',
@@ -96,19 +95,26 @@ export default function useAgendaForm() {
     const onSubmit = async (values: AgendaFormValues) => {
         let metaImageUrl = values.metaImage;
 
-        if (values.metaImage instanceof File) {
-            metaImageUrl = await imageUpload(values.metaImage);
-        }
+        try {
+            if (values.metaImage instanceof File) {
+                setIsUploading(true);
+                metaImageUrl = await imageUpload(values.metaImage);
+            }
 
-        const payload = {
-            ...values,
-            metaImage: metaImageUrl,
-        };
+            const payload = {
+                ...values,
+                metaImage: metaImageUrl,
+            };
 
-        const result = await trigger(payload);
-        if (result) {
-            await mutate();
-            showSuccess('Agenda settings updated successfully!');
+            const result = await trigger(payload);
+            if (result) {
+                await mutate();
+                showSuccess('Agenda settings updated successfully!');
+            }
+        } catch (error) {
+            showError({ message: "Upload failed. Please try again." });
+        } finally {
+            setIsUploading(false);
         }
     };
 
@@ -119,7 +125,8 @@ export default function useAgendaForm() {
         watch,
         control,
         errors,
-        isLoading: isMutating,
+        isLoading: isMutating || isUploading,
+        isUploading,
         onSubmit,
     };
 }

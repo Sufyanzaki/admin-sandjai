@@ -5,7 +5,7 @@ import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card"
 import {Input} from "@/components/ui/input"
 import {Label} from "@/components/ui/label"
 import {Textarea} from "@/components/ui/textarea"
-import {ArrowLeft, Upload} from "lucide-react"
+import {ArrowLeft, Upload, Loader2} from "lucide-react"
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select"
 import Link from "next/link"
 import {SimpleEditor} from "@/components/tiptap-templates/simple/simple-editor"
@@ -19,6 +19,7 @@ export default function CreatePage() {
         control,
         errors,
         isLoading,
+        isUploading,
         onSubmit,
         setValue,
         watch,
@@ -58,6 +59,7 @@ export default function CreatePage() {
                                 id="title"
                                 {...register("Title")}
                                 placeholder="Page title"
+                                disabled={isLoading}
                             />
                             {errors.Title && (
                                 <p className="text-sm font-medium text-destructive">{errors.Title.message}</p>
@@ -70,6 +72,7 @@ export default function CreatePage() {
                                 id="Url"
                                 {...register("Url")}
                                 placeholder="Page URL"
+                                disabled={isLoading}
                             />
                             {errors.Url && (
                                 <p className="text-sm font-medium text-destructive">{errors.Url.message}</p>
@@ -106,6 +109,7 @@ export default function CreatePage() {
                                 id="meta-title"
                                 {...register("metaTitle")}
                                 placeholder="Meta Title"
+                                disabled={isLoading}
                             />
                             {errors.metaTitle && (
                                 <p className="text-sm font-medium text-destructive">{errors.metaTitle.message}</p>
@@ -118,6 +122,7 @@ export default function CreatePage() {
                                 id="meta-description"
                                 {...register("metaDescription")}
                                 placeholder="Meta Description"
+                                disabled={isLoading}
                             />
                             {errors.metaDescription && (
                                 <p className="text-sm font-medium text-destructive">{errors.metaDescription.message}</p>
@@ -131,6 +136,7 @@ export default function CreatePage() {
                                 {...register("keywords")}
                                 className="min-h-[100px]"
                                 placeholder="Comma separated keywords"
+                                disabled={isLoading}
                             />
                             <p className="text-sm text-muted-foreground">Separate with comma</p>
                             {errors.keywords && (
@@ -147,15 +153,21 @@ export default function CreatePage() {
                                     accept="image/*"
                                     onChange={(e) => handleImageUpload(e.target.files?.[0] || null)}
                                     className="hidden"
+                                    disabled={isLoading}
                                 />
                                 <Button
                                     type="button"
                                     variant="outline"
                                     onClick={() => document.getElementById("meta-image")?.click()}
                                     className="flex items-center gap-2"
+                                    disabled={isLoading}
                                 >
-                                    <Upload className="h-4 w-4" />
-                                    Choose File
+                                    {isUploading ? (
+                                        <Loader2 className="h-4 w-4 animate-spin" />
+                                    ) : (
+                                        <Upload className="h-4 w-4" />
+                                    )}
+                                    {isUploading ? "Uploading..." : "Choose File"}
                                 </Button>
                                 <span className="text-sm text-muted-foreground">
                                     {metaImage instanceof File ? metaImage.name :
@@ -170,7 +182,11 @@ export default function CreatePage() {
                                 name="pageType"
                                 control={control}
                                 render={({ field }) => (
-                                    <Select value={field.value} onValueChange={field.onChange}>
+                                    <Select
+                                        value={field.value}
+                                        onValueChange={field.onChange}
+                                        disabled={isLoading}
+                                    >
                                         <SelectTrigger>
                                             <SelectValue placeholder="Select page type" />
                                         </SelectTrigger>
@@ -191,7 +207,12 @@ export default function CreatePage() {
                 {/* Action Buttons */}
                 <div className="flex justify-end">
                     <Button type="submit" disabled={isLoading}>
-                        {isLoading ? "Creating..." : "Create Page"}
+                        {isLoading ? (
+                            <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                {isUploading ? "Uploading Image..." : "Creating Page..."}
+                            </>
+                        ) : "Create Page"}
                     </Button>
                 </div>
             </div>

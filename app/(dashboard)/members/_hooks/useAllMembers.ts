@@ -2,8 +2,10 @@ import { useSWRFix } from '@/admin-utils/lib/useSwrFix';
 import { getAllMembers, GetAllMembersParams } from '../_api/getAllMembers';
 
 export default function useAllMembers(params?: GetAllMembersParams) {
+  const key = `all-members-${JSON.stringify(params || {})}`;
+
   const { data, error, loading, mutate } = useSWRFix({
-    key: `all-members`,
+    key,
     fetcher: () => getAllMembers(params),
     config: { revalidateOnFocus: false },
   });

@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { showError } from "@/admin-utils/lib/formErrors";
 import { showSuccess } from "@/admin-utils/lib/formSuccess";
 import useSWRMutation from "swr/mutation";
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react'; // Added useState
 import { patchContactPageSettings } from '../_api/contactApi';
 import { useContact } from './useContact';
 import { imageUpload } from '@/admin-utils/utils/imageUpload';
@@ -26,16 +26,14 @@ const contactFormSchema = z.object({
   contactFormTitle: z.string().min(1, 'Contact form title is required'),
   contactFormDescription: z.string().min(1, 'Contact form description is required'),
   showOnHeader: z.boolean(),
-
-  description: z.string().min(1, 'Description is required'),
-  emailDescription: z.string().min(1, 'Email description is required'),
 });
 
 type ContactFormValues = z.infer<typeof contactFormSchema>;
 
 export default function useContactForm() {
   const { contactSettings, mutate, contactLoading } = useContact();
-  
+  const [isUploading, setIsUploading] = useState(false); // New state for image upload
+
   const {
     register,
     handleSubmit,
@@ -60,22 +58,20 @@ export default function useContactForm() {
       contactFormTitle: '',
       contactFormDescription: '',
       showOnHeader: true,
-      description: '',
-      emailDescription: '',
     },
   });
 
   const { trigger, isMutating } = useSWRMutation(
-    'updateContactSettings',
-    async (url: string, { arg }: { arg: ContactFormValues }) => {
-      return await patchContactPageSettings(arg);
-    },
-    {
-      onError: (error: any) => {
-        showError({ message: error.message });
-        console.error('Contact settings update error:', error);
+      'updateContactSettings',
+      async (url: string, { arg }: { arg: ContactFormValues }) => {
+        return await patchContactPageSettings(arg);
+      },
+      {
+        onError: (error: any) => {
+          showError({ message: error.message });
+          console.error('Contact settings update error:', error);
+        }
       }
-    }
   );
 
   // Reset form with fetched data
@@ -96,17 +92,19 @@ export default function useContactForm() {
         contactFormTitle: contactSettings.contactFormTitle || '',
         contactFormDescription: contactSettings.contactFormDescription || '',
         showOnHeader: contactSettings.showOnHeader ?? true,
-        description: contactSettings.description || '',
-        emailDescription: contactSettings.emailDescription || '',
       });
     }
   }, [contactSettings, reset]);
 
   const onSubmit = async (values: ContactFormValues) => {
-    let contactBannerImageUrl = values.contactBannerImage;
+    try {
+      let contactBannerImageUrl = values.contactBannerImage;
 
+      // Start image upload loading
       if (values.contactBannerImage instanceof File) {
+        setIsUploading(true);
         contactBannerImageUrl = await imageUpload(values.contactBannerImage);
+        setIsUploading(false);
       }
 
       const payload = {
@@ -119,6 +117,11 @@ export default function useContactForm() {
         await mutate();
         showSuccess('Contact settings updated successfully!');
       }
+    } catch (error) {
+      setIsUploading(false);
+      showError({ message: 'Failed to upload image' });
+      console.error('Image upload error:', error);
+    }
   };
 
   return {
@@ -128,7 +131,9 @@ export default function useContactForm() {
     watch,
     control,
     errors,
-    isLoading: isMutating,
+    isLoading: isMutating || isUploading, // Combined loading state
+    isUploading, // Separate image upload state
+    isFormSubmitting: isMutating, // Separate form submission state
     onSubmit,
     contactSettings,
     contactLoading

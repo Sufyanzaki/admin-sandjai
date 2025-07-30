@@ -159,7 +159,7 @@ export default function useHomeForm() {
       };
 
       const result = await trigger(payload);
-      if (result?.status === 200) {
+      if (result) {
         await mutate();
         showSuccess('Home settings updated successfully!');
       }
