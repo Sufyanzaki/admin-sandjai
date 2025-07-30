@@ -26,6 +26,7 @@ import {Switch} from "@/components/ui/switch";
 import {useCurrencies} from "../_hooks/useCurrencies";
 import Preloader from "@/components/ui/Preloader";
 import {useDeleteCurrency} from "../_hooks/useDeleteCurrency";
+import CurrencyModal from "@/app/(dashboard)/settings/other-settings/_components/currency-modal";
 
 export default function CurrencyTable() {
     const { currencies, loading, error } = useCurrencies();
@@ -210,45 +211,7 @@ export default function CurrencyTable() {
                         Add a new currency to your system
                     </DialogDescription>
                 </DialogHeader>
-                <div className="grid gap-4 py-4">
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="name">Currency Name *</Label>
-                            <Input id="name" placeholder="e.g. US Dollar" />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="code">Currency Code *</Label>
-                            <Input id="code" placeholder="e.g. USD" />
-                        </div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="symbol">Symbol *</Label>
-                            <Input id="symbol" placeholder="e.g. $" />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="rtl">Text Direction</Label>
-                            <Select>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select direction" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="ltr">Left-to-Right (LTR)</SelectItem>
-                                    <SelectItem value="rtl">Right-to-Left (RTL)</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-                    </div>
-                </div>
-                <DialogFooter>
-                    <Button variant="outline" onClick={() => setOpenAddDialog(false)}>
-                        Cancel
-                    </Button>
-                    <Button type="submit">
-                        <Save className="mr-2 h-4 w-4" />
-                        Save Currency
-                    </Button>
-                </DialogFooter>
+                <CurrencyModal setOpenAddDialog={setOpenAddDialog} />
             </DialogContent>
         </Dialog>
     </>

@@ -5,7 +5,7 @@ export interface Currency {
   currencyName: string;
   currencyCode: string;
   symbol?: string;
-  textDirection?: boolean;
+  textDirection: string;
 }
 
 type CurrencyPayload = Omit<Currency, "id">;
@@ -42,4 +42,11 @@ export async function deleteCurrency(id: string): Promise<{ message: string }> {
     useAuth: true,
   });
   return r.response;
+}
+
+export async function getCurrencyById(id: string): Promise<Currency> {
+  return await getRequest<Currency>({
+    url: `setting/currency/${id}`,
+    useAuth: true,
+  });
 }

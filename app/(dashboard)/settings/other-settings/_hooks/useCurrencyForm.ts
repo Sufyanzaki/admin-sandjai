@@ -1,47 +1,87 @@
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {Currency, postCurrency} from "@/app/(dashboard)/settings/other-settings/_api/currencies";
+import { showError } from "@/admin-utils/lib/formErrors";
+import { showSuccess } from "@/admin-utils/lib/formSuccess";
+import useSWRMutation from "swr/mutation";
+import { Currency, postCurrency } from "@/app/(dashboard)/settings/other-settings/_api/currencies";
+import {useSWRConfig} from "swr";
 
 const currencySchema = z.object({
     currencyName: z.string().min(2, "Currency name is required"),
     currencyCode: z.string().min(2, "Currency code is required"),
-    symbol: z.string().optional(),
-    textDirection: z.boolean().optional(),
+    symbol: z.string().min(1, "Currency symbol is required"),
+    textDirection: z.string().min(1, "Text direction is required"),
 });
 
 export type CurrencyFormValues = z.infer<typeof currencySchema>;
 
-export default function useCurrencyForm(onSuccess?: (currency: Currency) => void) {
-    const [isLoading, setIsLoading] = useState(false);
+type CreateCurrencyProps = CurrencyFormValues;
 
-    const form = useForm<CurrencyFormValues>({
+export default function useCurrencyForm() {
+
+    const { mutate:globalMutate } = useSWRConfig();
+
+    const {
+        handleSubmit,
+        formState: { errors, isSubmitting },
+        register,
+        setValue,
+        reset,
+        watch,
+        control,
+    } = useForm<CurrencyFormValues>({
         resolver: zodResolver(currencySchema),
         defaultValues: {
             currencyName: "",
             currencyCode: "",
             symbol: "",
-            textDirection: false,
+            textDirection: "ltr",
         },
+        mode: "onBlur",
     });
 
-    const onSubmit = async (values: CurrencyFormValues) => {
-        setIsLoading(true);
-        try {
-            const created = await postCurrency(values);
-            if (onSuccess) onSuccess(created);
-            form.reset();
-        } catch (error) {
-            console.error("Failed to create currency", error);
-        } finally {
-            setIsLoading(false);
+    const { trigger, isMutating } = useSWRMutation(
+        "createCurrency",
+        async (_, { arg }: { arg: CreateCurrencyProps }) => {
+            return await postCurrency(arg);
+        },
+        {
+            onError: (error: Error) => {
+                showError({ message: error.message });
+                console.error("Currency creation error:", error);
+            },
+            revalidate: false,
+            populateCache: false,
+        }
+    );
+
+    const onSubmit = async (
+        values: CurrencyFormValues,
+        callback?: (data: Currency | undefined) => void
+    ) => {
+        const result = await trigger(values);
+
+        if (result) {
+            globalMutate("currencies", (prev?: Currency[]) => {
+                if (!prev) return [result];
+                return [result, ...prev];
+            }, false);
+
+            showSuccess("Currency created successfully!");
+            reset();
+            callback?.(result);
         }
     };
 
     return {
-        ...form,
+        handleSubmit,
         onSubmit,
-        isLoading,
+        errors,
+        isLoading: isSubmitting || isMutating,
+        register,
+        setValue,
+        watch,
+        control,
     };
 }
