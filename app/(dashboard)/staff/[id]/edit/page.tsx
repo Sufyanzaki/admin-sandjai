@@ -1,16 +1,40 @@
 "use client";
 
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { ArrowLeft, Mail, Phone, Save, Upload, X } from "lucide-react";
+import {
+  ArrowLeft,
+  Clock,
+  Mail,
+  Phone,
+  Save,
+  Upload,
+  Users,
+  X,
+} from "lucide-react";
 import { useEditStaffForm } from "../../_hooks/useEditStaffForm";
 import { Controller } from "react-hook-form";
 import Preloader from "@/components/ui/Preloader";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 
 export default function EditStaffPage() {
   const {
@@ -25,7 +49,18 @@ export default function EditStaffPage() {
     staffMember,
   } = useEditStaffForm();
 
-  const [imagePreview, setImagePreview] = useState<string | null>(staffMember?.image || null);
+  const [imagePreview, setImagePreview] = useState<string | null>(
+      typeof staffMember?.image === "string" ? staffMember.image : null
+  );
+
+  // Clean up URL.createObjectURL when component unmounts or image changes
+  useEffect(() => {
+    return () => {
+      if (imagePreview?.startsWith("blob:")) {
+        URL.revokeObjectURL(imagePreview);
+      }
+    };
+  }, [imagePreview]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -33,8 +68,6 @@ export default function EditStaffPage() {
       setValue("image", file);
       const previewUrl = URL.createObjectURL(file);
       setImagePreview(previewUrl);
-      // Clean up when component unmounts or when image changes
-      return () => URL.revokeObjectURL(previewUrl);
     }
   };
 
@@ -62,8 +95,12 @@ export default function EditStaffPage() {
             </Link>
           </Button>
           <div className="space-y-2">
-            <h1 className="text-2xl lg:text-3xl font-bold tracking-tight mb-2">Edit Staff</h1>
-            <p className="text-muted-foreground">Edit a staff member profile</p>
+            <h1 className="text-2xl lg:text-3xl font-bold tracking-tight mb-2">
+              Edit Staff
+            </h1>
+            <p className="text-muted-foreground">
+              Edit a staff member profile
+            </p>
           </div>
         </div>
 
@@ -71,13 +108,19 @@ export default function EditStaffPage() {
           <Card>
             <CardHeader>
               <CardTitle>Personal Information</CardTitle>
-              <CardDescription>Enter the staff member's basic information</CardDescription>
+              <CardDescription>
+                Enter the staff member's basic information
+              </CardDescription>
             </CardHeader>
+
             <CardContent className="space-y-4">
               <div className="flex flex-col items-center space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
                 <div className="relative">
                   <div className="flex h-32 w-32 items-center justify-center rounded-md border border-dashed">
-                    <label htmlFor="photo" className="flex flex-col items-center space-y-2 cursor-pointer">
+                    <label
+                        htmlFor="photo"
+                        className="flex flex-col items-center space-y-2 cursor-pointer"
+                    >
                       {imagePreview ? (
                           <img
                               src={imagePreview}
@@ -95,7 +138,9 @@ export default function EditStaffPage() {
                           accept="image/*"
                           onChange={handleFileChange}
                       />
-                      <span className="text-xs text-muted-foreground">Upload photo</span>
+                      <span className="text-xs text-muted-foreground">
+                      Upload photo
+                    </span>
                     </label>
                   </div>
                   {imagePreview && (
@@ -110,6 +155,7 @@ export default function EditStaffPage() {
                       </Button>
                   )}
                 </div>
+
                 <div className="grid flex-1 gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
                     <Label htmlFor="firstName">First Name</Label>
@@ -119,9 +165,12 @@ export default function EditStaffPage() {
                         {...register("firstName")}
                     />
                     {errors.firstName && (
-                        <p className="text-sm text-red-600">{errors.firstName.message}</p>
+                        <p className="text-sm text-red-600">
+                          {errors.firstName.message}
+                        </p>
                     )}
                   </div>
+
                   <div className="space-y-2">
                     <Label htmlFor="lastName">Last Name</Label>
                     <Input
@@ -130,7 +179,9 @@ export default function EditStaffPage() {
                         {...register("lastName")}
                     />
                     {errors.lastName && (
-                        <p className="text-sm text-red-600">{errors.lastName.message}</p>
+                        <p className="text-sm text-red-600">
+                          {errors.lastName.message}
+                        </p>
                     )}
                   </div>
                 </div>
@@ -149,10 +200,13 @@ export default function EditStaffPage() {
                         {...register("email")}
                     />
                     {errors.email && (
-                        <p className="text-sm text-red-600">{errors.email.message}</p>
+                        <p className="text-sm text-red-600">
+                          {errors.email.message}
+                        </p>
                     )}
                   </div>
                 </div>
+
                 <div className="space-y-2">
                   <Label htmlFor="phone">Phone Number</Label>
                   <div className="relative">
@@ -165,10 +219,13 @@ export default function EditStaffPage() {
                         {...register("phone")}
                     />
                     {errors.phone && (
-                        <p className="text-sm text-red-600">{errors.phone.message}</p>
+                        <p className="text-sm text-red-600">
+                          {errors.phone.message}
+                        </p>
                     )}
                   </div>
                 </div>
+
                 <div className="space-y-2">
                   <Label htmlFor="role">User Role</Label>
                   <Controller
@@ -176,6 +233,7 @@ export default function EditStaffPage() {
                       control={control}
                       render={({ field }) => (
                           <Select
+                              key={field.name}
                               value={field.value}
                               onValueChange={field.onChange}
                           >
@@ -190,11 +248,14 @@ export default function EditStaffPage() {
                       )}
                   />
                   {errors.role && (
-                      <p className="text-sm text-red-600">{errors.role.message}</p>
+                      <p className="text-sm text-red-600">
+                        {errors.role.message}
+                      </p>
                   )}
                 </div>
               </div>
             </CardContent>
+
             <CardFooter className="flex justify-end">
               <Button type="submit" disabled={isLoading}>
                 <Save className="mr-2 h-4 w-4" />

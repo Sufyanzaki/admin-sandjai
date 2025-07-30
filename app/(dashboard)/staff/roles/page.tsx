@@ -54,17 +54,22 @@ import { DeleteRoleModal } from "@/components/roles/delete-role-modal"
 import RoleForm from "./_components/roleForm"
 import useRoles from "./_hook/useRoles"
 import useDeleteRole from "./_hook/useDeleteRole";
+import Preloader from "@/components/ui/Preloader";
 
 export default function RolesAndPermissionsPage() {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
-  const [roleToDelete, setRoleToDelete] = useState<{ id: number; name: string } | null>(null)
+  const [roleToDelete, setRoleToDelete] = useState<{ id: string; name: string } | null>(null)
 
   const { roles, loading, error } = useRoles();
   const { deleteRole, isDeleting } = useDeleteRole();
 
-  // Loading and error states
   if (loading) {
-    return <div className="p-8 text-center text-lg">Loading roles...</div>;
+    return(
+        <div className="flex items-center flex-col justify-center h-64">
+          <Preloader/>
+          <p className="text-sm">Loading role</p>
+        </div>
+    )
   }
   if (error) {
     return <div className="p-8 text-center text-red-500">Failed to load roles.</div>;
@@ -73,7 +78,6 @@ export default function RolesAndPermissionsPage() {
     return <div className="p-8 text-center text-lg">No roles found.</div>;
   }
 
-  // Filter roles by category
   const administrativeRoles = roles.filter((role) => role.catagory === "Administrative");
   const customRoles = roles.filter((role) => role.catagory === "Custom");
 
@@ -189,7 +193,6 @@ export default function RolesAndPermissionsPage() {
                   <TableHeader>
                     <TableRow>
                       <TableHead>Role</TableHead>
-                      <TableHead>Category</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
@@ -198,11 +201,6 @@ export default function RolesAndPermissionsPage() {
                     {roles.map((role) => (
                         <TableRow key={role.id}>
                           <TableCell className="font-medium">{role.name}</TableCell>
-                          <TableCell>
-                            <Badge variant={role.catagory === 'Administrative' ? 'default' : 'outline'}>
-                              {role.catagory}
-                            </Badge>
-                          </TableCell>
                           <TableCell>
                             <Badge variant={role.isActive ? 'default' : 'destructive'}>
                               {role.isActive ? 'active' : 'inactive'}

@@ -7,6 +7,7 @@ import { Building } from "lucide-react";
 
 import { MultiSelectCombobox } from "@/components/ui/combo-box";
 import { useDashboardFooterForm } from "../_hooks/useDashboardFooterForm";
+import Preloader from "@/components/ui/Preloader";
 
 
 const pageOptions = [
@@ -20,7 +21,8 @@ export default function UserDashboardFooterForm() {
     onSubmit,
     setValue,
     watch,
-    errors
+    errors,
+      isLoadingDashboardFooterData
   } = useDashboardFooterForm();
 
   const selectedPage = watch("sectionPage") || [];
@@ -28,6 +30,15 @@ export default function UserDashboardFooterForm() {
   const handlePageChange = (newSelection: string[]) => {
     setValue("sectionPage", newSelection);
   };
+
+  if(isLoadingDashboardFooterData){
+    return (
+        <div className="flex items-center flex-col justify-center h-64">
+          <Preloader/>
+          <p className="text-sm">Loading Dashboard Settings</p>
+        </div>
+    )
+  }
 
   return (
     <form onSubmit={handleSubmit(v => onSubmit(v, () => {}))}>

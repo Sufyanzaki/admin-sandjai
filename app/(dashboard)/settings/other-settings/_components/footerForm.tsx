@@ -17,7 +17,6 @@ export default function FooterForm() {
     errors,
     isLoading,
     onSubmit,
-    control,
     setValue,
     watch,
     footerData,
@@ -27,27 +26,23 @@ export default function FooterForm() {
   const footerLogo = watch("footerLogo");
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
-  // Handle file selection
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Set the file in the form
       setValue("footerLogo", file);
-      
-      // Create preview URL
       const previewUrl = URL.createObjectURL(file);
       setImagePreview(previewUrl);
-      
-      // Clean up on unmount
       return () => URL.revokeObjectURL(previewUrl);
     }
   };
 
   if(isLoadingFooterData){
-    <div className="flex items-center flex-col justify-center h-64">
-        <Preloader />
-        <p className="text-sm">Loading Footer</p>
-    </div>
+    return (
+        <div className="flex items-center flex-col justify-center h-64">
+          <Preloader />
+          <p className="text-sm">Loading Footer</p>
+        </div>
+    )
   }
 
   return (

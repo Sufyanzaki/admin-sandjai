@@ -5,7 +5,14 @@ export interface Currency {
   currencyName: string;
   currencyCode: string;
   symbol?: string;
-  textDirection?: boolean;
+  textDirection: string;
+}
+
+export interface CurrencyFormat {
+  defaultCurrency: string;
+  symbolFormat: string;
+  decimalSeparator: string;
+  decimalPlaces: string;
 }
 
 type CurrencyPayload = Omit<Currency, "id">;
@@ -36,9 +43,32 @@ export async function patchCurrency(id: string, payload: CurrencyPayload): Promi
   return r.response;
 }
 
-export async function deleteCurrency(id: string): Promise<{ message: string }> {
-  const r = await deleteRequest({
+export async function deleteCurrency(id: string) {
+  return deleteRequest({
     url: `setting/currency/${id}`,
+    useAuth: true,
+  });
+}
+
+export async function getCurrencyById(id: string): Promise<Currency> {
+  return await getRequest<Currency>({
+    url: `setting/currency/${id}`,
+    useAuth: true,
+  });
+}
+
+
+export async function getCurrencyFormat(): Promise<CurrencyFormat> {
+  return await getRequest<CurrencyFormat>({
+    url: `setting/currency-format`,
+    useAuth: true,
+  });
+}
+
+export async function patchCurrencyFormat(payload: CurrencyFormat): Promise<CurrencyFormat> {
+  const r = await patchRequest<CurrencyFormat>({
+    url: `setting/currency`,
+    data: payload,
     useAuth: true,
   });
   return r.response;

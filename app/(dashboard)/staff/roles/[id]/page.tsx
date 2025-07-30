@@ -30,31 +30,19 @@ import Link from "next/link"
 import { use } from "react"
 import useRoleById from "../_hook/useRoleById"
 import { RoleDto, Permission } from "../add/_types/roleTypes"
-
-const staffMenuItems = [
-  { id: "dashboard", title: "Dashboard", icon: LayoutDashboard },
-  { id: "members", title: "Members", icon: Users },
-  { id: "profile_attributes", title: "Profile Attributes", icon: UserCog },
-  { id: "payments", title: "Payments", icon: CreditCard },
-  { id: "frontend_settings", title: "Frontend Settings", icon: Sliders },
-  { id: "faqs", title: "FAQs", icon: HelpCircle },
-  { id: "blogs", title: "BLOGS", icon: NotebookText },
-  { id: "packages", title: "Packages", icon: Package },
-  { id: "complaints", title: "Complaints", icon: AlertCircle },
-  { id: "report", title: "Report", icon: BarChart2 },
-  { id: "marketing", title: "Marketing", icon: Megaphone },
-  { id: "app_setting", title: "App Setting", icon: Settings },
-  { id: "chat_video_setting", title: "Chat & Video Setting", icon: Video },
-];
-
-const permissionTypes: string[] = ["view", "create", "edit", "delete"];
+import Preloader from "@/components/ui/Preloader";
 
 export default function RoleDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
   const { role, loading, error } = useRoleById(id);
 
   if (loading) {
-    return <div className="p-8 text-center text-lg">Loading role...</div>;
+    return (
+        <div className="flex items-center flex-col justify-center h-64">
+          <Preloader/>
+          <p className="text-sm">Loading</p>
+        </div>
+    )
   }
   if (error || !role) {
     return <div className="p-8 text-center text-red-500">Failed to load role.</div>;
@@ -99,9 +87,9 @@ export default function RoleDetailsPage({ params }: { params: Promise<{ id: stri
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between flex-wrap gap-4">
               <div className="space-y-1">
-                <p className="text-sm font-medium">Category</p>
+                <p className="text-sm font-medium">Role Name</p>
                 <div className="flex items-center gap-2">
-                  <Badge variant="outline">{role.catagory}</Badge>
+                  <Badge variant="outline">{role.name}</Badge>
                   {role.isDefault && <Badge>Default</Badge>}
                 </div>
               </div>
@@ -110,7 +98,7 @@ export default function RoleDetailsPage({ params }: { params: Promise<{ id: stri
                 <div className="flex items-center justify-end gap-2">
                   <Badge variant="secondary">-</Badge>
                   <Button variant="ghost" size="sm" asChild>
-                    <Link href={`/staff/roles/${id}/users`}>
+                    <Link href={`/staff/roles/${role.id}/users`}>
                       <Users className="mr-2 h-4 w-4" />
                       View Users
                     </Link>

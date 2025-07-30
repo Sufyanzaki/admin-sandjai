@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { X } from "lucide-react";
 import { useState } from "react";
+import Preloader from "@/components/ui/Preloader";
 
 export default function AbusiveCard() {
   const {
@@ -16,6 +17,7 @@ export default function AbusiveCard() {
     onSubmit,
     errors,
     isLoading,
+    wordLoading
   } = useAbusiveWordsForm();
 
   const [inputValue, setInputValue] = useState("");
@@ -33,6 +35,15 @@ export default function AbusiveCard() {
   const chips = abusiveWords
     ? abusiveWords.split(",").map((w) => w.trim()).filter(Boolean)
     : [];
+
+  if(wordLoading){
+    return (
+        <div className="flex items-center flex-col justify-center h-64">
+          <Preloader/>
+          <p className="text-sm">Loading Words</p>
+        </div>
+    )
+  }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>

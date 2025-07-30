@@ -9,12 +9,18 @@ import {Button} from "@/components/ui/button";
 import { Controller } from "react-hook-form";
 import useChatSettingForm from "../settings/other-settings/_hooks/useChatSettingForm";
 import React from "react";
+import Preloader from "@/components/ui/Preloader";
 
 export default function ChatAndVideoSetting() {
-    const { handleSubmit, onSubmit, errors, isLoading, control, register, loading, watch } = useChatSettingForm();
+    const { handleSubmit, onSubmit, errors, isLoading, control, register, loading } = useChatSettingForm();
 
     if (loading) {
-        return <div className="p-6">Loading chat & video settings...</div>;
+        return (
+            <div className="flex items-center flex-col justify-center h-64">
+                <Preloader/>
+                <p className="text-sm">Loading chat & video settings</p>
+            </div>
+        )
     }
 
     return (

@@ -1,13 +1,12 @@
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+import {useForm} from "react-hook-form";
+import {zodResolver} from "@hookform/resolvers/zod";
+import {z} from "zod";
 import useSWRMutation from "swr/mutation";
-import { showError } from "@/admin-utils/lib/formErrors";
-import { showSuccess } from "@/admin-utils/lib/formSuccess";
+import {showError} from "@/admin-utils/lib/formErrors";
+import {showSuccess} from "@/admin-utils/lib/formSuccess";
 import {patchAbusiveWords} from "../_api/postAbusiveWords";
-import { getAbusiveWords } from "../_api/getAbusiveWords";
-import { useEffect } from "react";
-import { useAbusiveWords } from "./useAbusiveWords";
+import {useEffect} from "react";
+import {useAbusiveWords} from "./useAbusiveWords";
 
 export const abusiveWordsSchema = z.object({
   word: z.string().min(1, "At least one word is required"),
@@ -71,7 +70,7 @@ export default function useAbusiveWordsForm() {
 
   const onSubmit = async (values: AbusiveWordsFormValues) => {
     const result = await trigger({ word: values.word });
-    if (result?.status === 201) {
+    if (result) {
       showSuccess("Abusive words saved successfully!");
     }
   };
