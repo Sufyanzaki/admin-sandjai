@@ -5,9 +5,9 @@ import { showError } from "@/admin-utils/lib/formErrors";
 import { showSuccess } from "@/admin-utils/lib/formSuccess";
 import { editBlog } from "../_api/editBlog";
 import useSWRMutation from "swr/mutation";
-import { Blog } from "../_api/getAllBlogs";
 import { useEffect } from "react";
 import useBlogById from "./useBlogById";
+import { imageUpload } from "@/admin-utils/utils/imageUpload";
 
 const editBlogSchema = z.object({
     title: z.string().min(1, "Title is required"),
@@ -24,20 +24,18 @@ const editBlogSchema = z.object({
 
 export type EditBlogFormValues = z.infer<typeof editBlogSchema>;
 
-export default function useEditBlog(
-    id: number | string,
-    uploadImage?: (file: File) => Promise<string>
-) {
+export default function useEditBlog(id: number | string) {
     const { blog, loading: blogLoading, error: blogError } = useBlogById(id);
+
     const { trigger, isMutating } = useSWRMutation(
-        'editBlog',
-        async (_: string, { arg }: { arg: Partial<EditBlogFormValues> }) => {
+        "editBlog",
+        async (_key, { arg }: { arg: Partial<EditBlogFormValues> }) => {
             return await editBlog(id, arg);
         },
         {
             onError: (error: any) => {
-                showError({ message: error.message });
-            }
+                showError({ message: error.message || "Failed to update blog" });
+            },
         }
     );
 
@@ -50,19 +48,21 @@ export default function useEditBlog(
         control,
     } = useForm<EditBlogFormValues>({
         resolver: zodResolver(editBlogSchema),
-        defaultValues: blog ? {
-            title: blog.title,
-            slug: blog.slug,
-            categoryId: blog.categoryId,
-            bannerImage: blog.bannerImage,
-            shortDescription: blog.shortDescription,
-            description: blog.description,
-            metaTitle: blog.metaTitle,
-            metaImage: blog.metaImage,
-            metaDescription: blog.metaDescription,
-            metaKeywords: blog.metaKeywords,
-        } : {},
-        mode: 'onBlur'
+        defaultValues: blog
+            ? {
+                title: blog.title,
+                slug: blog.slug,
+                categoryId: blog.categoryId,
+                bannerImage: blog.bannerImage,
+                shortDescription: blog.shortDescription,
+                description: blog.description,
+                metaTitle: blog.metaTitle,
+                metaImage: blog.metaImage,
+                metaDescription: blog.metaDescription,
+                metaKeywords: blog.metaKeywords,
+            }
+            : {},
+        mode: "onBlur",
     });
 
     useEffect(() => {
@@ -82,24 +82,36 @@ export default function useEditBlog(
         }
     }, [blog, reset]);
 
-    const onSubmit = async (values: EditBlogFormValues, callback?: (data: { status: number } | undefined) => void) => {
-        let bannerImageUrl = '';
-        let metaImageUrl = '';
-        if (uploadImage) {
-            bannerImageUrl = await uploadImage(values.bannerImage as File);
-            metaImageUrl = await uploadImage(values.metaImage as File);
-        } else {
-            bannerImageUrl = typeof values.bannerImage === 'string' ? values.bannerImage : '';
-            metaImageUrl = typeof values.metaImage === 'string' ? values.metaImage : '';
+    const onSubmit = async (
+        values: EditBlogFormValues,
+        callback?: (data: { status: number } | undefined) => void
+    ) => {
+        let bannerImageUrl = "";
+        let metaImageUrl = "";
+
+        // Upload bannerImage if it's a file
+        if (values.bannerImage instanceof File) {
+            bannerImageUrl = await imageUpload(values.bannerImage);
+        } else if (typeof values.bannerImage === "string") {
+            bannerImageUrl = values.bannerImage;
         }
+
+        // Upload metaImage if it's a file
+        if (values.metaImage instanceof File) {
+            metaImageUrl = await imageUpload(values.metaImage);
+        } else if (typeof values.metaImage === "string") {
+            metaImageUrl = values.metaImage;
+        }
+
         const result = await trigger({
             ...values,
             bannerImage: bannerImageUrl,
             metaImage: metaImageUrl,
         });
-        if (result?.status === 200) {
-            showSuccess('Blog updated successfully!');
-            reset(values); // keep values after update
+
+        if (result) {
+            showSuccess("Blog updated successfully!");
+            reset(values);
             callback?.(result);
         }
     };
@@ -117,4 +129,4 @@ export default function useEditBlog(
         blogLoading,
         blogError,
     };
-} 
+}

@@ -10,13 +10,19 @@ import React from "react";
 import { useParams } from "next/navigation";
 import useNewsletterById from "../_hooks/useNewsletterById";
 import { unescapeHtml } from "@/lib/utils";
+import Preloader from "@/components/ui/Preloader";
 
 export default function NewsletterViewPage() {
     const params = useParams();
     const id = params?.id as string;
     const { data, isLoading, error } = useNewsletterById(id);
 
-    if (isLoading) return <div>Loading...</div>;
+    if (isLoading) return (
+        <div className="flex items-center flex-col justify-center h-64">
+            <Preloader/>
+            <p className="text-sm">Loading</p>
+        </div>
+    );
     if (error) return <div>Error loading newsletter.</div>;
     if (!data) return <div>No newsletter found.</div>;
 

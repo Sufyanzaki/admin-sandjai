@@ -25,6 +25,7 @@ export default function NewsletterListPage() {
     const { data: newsletters, isLoading, error } = useNewsletters();
     const { deleteNewsletterById, isLoading: isDeleting, error: deleteError } = useDeleteNewsletter();
     const [deletingId, setDeletingId] = React.useState<number | null>(null);
+    const [searchQuery, setSearchQuery] = React.useState("");
 
     const handleDelete = async (id: number) => {
         setDeletingId(id);
@@ -55,7 +56,10 @@ export default function NewsletterListPage() {
                         <CardTitle>All Newsletters</CardTitle>
                         <div className="relative mt-2 sm:mt-0">
                             <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                            <Input placeholder="Search subject" className="pl-8" />
+                            <Input placeholder="Search subject" className="pl-8"
+                                   value={searchQuery}
+                                   onChange={(e) => setSearchQuery(e.target.value)}
+                            />
                         </div>
                     </div>
                 </CardHeader>
@@ -80,7 +84,9 @@ export default function NewsletterListPage() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {newsletters.map((item, index) => (
+                                {newsletters
+                                    .filter(item => item.title.toLowerCase().includes(searchQuery.toLowerCase()))
+                                    .map((item, index) => (
                                     <TableRow key={item.id}>
                                         <TableCell className="text-center">{index + 1}</TableCell>
                                         <TableCell>{item.title}</TableCell>

@@ -38,6 +38,7 @@ export default function useFaqForm() {
     register,
     control,
     reset,
+      watch
   } = useForm<FaqFormValues>({
     resolver: zodResolver(faqSchema),
     defaultValues: {
@@ -82,6 +83,7 @@ export default function useFaqForm() {
     handleSubmit,
     onSubmit,
     errors,
+    watch,
     isLoading: isSubmitting || isMutating,
     register,
     control,

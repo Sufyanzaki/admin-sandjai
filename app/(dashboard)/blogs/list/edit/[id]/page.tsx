@@ -1,19 +1,18 @@
 "use client"
 
-import { Button } from "@/components/ui/button";
+import {Button} from "@/components/ui/button";
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import {Input} from "@/components/ui/input";
 import {Label} from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
+import {Textarea} from "@/components/ui/textarea";
 import Link from "next/link";
 import {ArrowLeft} from "lucide-react";
 import {SimpleEditor} from "@/components/tiptap-templates/simple/simple-editor";
-import { useParams } from "next/navigation";
-import { useBlogCategories } from "../../../category/_hooks/useBlogCategories";
+import {useParams} from "next/navigation";
+import {useBlogCategories} from "../../../category/_hooks/useBlogCategories";
 import useEditBlog from "../../../_hooks/useEditBlog";
-import { Controller } from "react-hook-form";
-import {imageUpload} from "@/admin-utils/utils/imageUpload";
+import {Controller} from "react-hook-form";
 
 export default function EditBlogPage() {
     const params = useParams();
@@ -30,7 +29,7 @@ export default function EditBlogPage() {
         blog,
         blogLoading,
         blogError,
-    } = useEditBlog(id, imageUpload);
+    } = useEditBlog(id);
 
     if (blogLoading) {
         return <div className="flex items-center justify-center h-64">Loading blog...</div>;

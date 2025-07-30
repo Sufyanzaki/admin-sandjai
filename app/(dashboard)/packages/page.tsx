@@ -29,6 +29,7 @@ import Link from "next/link"
 import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar"
 import { usePackages } from "./_hooks/usePackages";
 import { usePatchPackage } from "./_hooks/usePatchPackage";
+import Preloader from "@/components/ui/Preloader";
 
 export default function PackagesPage() {
     const { packages, loading, error } = usePackages();
@@ -54,7 +55,12 @@ export default function PackagesPage() {
         pkg.name.toLowerCase().includes(search.toLowerCase())
     );
 
-    if (loading) return <div className="p-6">Loading packages...</div>;
+    if (loading) return (
+        <div className="flex items-center flex-col justify-center h-64">
+            <Preloader/>
+            <p className="text-sm">Loading packages</p>
+        </div>
+    );
     if (error) return <div className="p-6 text-red-500">Failed to load packages.</div>;
     if (!packages) return <div className="p-6 text-muted-foreground">No packages found.</div>;
 

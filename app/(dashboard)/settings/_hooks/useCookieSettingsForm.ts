@@ -1,12 +1,16 @@
-"use client"
+"use client";
 
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import useSWRMutation from "swr/mutation";
+
 import { showError } from "@/admin-utils/lib/formErrors";
 import { showSuccess } from "@/admin-utils/lib/formSuccess";
-import { postCookieSettings } from "../_api/postCookieSettings";
+
+import { patchCookieSettings } from "../_api/cookieSettings";
+import {useCookieSettings} from "@/app/(dashboard)/settings/_hooks/useCookieSetting";
 
 export const cookieSettingsSchema = z.object({
   cookieText: z.string().min(1, "Cookie agreement text is required"),
@@ -32,26 +36,37 @@ export default function useCookieSettingsForm() {
     mode: "onBlur",
   });
 
-  const { trigger, isMutating } = useSWRMutation(
-    "postCookieSettings",
-    async (_: string, { arg }: { arg: CookieSettingsFormValues }) => {
-      return await postCookieSettings(arg);
-    },
-    {
-      onError: (error: Error) => {
-        showError({ message: error.message });
-        console.error("Cookie settings error:", error);
-      },
-      revalidate: false,
-      populateCache: false,
+  const { data: cookieSettings, loading } = useCookieSettings();
+
+  useEffect(() => {
+    if (cookieSettings) {
+      reset({
+        cookieText: cookieSettings.cookieText || "",
+        showAgreement: cookieSettings.showAgreement ?? true,
+      });
     }
+  }, [cookieSettings, reset]);
+
+  const { trigger, isMutating } = useSWRMutation(
+      "cookieSettings",
+      async (_: string, { arg }: { arg: CookieSettingsFormValues }) => {
+        return await patchCookieSettings(arg);
+      },
+      {
+        onError: (error: Error) => {
+          showError({ message: error.message });
+          console.error("Cookie settings error:", error);
+        },
+        revalidate: false,
+        populateCache: false,
+      }
   );
 
   const onSubmit = async (values: CookieSettingsFormValues) => {
     const result = await trigger(values);
-    if (result?.status === 201) {
+    if (result?.status === 201 || result?.status === 200) {
       showSuccess("Cookie settings saved successfully!");
-      reset();
+      reset(values); // Reset with updated values
     }
   };
 
@@ -59,10 +74,11 @@ export default function useCookieSettingsForm() {
     handleSubmit,
     onSubmit,
     errors,
-    isLoading: isSubmitting || isMutating,
+    isLoading: isSubmitting || isMutating || loading,
     setValue,
     watch,
     reset,
     control,
+    cookieLoading: loading
   };
-} 
+}

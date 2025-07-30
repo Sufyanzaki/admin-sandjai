@@ -10,6 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import { Building } from "lucide-react";
 import { Controller } from "react-hook-form";
 import usePushForm from "../_hooks/usePushForm";
+import Preloader from "@/components/ui/Preloader";
 
 const firebaseInstructions = [
   "Log in to Google Firebase and Create a new app if you don’t have any.",
@@ -35,7 +36,12 @@ export default function PushNotificationForm() {
   } = usePushForm();
 
   if (isLoadingData) {
-    return <div>Loading push notification settings...</div>;
+    return (
+        <div className="flex items-center flex-col justify-center h-64">
+          <Preloader/>
+          <p className="text-sm">Loading push notification settings</p>
+        </div>
+    )
   }
 
   return (

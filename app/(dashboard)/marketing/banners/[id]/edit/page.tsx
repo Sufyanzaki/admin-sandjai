@@ -174,7 +174,7 @@ export default function BannerEditPage() {
                                 name="page"
                                 control={control}
                                 render={({ field }) => (
-                                    <Select value={field.value} onValueChange={field.onChange}>
+                                    <Select value={field.value} onValueChange={field.onChange} key={field.value}>
                                         <SelectTrigger className="w-full">
                                             <SelectValue placeholder="Select Page" />
                                         </SelectTrigger>
@@ -245,7 +245,7 @@ export default function BannerEditPage() {
                             </div>
                         </div>
                         {/* Submit Button */}
-                        <div className="pt-4">
+                        <div className="pt-4 flex justify-end">
                             <Button type="submit" disabled={isLoading}>
                                 {isLoading ? "Updating Banner..." : "Update Banner"}
                             </Button>

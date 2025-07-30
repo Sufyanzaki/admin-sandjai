@@ -21,7 +21,6 @@ export default function BasicSettingsForm() {
     isLoading, 
     onSubmit, 
     loading, 
-    data,
     systemLogoPreview,
     loginImagePreview,
     handleSystemLogoChange,
@@ -132,7 +131,7 @@ export default function BasicSettingsForm() {
                       name="dateFormat"
                       control={control}
                       render={({ field }) => (
-                        <Select {...field} value={field.value} onValueChange={field.onChange}>
+                        <Select key={field.value} value={field.value} onValueChange={field.onChange}>
                           <SelectTrigger>
                             <SelectValue placeholder="Select format" />
                           </SelectTrigger>

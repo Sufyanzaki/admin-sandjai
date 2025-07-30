@@ -212,7 +212,7 @@ export default function BannerAddPage() {
                         </div>
 
                         {/* Submit Button */}
-                        <div className="pt-4">
+                        <div className="pt-4 flex justify-end">
                             <Button type="submit" disabled={isLoading}>
                                 {isLoading ? "Creating Banner..." : "Save Banner"}
                             </Button>

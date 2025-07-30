@@ -93,7 +93,6 @@ export default function useEmailTemplateForm({ id, languages = [] }: Props) {
     const result = await trigger(values);
     if (result) {
       showSuccess("Email template updated successfully!");
-      reset();
       callback?.(result);
     }
   };

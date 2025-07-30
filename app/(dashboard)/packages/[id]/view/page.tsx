@@ -8,15 +8,23 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Progress } from "@/components/ui/progress"
 import { ArrowLeft, Box, Calendar, CreditCard, Edit, Mail, Phone, Star, Users } from "lucide-react"
 import Link from "next/link"
-import { use } from "react"
+import React, { use } from "react"
 import usePackageById from "../../_hooks/usePackageById"
+import Preloader from "@/components/ui/Preloader";
+import useAllMembers from "@/app/(dashboard)/members/_hooks/useAllMembers";
 
 export default function PackageDetailsPage({ params }: { params: Promise<{ id: string }> }) {
     const {id} = use(params)
     const packageId = Number.parseInt(id)
     const { pkg, loading, error } = usePackageById(packageId);
+    const {data, isLoading} = useAllMembers();
 
-    if (loading) return <div className="p-6">Loading package...</div>;
+    if (loading) return(
+        <div className="flex items-center flex-col justify-center h-64">
+            <Preloader/>
+            <p className="text-sm">Package Loading</p>
+        </div>
+    );
     if (error) return <div className="p-6 text-red-500">Failed to load package.</div>;
     if (!pkg) return <div className="p-6 text-muted-foreground">Package not found.</div>;
 
@@ -47,8 +55,8 @@ export default function PackageDetailsPage({ params }: { params: Promise<{ id: s
                         <Users className="size-8 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">128</div>
-                        <p className="text-xs text-muted-foreground">+24 from last month</p>
+                        <div className="text-2xl font-bold">00</div>
+                        <p className="text-xs text-muted-foreground">+00 from last month</p>
                     </CardContent>
                 </Card>
                 <Card>
@@ -57,8 +65,8 @@ export default function PackageDetailsPage({ params }: { params: Promise<{ id: s
                         <CreditCard className="size-8 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">€{pkg.price * 35}</div>
-                        <p className="text-xs text-muted-foreground">+12% from last month</p>
+                        <div className="text-2xl font-bold">€0</div>
+                        <p className="text-xs text-muted-foreground">+0% from last month</p>
                     </CardContent>
                 </Card>
                 <Card>
@@ -67,8 +75,8 @@ export default function PackageDetailsPage({ params }: { params: Promise<{ id: s
                         <Calendar className="size-8 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">78%</div>
-                        <p className="text-xs text-muted-foreground">+5% from last quarter</p>
+                        <div className="text-2xl font-bold">00%</div>
+                        <p className="text-xs text-muted-foreground">+0% from last quarter</p>
                     </CardContent>
                 </Card>
             </div>
@@ -158,35 +166,36 @@ export default function PackageDetailsPage({ params }: { params: Promise<{ id: s
                             </TabsContent>
                             <TabsContent value="subscribers">
                                 <div className="space-y-4">
-                                    {[1, 2, 3].map((_, i) => (
-                                        <div key={i} className="flex items-center justify-between gap-4">
-                                            <div className="flex items-center gap-3">
-                                                <Avatar className="h-9 w-9">
-                                                    <AvatarImage
-                                                        src={`/thoughtful-gaze.png?height=36&width=36&query=user${i + 1}`}
-                                                        alt={`Subscriber ${i + 1}`}
-                                                    />
-                                                    <AvatarFallback>U{i + 1}</AvatarFallback>
-                                                </Avatar>
-                                                <div>
-                                                    <h4 className="text-sm font-medium">{["Alex Johnson", "Taylor Smith", "Jamie Wilson"][i]}</h4>
-                                                    <p className="text-xs text-muted-foreground">
-                                                        {["Business", "Pro", "Enterprise"][i]} plan
-                                                    </p>
+                                    {data?.users
+                                        ?.map((user, i) => (
+                                            <div key={user.id} className="flex items-center justify-between gap-4">
+                                                <div className="flex items-center gap-3">
+                                                    <Avatar className="h-9 w-9">
+                                                        <AvatarImage
+                                                            src={user.image || `/placeholder-user.png`}
+                                                            alt={user.firstName}
+                                                        />
+                                                        <AvatarFallback>{user.firstName[0]}{user.lastName[0]}</AvatarFallback>
+                                                    </Avatar>
+                                                    <div>
+                                                        <h4 className="text-sm font-medium">
+                                                            {user.firstName} {user.lastName}
+                                                        </h4>
+                                                        <p className="text-xs text-muted-foreground">{user.email}</p>
+                                                    </div>
                                                 </div>
+                                                <Badge variant="outline">
+                                                    {Math.floor((new Date().getTime() - new Date(user.createdAt).getTime()) / (1000 * 60 * 60 * 24 * 30))} months
+                                                </Badge>
                                             </div>
-                                            <Badge variant="outline">
-                                                {["2 years", "1 year", "6 months"][i]}
-                                            </Badge>
-                                        </div>
-                                    ))}
+                                        ))}
 
-                                    <Link href={`/packages/${pkg.id}/subscribers`}>
-                                        <Button variant="outline" className="w-full mt-2">
-                                            <Users className="mr-2 h-4 w-4" />
-                                            View All Subscribers
-                                        </Button>
-                                    </Link>
+                                    {/*<Link href={`/packages/${pkg.id}/subscribers`}>*/}
+                                    {/*    <Button variant="outline" className="w-full mt-2">*/}
+                                    {/*        <Users className="mr-2 h-4 w-4" />*/}
+                                    {/*        View All Subscribers*/}
+                                    {/*    </Button>*/}
+                                    {/*</Link>*/}
                                 </div>
                             </TabsContent>
                         </Tabs>

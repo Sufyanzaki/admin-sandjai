@@ -32,6 +32,7 @@ import {SimpleEditor} from "@/components/tiptap-templates/simple/simple-editor";
 import CookiesForm from "./_components/cookies-form"
 import SEOForm from "@/app/(dashboard)/settings/_components/SEO-form";
 import BasicSettingsForm from "./_components/basic-settings-form"
+import PreferenceForm from "./_components/preference-form"
 
 export default function SettingsPage() {
   return (
@@ -54,61 +55,7 @@ export default function SettingsPage() {
           <BasicSettingsForm />
         </TabsContent>
         <TabsContent value="preferences" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <Building className="mr-2 h-5 w-5" />
-                Preferences
-              </CardTitle>
-              <CardDescription>Update your clinic's basic information and contact details</CardDescription>
-            </CardHeader>
-
-            <CardContent className="space-y-6 pt-6">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="use-insurance">Maintenance Mode Activation</Label>
-                <Switch id="use-insurance" defaultChecked />
-              </div>
-
-              <div className="flex items-center justify-between">
-                <Label htmlFor="default-currency">Default Currency</Label>
-                <Select defaultValue="usd">
-                  <SelectTrigger className="w-full sm:w-[180px]">
-                    <SelectValue placeholder="Select currency" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="usd">USD – US Dollar</SelectItem>
-                    <SelectItem value="eur">EUR – Euro</SelectItem>
-                    <SelectItem value="gbp">GBP – British Pound</SelectItem>
-                    <SelectItem value="cad">CAD – Canadian Dollar</SelectItem>
-                    <SelectItem value="pkr">PKR – Pakistani Rupee</SelectItem>
-                    <SelectItem value="inr">INR – Indian Rupee</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <Label htmlFor="default-language">Default Language</Label>
-                <Select defaultValue="en">
-                  <SelectTrigger className="w-full sm:w-[180px]">
-                    <SelectValue placeholder="Select language" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="en">English</SelectItem>
-                    <SelectItem value="es">Spanish</SelectItem>
-                    <SelectItem value="fr">French</SelectItem>
-                    <SelectItem value="de">German</SelectItem>
-                    <SelectItem value="ur">Urdu</SelectItem>
-                    <SelectItem value="hi">Hindi</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-
-              <div className="flex justify-end pt-6">
-                <Button className="px-8">Save Configuration</Button>
-              </div>
-            </CardContent>
-          </Card>
+          <PreferenceForm />
         </TabsContent>
         <TabsContent value="system" className="space-y-4">
           <Card>

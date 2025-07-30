@@ -2,7 +2,7 @@ import {useSWRConfig} from "swr";
 import useSWRMutation from "swr/mutation";
 import {showError, showSuccess} from "@/admin-utils";
 import {useState} from "react";
-import {Currency} from "@/app/(dashboard)/settings/other-settings/_api/getCurrencies";
+import {Currency} from "@/app/(dashboard)/settings/other-settings/_api/currencies";
 import { deleteCurrency } from "../_api/deleteCurrency";
 
 export const useDeleteCurrency = () => {

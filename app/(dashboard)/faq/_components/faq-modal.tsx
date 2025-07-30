@@ -28,7 +28,7 @@ export function FAQModal({ isOpen, onClose }: { isOpen: boolean; onClose: (value
 
     const submitHandler = handleSubmit(async (data) => {
         await onSubmit(data, (result) => {
-            if (result === false) {
+            if (!result) {
                 onClose(false);
             }
         });
@@ -63,10 +63,9 @@ export function FAQModal({ isOpen, onClose }: { isOpen: boolean; onClose: (value
                                 control={control}
                                 render={({ field }) => (
                                     <Select
-                                        onValueChange={(val) => field.onChange(Number(val))}
+                                        onValueChange={val => field.onChange(Number(val))}
                                         value={field.value ? String(field.value) : ""}
-                                        disabled={isLoading || categoriesLoading}
-                                        required
+                                        key={field.value}
                                     >
                                         <SelectTrigger id="categoryId">
                                             <SelectValue placeholder={categoriesLoading ? "Loading..." : "Select category"} />

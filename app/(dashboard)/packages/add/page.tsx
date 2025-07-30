@@ -120,7 +120,7 @@ export default function AddPackagesPage() {
                             control={control}
                             render={({ field }) => (
                                 <CustomImageUpload
-                                    label="Package Image"
+                                    label=""
                                     file={field.value instanceof File ? field.value : null}
                                     onFileChange={file => field.onChange(file)}
                                 />

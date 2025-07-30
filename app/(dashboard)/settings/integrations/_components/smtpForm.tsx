@@ -1,15 +1,16 @@
 "use client"
 
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
-import { AlertCircle, Building } from "lucide-react";
-import { Controller } from "react-hook-form";
+import {Alert, AlertDescription, AlertTitle} from "@/components/ui/alert";
+import {Button} from "@/components/ui/button";
+import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} from "@/components/ui/card";
+import {Input} from "@/components/ui/input";
+import {Label} from "@/components/ui/label";
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
+import {Separator} from "@/components/ui/separator";
+import {AlertCircle, Building} from "lucide-react";
+import {Controller} from "react-hook-form";
 import useSmtpForm from "../_hooks/useSmtpForm";
+import Preloader from "@/components/ui/Preloader";
 
 export default function SMTPForm() {
   const {
@@ -20,12 +21,15 @@ export default function SMTPForm() {
     isLoading,
     isLoadingData,
     control,
-    reset,
-    existingData,
   } = useSmtpForm();
 
   if (isLoadingData) {
-    return <div>Loading SMTP settings...</div>;
+    return (
+        <div className="flex items-center flex-col justify-center h-64">
+          <Preloader/>
+          <p className="text-sm">Loading SMTP settings</p>
+        </div>
+    )
   }
 
   return (

@@ -8,6 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { Building } from "lucide-react";
 import { Controller } from "react-hook-form";
 import useCaptchaForm from "../_hooks/useCaptchaForm";
+import Preloader from "@/components/ui/Preloader";
 
 export default function CaptchaForm() {
   const {
@@ -21,7 +22,12 @@ export default function CaptchaForm() {
   } = useCaptchaForm();
 
   if (isLoadingData) {
-    return <div>Loading captcha settings...</div>;
+    return (
+        <div className="flex items-center flex-col justify-center h-64">
+          <Preloader/>
+          <p className="text-sm">Loading captcha settings</p>
+        </div>
+    )
   }
 
   return (
@@ -88,7 +94,7 @@ export default function CaptchaForm() {
             </div>
           </div>
         </CardContent>
-        <CardFooter className="flex justify-between gap-2 flex-wrap">
+        <CardFooter className="flex justify-end gap-2 flex-wrap">
           <Button type="submit" disabled={isLoading}>
             {isLoading ? "Saving..." : "Save Settings"}
           </Button>

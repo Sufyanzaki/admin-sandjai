@@ -24,7 +24,7 @@ export default function EditEmailTemplatePage() {
   const [activeTab, setActiveTab] = useState("en");
 
   useEffect(()=>{
-    if(!languages) return;
+    if(!languages || languages.length < 1) return;
 
     setActiveTab(languages[0].code);
   }, [languages])
@@ -37,6 +37,7 @@ export default function EditEmailTemplatePage() {
   )
   if (error) return <div className="p-6 text-red-500">Failed to load template.</div>;
   if (!emailTemplate) return <div className="p-6 text-muted-foreground">Template not found.</div>;
+  if (!languages || languages.length < 1) return <div className="p-6 text-red-500 text-lg text-center py-12">Please add a language.</div>;
 
   return (
       <div className="flex flex-col gap-6 p-4 xl:p-6">

@@ -21,6 +21,7 @@ import { useEditPackage } from '../../_hooks/useEditPackage';
 import { CustomImageUpload } from '@/components/frontend-settings/CustomImageInput';
 import { useRouter, useParams } from 'next/navigation';
 import { imageUpload } from '@/admin-utils/utils/imageUpload';
+import Preloader from "@/components/ui/Preloader";
 
 export default function PackageEditPage() {
     const params = useParams();
@@ -68,7 +69,12 @@ export default function PackageEditPage() {
         router.push('/packages');
     };
 
-    if (loading) return <div className="p-6">Loading package...</div>;
+    if (loading) return(
+        <div className="flex items-center flex-col justify-center h-64">
+            <Preloader/>
+            <p className="text-sm">Package Loading</p>
+        </div>
+    );
     if (error) return <div className="p-6 text-red-500">Failed to load package.</div>;
     if (!pkg) return <div className="p-6 text-muted-foreground">Package not found.</div>;
 
