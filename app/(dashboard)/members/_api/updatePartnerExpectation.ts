@@ -13,7 +13,9 @@ export interface PartnerExpectationPayload {
   goingOut: boolean;
   ageFrom: number;
   ageTo: number;
-  location: string;
+  city?: string,
+  state?: string,
+  country?: string,
 }
 
 export async function postPartnerExpectation(userId: string, payload: PartnerExpectationPayload) {

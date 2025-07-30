@@ -31,7 +31,7 @@ const interestMap: { id: keyof HobbiesInterestsFormValues; label: string; option
   ] },
 ];
 
-export default function HobbiesTab() {
+export default function HobbiesTab({ callback }: { callback: () => void}) {
 
   const params = useParams();
   const id = typeof params.id === 'string' ? params.id : params.id?.[0];
@@ -60,7 +60,7 @@ export default function HobbiesTab() {
           <CardTitle>Interests & Preferences</CardTitle>
           <CardDescription>Select your interests in different categories</CardDescription>
         </CardHeader>
-        <form onSubmit={handleSubmit((values) => onSubmit(values))}>
+        <form onSubmit={handleSubmit((values) => onSubmit(values, callback))}>
         {!userId && <div className="border border-amber-200 bg-amber-50 rounded-sm p-4 mb-6">
               <div className="flex items-center gap-2">
                 <AlertTriangle className="h-5 w-5 text-amber-600" />

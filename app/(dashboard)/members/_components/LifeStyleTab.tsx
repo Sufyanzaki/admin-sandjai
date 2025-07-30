@@ -12,7 +12,7 @@ import { getUserTrackingId } from "@/lib/access-token";
 import { AlertTriangle } from "lucide-react";
 import Preloader from "@/components/ui/Preloader";
 
-export default function LifeStyleTab() {
+export default function LifeStyleTab({ callback }: { callback: () => void}) {
 
   const params = useParams();
   const id = typeof params.id === 'string' ? params.id : params.id?.[0];
@@ -39,7 +39,7 @@ export default function LifeStyleTab() {
                 <CardTitle>Profile Information</CardTitle>
                 <CardDescription>Complete your life style below.</CardDescription>
             </CardHeader>
-            <form onSubmit={handleSubmit((values) => onSubmit(values))}>
+            <form onSubmit={handleSubmit((values) => onSubmit(values, callback))}>
                 {!userId && <div className="border border-amber-200 bg-amber-50 rounded-sm p-4 mb-6">
                     <div className="flex items-center gap-2">
                         <AlertTriangle className="h-5 w-5 text-amber-600" />
@@ -56,7 +56,7 @@ export default function LifeStyleTab() {
                                 control={control}
                                 name="smoke"
                                 render={({ field }) => (
-                                    <Select value={field.value} onValueChange={field.onChange}>
+                                    <Select value={field.value} onValueChange={field.onChange} key={field.value}>
                                         <SelectTrigger id="smoke">
                                             <SelectValue placeholder="Ja" />
                                         </SelectTrigger>
@@ -78,7 +78,7 @@ export default function LifeStyleTab() {
                                 control={control}
                                 name="drinking"
                                 render={({ field }) => (
-                                    <Select value={field.value} onValueChange={field.onChange}>
+                                    <Select value={field.value} onValueChange={field.onChange} key={field.value}>
                                         <SelectTrigger id="drinking">
                                             <SelectValue placeholder="Nee" />
                                         </SelectTrigger>
@@ -101,7 +101,7 @@ export default function LifeStyleTab() {
                                 control={control}
                                 name="goingOut"
                                 render={({ field }) => (
-                                    <Select value={field.value} onValueChange={field.onChange}>
+                                    <Select value={field.value} onValueChange={field.onChange} key={field.value}>
                                         <SelectTrigger id="goingOut">
                                             <SelectValue placeholder="Ja" />
                                         </SelectTrigger>
@@ -129,7 +129,7 @@ export default function LifeStyleTab() {
                                     control={control}
                                     name="exercise"
                                     render={({ field }) => (
-                                        <Select value={field.value} onValueChange={field.onChange}>
+                                        <Select value={field.value} onValueChange={field.onChange} key={field.value}>
                                             <SelectTrigger id="exercise">
                                                 <SelectValue placeholder="Select exercise frequency" />
                                             </SelectTrigger>
@@ -151,7 +151,7 @@ export default function LifeStyleTab() {
                                     control={control}
                                     name="diet"
                                     render={({ field }) => (
-                                        <Select value={field.value} onValueChange={field.onChange}>
+                                        <Select value={field.value} onValueChange={field.onChange} key={field.value}>
                                             <SelectTrigger id="diet">
                                                 <SelectValue placeholder="Select diet preference" />
                                             </SelectTrigger>
@@ -176,7 +176,7 @@ export default function LifeStyleTab() {
                                     control={control}
                                     name="pets"
                                     render={({ field }) => (
-                                        <Select value={field.value} onValueChange={field.onChange}>
+                                        <Select value={field.value} onValueChange={field.onChange} key={field.value}>
                                             <SelectTrigger id="pets">
                                                 <SelectValue placeholder="Select pet preference" />
                                             </SelectTrigger>
@@ -198,7 +198,7 @@ export default function LifeStyleTab() {
                                     control={control}
                                     name="travel"
                                     render={({ field }) => (
-                                        <Select value={field.value} onValueChange={field.onChange}>
+                                        <Select value={field.value} onValueChange={field.onChange} key={field.value}>
                                             <SelectTrigger id="travel">
                                                 <SelectValue placeholder="Select travel frequency" />
                                             </SelectTrigger>
@@ -220,7 +220,7 @@ export default function LifeStyleTab() {
                                     control={control}
                                     name="socialMedia"
                                     render={({ field }) => (
-                                        <Select value={field.value} onValueChange={field.onChange}>
+                                        <Select value={field.value} onValueChange={field.onChange} key={field.value}>
                                             <SelectTrigger id="socialMedia">
                                                 <SelectValue placeholder="Select social media usage" />
                                             </SelectTrigger>
@@ -242,7 +242,7 @@ export default function LifeStyleTab() {
                                     control={control}
                                     name="workLifeBalance"
                                     render={({ field }) => (
-                                        <Select value={field.value} onValueChange={field.onChange}>
+                                        <Select value={field.value} onValueChange={field.onChange} key={field.value}>
                                             <SelectTrigger id="workLifeBalance">
                                                 <SelectValue placeholder="Select work-life balance" />
                                             </SelectTrigger>
@@ -264,7 +264,7 @@ export default function LifeStyleTab() {
                                     control={control}
                                     name="nightLife"
                                     render={({ field }) => (
-                                        <Select value={field.value} onValueChange={field.onChange}>
+                                        <Select value={field.value} onValueChange={field.onChange} key={field.value}>
                                             <SelectTrigger id="nightLife">
                                                 <SelectValue placeholder="Select night life preference" />
                                             </SelectTrigger>
@@ -286,7 +286,7 @@ export default function LifeStyleTab() {
                                     control={control}
                                     name="primaryHobby"
                                     render={({ field }) => (
-                                        <Select value={field.value} onValueChange={field.onChange}>
+                                        <Select value={field.value} onValueChange={field.onChange} key={field.value}>
                                             <SelectTrigger id="primaryHobby">
                                                 <SelectValue placeholder="Select primary hobby" />
                                             </SelectTrigger>

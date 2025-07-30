@@ -14,8 +14,9 @@ import { useParams } from "next/navigation";
 import { getUserTrackingId } from "@/lib/access-token";
 import { AlertTriangle } from "lucide-react";
 import LocationSearchInput, { LocationData } from "@/components/location-search";
+import Preloader from "@/components/ui/Preloader";
 
-export default function PartnerTab() {
+export default function PartnerTab({ callback }: { callback: () => void }) {
 
   const params = useParams();
   const id = typeof params.id === 'string' ? params.id : params.id?.[0];
@@ -32,6 +33,7 @@ export default function PartnerTab() {
     control,
     onSubmit,
     watch,
+      expectationLoading
   } = usePartnerExpectationForm();
 
   const handleLocationSelect = (location: LocationData) => {
@@ -46,6 +48,15 @@ export default function PartnerTab() {
 
   const currentLocation = city || state || country ? { city, state, country } : null;
 
+  if(expectationLoading){
+    return (
+        <div className="flex items-center flex-col justify-center h-64">
+          <Preloader/>
+          <p className="text-sm">Loading Expectations</p>
+        </div>
+    )
+  }
+
   return (
     <TabsContent value="partner" className="space-y-4 mt-4">
       <Card>
@@ -53,7 +64,7 @@ export default function PartnerTab() {
           <CardTitle>Profile Information</CardTitle>
           <CardDescription>Complete your partner expectations.</CardDescription>
         </CardHeader>
-        <form onSubmit={handleSubmit((values) => onSubmit(values))}>
+        <form onSubmit={handleSubmit((values) => onSubmit(values, callback))}>
           {!userId && <div className="border border-amber-200 bg-amber-50 rounded-sm p-4 mb-6">
               <div className="flex items-center gap-2">
                 <AlertTriangle className="h-5 w-5 text-amber-600" />

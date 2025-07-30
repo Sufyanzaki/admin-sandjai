@@ -7,7 +7,8 @@ import useSWRMutation from "swr/mutation";
 import { patchPartnerExpectation, postPartnerExpectation } from "../../_api/updatePartnerExpectation";
 import { getUserTrackingId, updateUserTrackingId } from "@/lib/access-token";
 import { useParams } from "next/navigation";
-import { useMemo } from "react";
+import {useEffect, useMemo} from "react";
+import {usePartnerExpectations} from "@/app/(dashboard)/members/_hooks/usepartnerExpectations";
 
 const partnerExpectationSchema = z.object({
   origin: z.string().min(1, "Origin is required"),
@@ -22,7 +23,6 @@ const partnerExpectationSchema = z.object({
   goingOut: z.boolean(),
   ageFrom: z.coerce.number().min(0, "From age is required"),
   ageTo: z.coerce.number().min(0, "To age is required"),
-  // Updated location fields - all optional
   city: z.string().optional(),
   state: z.string().optional(),
   country: z.string().optional(),
@@ -34,6 +34,8 @@ export default function usePartnerExpectationForm() {
 
   const params = useParams();
   const tracker = getUserTrackingId();
+
+  const {expectations, expectationLoading} = usePartnerExpectations();
 
   const id = useMemo(() => {
     const paramId = Array.isArray(params.id) ? params.id[0] : params.id;
@@ -75,6 +77,28 @@ export default function usePartnerExpectationForm() {
     mode: "onBlur",
   });
 
+  useEffect(() => {
+    if(!expectations) return;
+
+    reset({
+      origin: expectations.origin || "",
+      lookingFor: expectations.lookingFor || "",
+      length: expectations.length || "",
+      religion: expectations.religion || "",
+      relationshipStatus: expectations.relationshipStatus || "",
+      education: expectations.education || "",
+      weight: expectations.weight || "",
+      smoke: expectations.smoke || false,
+      drinking: expectations.drinking || false,
+      goingOut: expectations.goingOut || false,
+      ageFrom: expectations.ageFrom || 0,
+      ageTo: expectations.ageTo || 0,
+      city: expectations.city || "",
+      state: expectations.state || "",
+      country: expectations.country || "",
+    })
+  }, [expectations, reset]);
+
   const { trigger, isMutating } = useSWRMutation(
       "updatePartnerExpectation",
       async (_: string, { arg }: { arg: PartnerExpectationFormValues }) => {
@@ -111,5 +135,6 @@ export default function usePartnerExpectationForm() {
     control,
     watch,
     onSubmit,
+    expectationLoading
   };
 }

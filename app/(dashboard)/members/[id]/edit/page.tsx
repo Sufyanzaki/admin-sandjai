@@ -54,13 +54,13 @@ export default function EditMemberPage() {
 
           {/* Only render the active tab */}
           {activeTab === "personal" && <PersonalInfoTab callback={()=>setActiveTab("professional")} />}
-          {activeTab === "professional" && <ProfessionalTab />}
-          {activeTab === "behavior" && <BehaviorTab />}
-          {activeTab === "partner" && <PartnerTab />}
-          {activeTab === "life_style" && <LifeStyleTab />}
-          {activeTab === "hobbies" && <HobbiesTab />}
-          {activeTab === "languages" && <LanguagesTab />}
-          {activeTab === "living" && <LivingTab />}
+          {activeTab === "professional" && <ProfessionalTab callback={()=>setActiveTab("behavior")} />}
+          {activeTab === "behavior" && <BehaviorTab callback={()=>setActiveTab("partner")} />}
+          {activeTab === "partner" && <PartnerTab callback={()=>setActiveTab("life_style")} />}
+          {activeTab === "life_style" && <LifeStyleTab callback={()=>setActiveTab("hobbies")} />}
+          {activeTab === "hobbies" && <HobbiesTab callback={()=>setActiveTab("languages")} />}
+          {activeTab === "languages" && <LanguagesTab callback={()=>setActiveTab("living")} />}
+          {activeTab === "living" && <LivingTab callback={()=>setActiveTab("about_me")} />}
           {activeTab === "about_me" && <AboutMeTab />}
         </Tabs>
       </div>

@@ -15,7 +15,7 @@ import { useParams } from "next/navigation";
 import { getUserTrackingId } from "@/lib/access-token";
 import Preloader from "@/components/ui/Preloader";
 
-export default function ProfessionalTab() {
+export default function ProfessionalTab({ callback }: { callback: () => void }) {
 
   const params = useParams();
   const id = typeof params.id === 'string' ? params.id : params.id?.[0];
@@ -60,7 +60,7 @@ export default function ProfessionalTab() {
             </div>
           </div>}
         <CardContent className="space-y-6">
-          <form onSubmit={handleSubmit(v => onSubmit(v, () => { console.log("success") }))} className="space-y-4">
+          <form onSubmit={handleSubmit(v => onSubmit(v, callback))} className="space-y-4">
             <div className="flex flex-col md:flex-row gap-4">
               <div className="flex-1 space-y-2">
                 <Label htmlFor="primaryExpertise">Primary Expertise</Label>
@@ -102,7 +102,7 @@ export default function ProfessionalTab() {
                   name="secondarySpecialization"
                   control={control}
                   render={({ field }) => (
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value} key={field.value}>
                       <SelectTrigger id="secondarySpecialization">
                         <SelectValue placeholder="Select additional expertise" />
                       </SelectTrigger>
@@ -193,7 +193,7 @@ export default function ProfessionalTab() {
                     name="department"
                     control={control}
                     render={({ field }) => (
-                      <Select onValueChange={field.onChange} value={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value} key={field.value}>
                         <SelectTrigger id="department">
                           <SelectValue placeholder="Select department" />
                         </SelectTrigger>
@@ -227,7 +227,7 @@ export default function ProfessionalTab() {
                     name="position"
                     control={control}
                     render={({ field }) => (
-                      <Select onValueChange={field.onChange} value={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value} key={field.value}>
                         <SelectTrigger id="position">
                           <SelectValue placeholder="Select position" />
                         </SelectTrigger>

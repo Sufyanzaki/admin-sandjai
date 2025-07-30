@@ -9,7 +9,7 @@ import { useParams } from "next/navigation";
 import { getUserTrackingId } from "@/lib/access-token";
 import { AlertTriangle } from "lucide-react";
 
-export default function LivingTab() {
+export default function LivingTab({callback}: { callback: () => void}) {
   const params = useParams();
   const id = typeof params.id === 'string' ? params.id : params.id?.[0];
 
@@ -46,7 +46,7 @@ export default function LivingTab() {
               Where are you located?
             </CardDescription>
           </CardHeader>
-          <form onSubmit={handleSubmit((values) => onSubmit(values, () => {}))}>
+          <form onSubmit={handleSubmit((values) => onSubmit(values, callback))}>
             {!userId && (
                 <div className="border border-amber-200 bg-amber-50 rounded-sm p-4 mb-6">
                   <div className="flex items-center gap-2">

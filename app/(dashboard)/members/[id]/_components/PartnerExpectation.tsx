@@ -3,15 +3,16 @@
 import { CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useBasicInfo } from "../../_hooks/useBasicInfo";
+import {usePartnerExpectations} from "@/app/(dashboard)/members/_hooks/usepartnerExpectations";
 
 interface PartnerExpectationProps {
   memberId: string | number;
 }
 
 export default function PartnerExpectation({ memberId }: PartnerExpectationProps) {
-  const { user: basicInfo, userLoading: loading, error } = useBasicInfo();
+  const { expectations, expectationLoading, error } = usePartnerExpectations();
 
-  if (loading) {
+  if (expectationLoading) {
     return (
       <CardContent>
         <div className="flex items-center justify-center py-8">
@@ -22,7 +23,7 @@ export default function PartnerExpectation({ memberId }: PartnerExpectationProps
     );
   }
 
-  if (error || !basicInfo) {
+  if (error || !expectations) {
     return (
       <CardContent>
         <div className="text-center py-8">
@@ -32,7 +33,7 @@ export default function PartnerExpectation({ memberId }: PartnerExpectationProps
     );
   }
 
-  const typedBasicInfo = basicInfo as any;
+  const typedBasicInfo = expectations as any;
 
   const data = {
     "Looking For": typedBasicInfo.lookingFor || "-",

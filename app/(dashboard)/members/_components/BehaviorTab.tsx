@@ -52,7 +52,7 @@ const traitMap: { key: keyof PersonalityBehaviorFormValues; label: string }[] = 
   { key: "relaxed", label: "relaxed" },
 ];
 
-export default function BehaviorTab() {
+export default function BehaviorTab({ callback }: { callback: () => void }) {
 
   const params = useParams();
   const id = typeof params.id === 'string' ? params.id : params.id?.[0];
@@ -87,7 +87,7 @@ export default function BehaviorTab() {
             Select traits that best describe the member’s personality, lifestyle, and values.
           </CardDescription>
         </CardHeader>
-        <form onSubmit={handleSubmit((values) => onSubmit(values))}>
+        <form onSubmit={handleSubmit((values) => onSubmit(values, callback))}>
         {!userId && <div className="border border-amber-200 bg-amber-50 rounded-sm p-4 mb-6">
               <div className="flex items-center gap-2">
                 <AlertTriangle className="h-5 w-5 text-amber-600" />
