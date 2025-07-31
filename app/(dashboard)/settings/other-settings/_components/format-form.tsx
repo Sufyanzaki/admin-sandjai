@@ -57,7 +57,7 @@ export default function FormatForm({ currencies, setOpenFormatDialog }: Props) {
                             </SelectTrigger>
                             <SelectContent>
                                 {(currencies ?? []).map((currency) => (
-                                    <SelectItem key={currency.id} value={currency.id}>
+                                    <SelectItem key={currency.id} value={String(currency.id)}>
                                         {currency.currencyName} ({currency.currencyCode})
                                     </SelectItem>
                                 ))}
@@ -136,9 +136,9 @@ export default function FormatForm({ currencies, setOpenFormatDialog }: Props) {
                 <Button variant="outline" onClick={() => setOpenFormatDialog(false)}>
                     Cancel
                 </Button>
-                <Button type="submit">
+                <Button type="submit" disabled={isLoading}>
                     <Save className="mr-2 h-4 w-4" />
-                    Save Format
+                    {isLoading ? "Saving..." : "Save Format"}
                 </Button>
             </DialogFooter>
         </form>

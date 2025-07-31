@@ -5,6 +5,12 @@ export function useFormat() {
     const { data, error, loading, mutate } = useSWRFix({
         key: "format",
         fetcher: getCurrencyFormat,
+        transform: (data) => {
+            return {
+                ...data,
+                defaultCurrency: data.defaultCurrencyId
+            }
+        },
     });
 
     return { data, error, loading, mutate };

@@ -13,6 +13,7 @@ export interface CurrencyFormat {
   symbolFormat: string;
   decimalSeparator: string;
   decimalPlaces: string;
+  defaultCurrencyId?: string;
 }
 
 type CurrencyPayload = Omit<Currency, "id">;
@@ -60,14 +61,14 @@ export async function getCurrencyById(id: string): Promise<Currency> {
 
 export async function getCurrencyFormat(): Promise<CurrencyFormat> {
   return await getRequest<CurrencyFormat>({
-    url: `setting/currency-format`,
+    url: `setting/currency-setting`,
     useAuth: true,
   });
 }
 
 export async function patchCurrencyFormat(payload: CurrencyFormat): Promise<CurrencyFormat> {
   const r = await patchRequest<CurrencyFormat>({
-    url: `setting/currency`,
+    url: `setting/currency-setting`,
     data: payload,
     useAuth: true,
   });
