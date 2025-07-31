@@ -15,12 +15,13 @@ import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/compo
 import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
 import {Label} from "@/components/ui/label";
-import {Textarea} from "@/components/ui/textarea";
 import AbusiveCard from "./_components/abusive-card";
 import CurrencyTable from "./_components/currency-table";
 import UserDashboardFooterForm from "./_components/user-dashboard-footer-form";
 import FooterSettingsForm from "./_components/footer-settings-form";
 import FooterForm from "./_components/footerForm";
+import {MultiSelectCombobox} from "@/components/ui/combo-box";
+import FooterSectionForm from "@/app/(dashboard)/settings/other-settings/_components/footer-section-form";
 
 const pagesData = [
   {
@@ -125,21 +126,7 @@ export default function SettingsPage() {
               Provide the name and page associated with this section.
             </DialogDescription>
           </DialogHeader>
-
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="section-name">Section Name</Label>
-              <Input id="section-name" placeholder="Enter name" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="section-page">Section Page</Label>
-              <Input id="section-page" placeholder="Enter page" />
-            </div>
-          </div>
-
-          <DialogFooter className="mt-4">
-            <Button type="submit">Save Configuration</Button>
-          </DialogFooter>
+          <FooterSectionForm />
         </DialogContent>
       </Dialog>
     </div>

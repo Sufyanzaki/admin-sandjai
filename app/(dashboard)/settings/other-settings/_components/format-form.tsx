@@ -49,9 +49,9 @@ export default function FormatForm({ currencies, setOpenFormatDialog }: Props) {
                 <Label htmlFor="default">Default Currency *</Label>
                 <Controller
                     control={control}
-                    name="defaultCurrency"
+                    name="defaultCurrencyId"
                     render={({ field }) => (
-                        <Select {...field} key={field.value} onValueChange={field.onChange} value={field.value}>
+                        <Select {...field} key={field.value} onValueChange={v=>field.onChange(Number(v))} value={String(field.value)}>
                             <SelectTrigger>
                                 <SelectValue placeholder="Select default currency" />
                             </SelectTrigger>
@@ -65,8 +65,8 @@ export default function FormatForm({ currencies, setOpenFormatDialog }: Props) {
                         </Select>
                     )}
                 />
-                {errors.defaultCurrency && (
-                    <p className="text-sm text-red-500">{errors.defaultCurrency.message}</p>
+                {errors.defaultCurrencyId && (
+                    <p className="text-sm text-red-500">{errors.defaultCurrencyId.message}</p>
                 )}
             </div>
 
@@ -123,7 +123,15 @@ export default function FormatForm({ currencies, setOpenFormatDialog }: Props) {
                         min="0"
                         max="4"
                         placeholder="Decimal Places"
-                        {...register("decimalPlaces")}
+                        {...register("decimalPlaces", {
+                            valueAsNumber: true,
+                            validate: (value) => {
+                                if (isNaN(value)) return "Please enter a valid number";
+                                if (value < 0) return "Value must be 0 or greater";
+                                if (value > 4) return "Value must be 4 or less";
+                                return true;
+                            }
+                        })}
                     />
                     {errors.decimalPlaces && (
                         <p className="text-sm text-red-500">{errors.decimalPlaces.message}</p>
@@ -133,7 +141,7 @@ export default function FormatForm({ currencies, setOpenFormatDialog }: Props) {
             </div>
 
             <DialogFooter>
-                <Button variant="outline" onClick={() => setOpenFormatDialog(false)}>
+                <Button variant="outline" type="button" onClick={() => setOpenFormatDialog(false)}>
                     Cancel
                 </Button>
                 <Button type="submit" disabled={isLoading}>

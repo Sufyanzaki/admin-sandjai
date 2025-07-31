@@ -9,11 +9,10 @@ export interface Currency {
 }
 
 export interface CurrencyFormat {
-  defaultCurrency: string;
+  defaultCurrencyId: number;
   symbolFormat: string;
   decimalSeparator: string;
-  decimalPlaces: string;
-  defaultCurrencyId?: string;
+  decimalPlaces: number;
 }
 
 type CurrencyPayload = Omit<Currency, "id">;

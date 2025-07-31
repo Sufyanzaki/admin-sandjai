@@ -13,10 +13,10 @@ import { patchCurrencyFormat } from "@/app/(dashboard)/settings/other-settings/_
 import { useFormat } from "@/app/(dashboard)/settings/other-settings/_hooks/useFormat";
 
 const formatSchema = z.object({
-    defaultCurrency: z.string().min(1, "Default currency is required"),
+    defaultCurrencyId: z.number().min(1, "Default currency is required"),
     symbolFormat: z.string().min(1, "Symbol format is required"),
     decimalSeparator: z.string().min(1, "Decimal separator is required"),
-    decimalPlaces: z.string().min(1, "Decimal places are required"),
+    decimalPlaces: z.number().min(1, "Decimal places are required"),
 });
 
 export type FormatFormValues = z.infer<typeof formatSchema>;
@@ -33,10 +33,10 @@ export default function useFormatForm() {
     } = useForm<FormatFormValues>({
         resolver: zodResolver(formatSchema),
         defaultValues: {
-            defaultCurrency: "",
+            defaultCurrencyId: 0,
             symbolFormat: "",
             decimalSeparator: "",
-            decimalPlaces: "",
+            decimalPlaces: 0,
         },
         mode: "onBlur",
     });
@@ -46,10 +46,10 @@ export default function useFormatForm() {
     useEffect(() => {
         if (formatData) {
             reset({
-                defaultCurrency: formatData.defaultCurrency || "",
+                defaultCurrencyId: formatData.defaultCurrencyId || 0,
                 symbolFormat: formatData.symbolFormat || "",
                 decimalSeparator: formatData.decimalSeparator || "",
-                decimalPlaces: formatData.decimalPlaces || "",
+                decimalPlaces: formatData.decimalPlaces || 0,
             });
         }
     }, [formatData, reset]);
