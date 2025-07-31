@@ -4,6 +4,7 @@ import {z} from 'zod';
 import {showError} from "@/admin-utils/lib/formErrors";
 import {showSuccess} from "@/admin-utils/lib/formSuccess";
 import {createBanner} from "@/app/(dashboard)/marketing/banners/_api/createBanner";
+import { imageUpload } from "@/admin-utils/utils/imageUpload";
 import useSWRMutation from "swr/mutation";
 import { useState, useCallback } from "react";
 
@@ -28,7 +29,7 @@ const bannerSchema = z.object({
         .min(1, "Page selection is required"),
     isActive: z.boolean()
         .default(true),
-    dateRange: z.any().optional(), // For the DateRangePicker controller
+    dateRange: z.any().optional(),
 }).refine((data) => data.startDate < data.endDate, {
     message: "End date must be after start date",
     path: ["endDate"],
@@ -53,18 +54,18 @@ export default function useBannerForm() {
 
     const { trigger, isMutating } = useSWRMutation(
         'createBanner',
-        async (_, { arg }: { arg: CreateBannerProps }) => {  // Changed url to _ since it's unused
-          return await createBanner(arg);
+        async (_, { arg }: { arg: CreateBannerProps }) => {
+            return await createBanner(arg);
         },
         {
-          onError: (error: Error) => {  // More specific error type
-            showError({message: error.message});
-            console.error('Banner creation error:', error);
-          },
-          revalidate: false,
-          populateCache: false
+            onError: (error: Error) => {
+                showError({message: error.message});
+                console.error('Banner creation error:', error);
+            },
+            revalidate: false,
+            populateCache: false
         }
-      );
+    );
 
     const {
         handleSubmit,
@@ -98,20 +99,24 @@ export default function useBannerForm() {
                 setImagePreview(e.target?.result as string);
             };
             reader.readAsDataURL(file);
-            // Only set the form value if it's different from current value
-            setValue("bannerImage", "https://example.com/images/banner.jpg", { shouldValidate: false });
+            setValue("bannerImage", "pending-upload", { shouldValidate: false });
         } else {
             setImagePreview("");
-            // Don't update form value when file is null (cancelled selection)
+            setValue("bannerImage", "", { shouldValidate: true });
         }
     }, [setValue]);
 
     const onSubmit = async (values: BannerFormValues, callback?: (data: {status: number} | undefined) => void) => {
         try {
+            let bannerImageUrl = values.bannerImage;
+            if (selectedFile instanceof File) {
+                bannerImageUrl = await imageUpload(selectedFile);
+            }
+
             const result = await trigger({
                 name: values.name,
                 link: values.link,
-                bannerImage: values.bannerImage,
+                bannerImage: bannerImageUrl,
                 startDate: values.startDate.toISOString(),
                 endDate: values.endDate.toISOString(),
                 cpm: values.cpm,
@@ -145,4 +150,4 @@ export default function useBannerForm() {
         imagePreview,
         handleFileChange,
     };
-} 
+}

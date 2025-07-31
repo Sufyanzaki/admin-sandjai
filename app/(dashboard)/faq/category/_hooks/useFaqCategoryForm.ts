@@ -48,16 +48,15 @@ export default function useFaqCategoryForm() {
     callback?: (value: boolean) => void
   ) => {
     const result = await trigger({ name: values.name });
-    if (result?.status === 201) {
+    if (result) {
       showSuccess("FAQ Category created successfully!");
       reset();
-      // Optimistically update the faq-categories cache
       globalMutate(
         "faq-categories",
         (current: any[] = []) => [
           ...current,
           {
-            id: Date.now(),
+            id: result.id || Date.now(),
             name: values.name,
             isActive: true,
             createdAt: new Date().toISOString(),

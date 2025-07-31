@@ -26,6 +26,7 @@ import { Switch } from "@/components/ui/switch"
 import { use } from "react"
 import { Controller } from "react-hook-form"
 import useEditRoleForm from "../../_hook/useEditRoleForm"
+import Preloader from "@/components/ui/Preloader";
 
 const staffMenuItems = [
   { id: "dashboard", title: "Dashboard", icon: LayoutDashboard },
@@ -63,7 +64,12 @@ export default function EditRolePage({ params }: { params: Promise<{ id: string 
   } = useEditRoleForm(id);
 
   if (loading) {
-    return <div className="p-8 text-center text-lg">Loading role...</div>;
+    return (
+        <div className="flex items-center flex-col justify-center h-64">
+          <Preloader/>
+          <p className="text-sm">Loading role</p>
+        </div>
+    )
   }
   if (error) {
     return <div className="p-8 text-center text-red-500">Failed to load role.</div>;

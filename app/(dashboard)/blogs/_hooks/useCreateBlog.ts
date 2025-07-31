@@ -13,7 +13,11 @@ type ImageField = File | string | undefined;
 const createBlogSchema = z.object({
     title: z.string().min(1, "Title is required"),
     slug: z.string().min(1, "Slug is required"),
-    categoryId: z.number({ required_error: "Category is required" }),
+    categoryId: z
+        .number({ required_error: "Category is required" })
+        .refine(val => val !== 0, {
+            message: "Please select a category",
+        }),
     bannerImage: z.union([z.instanceof(File), z.string()]).optional(),
     shortDescription: z.string().min(1, "Short description is required"),
     description: z.string().min(1, "Description is required"),

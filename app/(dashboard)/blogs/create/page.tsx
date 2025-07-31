@@ -27,8 +27,6 @@ export default function AddBlogPage() {
         control,
     } = useCreateBlog();
 
-    console.log(watch("description"))
-
     return (
         <div className="flex flex-col gap-4 p-4 xl:p-6">
             <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">

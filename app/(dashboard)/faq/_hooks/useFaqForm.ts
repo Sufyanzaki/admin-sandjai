@@ -55,16 +55,15 @@ export default function useFaqForm() {
       answer: values.answer,
       categoryId: values.categoryId,
     });
-    if (result?.status === 201) {
+    if (result) {
       showSuccess("FAQ created successfully!");
       reset();
-      // Optimistically update the faqs cache
       globalMutate(
         "faqs",
         (current: any[] = []) => [
           ...current,
           {
-            id: Date.now(),
+            id: result.id ?? Date.now(),
             question: values.question,
             answer: values.answer,
             categoryId: values.categoryId,

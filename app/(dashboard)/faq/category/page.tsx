@@ -15,7 +15,7 @@ import Preloader from "@/components/ui/Preloader";
 export default function CategoryPage() {
     const [open, setOpen] = useState(false);
     const { data: categories, isLoading } = useFaqCategories();
-    const { deleteCategory, isLoading: isDeleting, error } = useFaqCategoryDelete();
+    const { deleteCategory, isLoading: isDeleting } = useFaqCategoryDelete();
     const [deletingId, setDeletingId] = useState<number | null>(null);
     const router = useRouter();
     const searchParams = useSearchParams();

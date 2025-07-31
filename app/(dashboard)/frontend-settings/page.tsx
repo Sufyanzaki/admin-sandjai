@@ -68,8 +68,8 @@ export default function SettingPage() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {corePages.map((page) => (
-                                <TableRow key={page.id}>
+                            {corePages.map((page, index) => (
+                                <TableRow key={index}>
                                     <TableCell className="font-medium align-top">{page.Title}</TableCell>
                                     <TableCell className="align-top">{page.Url}</TableCell>
                                     <TableCell className="align-top capitalize">{page.pageType?.toLowerCase()}</TableCell>

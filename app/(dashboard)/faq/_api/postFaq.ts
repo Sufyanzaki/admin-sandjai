@@ -6,11 +6,11 @@ export type PostFaqProps = {
   categoryId: number;
 };
 
-export async function postFaq(data: PostFaqProps): Promise<{ status: number } | undefined> {
+export async function postFaq(data: PostFaqProps): Promise<{ id: string } | undefined> {
   const r = await postRequest<PostFaqProps>({
     url: "faq",
     data,
     useAuth: true,
   });
-  return { status: r.status };
+  return r.response;
 }

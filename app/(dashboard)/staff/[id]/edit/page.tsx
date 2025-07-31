@@ -49,11 +49,16 @@ export default function EditStaffPage() {
     staffMember,
   } = useEditStaffForm();
 
-  const [imagePreview, setImagePreview] = useState<string | null>(
-      typeof staffMember?.image === "string" ? staffMember.image : null
-  );
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
-  // Clean up URL.createObjectURL when component unmounts or image changes
+  useEffect(() => {
+    if (staffMember?.image) {
+      setImagePreview(staffMember.image);
+    } else {
+      setImagePreview(null);
+    }
+  }, [staffMember]);
+
   useEffect(() => {
     return () => {
       if (imagePreview?.startsWith("blob:")) {
@@ -241,7 +246,7 @@ export default function EditStaffPage() {
                               <SelectValue placeholder="Select role" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="MODERATOR">MODERATOR</SelectItem>
+                              <SelectItem value="ADMIN">ADMIN</SelectItem>
                               <SelectItem value="CLIENT">CLIENT</SelectItem>
                             </SelectContent>
                           </Select>

@@ -35,7 +35,7 @@ export default function BlogListPage() {
       <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
         <div className="space-y-2">
           <h1 className="text-2xl md:text-2xl lg:text-3xl font-bold tracking-tight">Blog List</h1>
-          <p className="text-muted-foreground">Manage and track all ambulances in the fleet</p>
+          <p className="text-muted-foreground">Manage and track all blogs in the fleet</p>
         </div>
         <Button className="w-full md:w-auto" asChild>
           <Link className="flex items-center" href="/blogs/create">
