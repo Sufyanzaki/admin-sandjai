@@ -68,7 +68,7 @@ export default function ProfessionalTab({ callback }: { callback: () => void }) 
                   name="primarySpecialization"
                   control={control}
                   render={({ field }) => (
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value} key={field.value}>
                       <SelectTrigger id="primarySpecialization">
                         <SelectValue placeholder="Select your main expertise" />
                       </SelectTrigger>

@@ -116,12 +116,12 @@ export default function PackageDetailsPage({ params }: { params: Promise<{ id: s
                                     Edit Package
                                 </Button>
                             </Link>
-                            <Link href={`/packages/${pkg.id}/subscribers`}>
-                                <Button size="sm">
-                                    <Users className="mr-2 h-4 w-4" />
-                                    View Subscribers
-                                </Button>
-                            </Link>
+                            {/*<Link href={`/packages/${pkg.id}/subscribers`}>*/}
+                            {/*    <Button size="sm">*/}
+                            {/*        <Users className="mr-2 h-4 w-4" />*/}
+                            {/*        View Subscribers*/}
+                            {/*    </Button>*/}
+                            {/*</Link>*/}
                         </div>
                     </CardContent>
                 </Card>
@@ -166,7 +166,10 @@ export default function PackageDetailsPage({ params }: { params: Promise<{ id: s
                             </TabsContent>
                             <TabsContent value="subscribers">
                                 <div className="space-y-4">
-                                    {data?.users
+                                    {isLoading ? <div className="flex items-center flex-col justify-center h-64">
+                                        <Preloader/>
+                                        <p className="text-sm">Loading Subscribers</p>
+                                    </div>: data?.users
                                         ?.map((user, i) => (
                                             <div key={user.id} className="flex items-center justify-between gap-4">
                                                 <div className="flex items-center gap-3">

@@ -262,11 +262,11 @@ export default function PackagesPage() {
                                                                         Edit package
                                                                     </Link>
                                                                 </DropdownMenuItem>
-                                                                <DropdownMenuItem>
-                                                                    <Link href={`/packages/${pkg.id}/subscribers`} className="flex w-full">
-                                                                        View subscribers
-                                                                    </Link>
-                                                                </DropdownMenuItem>
+                                                                {/*<DropdownMenuItem>*/}
+                                                                {/*    <Link href={`/packages/${pkg.id}/subscribers`} className="flex w-full">*/}
+                                                                {/*        View subscribers*/}
+                                                                {/*    </Link>*/}
+                                                                {/*</DropdownMenuItem>*/}
                                                                 <DropdownMenuSeparator />
                                                                 <DropdownMenuItem
                                                                     onClick={() => openDeleteDialog(pkg)}
@@ -335,11 +335,11 @@ export default function PackagesPage() {
                                                                         Edit package
                                                                     </Link>
                                                                 </DropdownMenuItem>
-                                                                <DropdownMenuItem>
-                                                                    <Link href={`/packages/${pkg.id}/subscribers`} className="flex w-full">
-                                                                        View subscribers
-                                                                    </Link>
-                                                                </DropdownMenuItem>
+                                                                {/*<DropdownMenuItem>*/}
+                                                                {/*    <Link href={`/packages/${pkg.id}/subscribers`} className="flex w-full">*/}
+                                                                {/*        View subscribers*/}
+                                                                {/*    </Link>*/}
+                                                                {/*</DropdownMenuItem>*/}
                                                                 <DropdownMenuSeparator />
                                                                 <DropdownMenuItem
                                                                     onClick={() => openDeleteDialog(pkg)}

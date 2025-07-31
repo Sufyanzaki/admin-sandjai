@@ -99,7 +99,7 @@ export default function SMTPForm() {
                   name="encryption"
                   control={control}
                   render={({ field }) => (
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value} key={field.value}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select encryption" />
                       </SelectTrigger>

@@ -59,6 +59,7 @@ export function FaqAddModal({ isOpen, onClose }: { isOpen: boolean; onClose: (va
                                         <Select
                                             onValueChange={val => field.onChange(Number(val))}
                                             value={field.value ? String(field.value) : ""}
+                                            key={field.value}
                                         >
                                             <SelectTrigger id="categoryId">
                                                 <SelectValue placeholder="Select category" />

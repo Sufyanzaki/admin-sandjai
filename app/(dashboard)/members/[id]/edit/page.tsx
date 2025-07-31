@@ -29,8 +29,8 @@ export default function EditMemberPage() {
             </Link>
           </Button>
           <div className="space-y-2">
-            <h1 className="text-2xl lg:text-3xl font-bold tracking-tight mb-2">Add Member</h1>
-            <p className="text-muted-foreground">Add a new member to your app.</p>
+            <h1 className="text-2xl lg:text-3xl font-bold tracking-tight mb-2">Edit Member</h1>
+            <p className="text-muted-foreground">Edit a member to your app.</p>
           </div>
         </div>
 

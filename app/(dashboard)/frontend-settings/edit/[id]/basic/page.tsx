@@ -174,7 +174,7 @@ export default function EditPage() {
                                 name="pageType"
                                 control={control}
                                 render={({ field }) => (
-                                    <Select value={field.value} onValueChange={field.onChange}>
+                                    <Select value={field.value} onValueChange={field.onChange} key={field.value}>
                                         <SelectTrigger>
                                             <SelectValue placeholder="Select page type" />
                                         </SelectTrigger>

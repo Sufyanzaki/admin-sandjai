@@ -21,6 +21,7 @@ export default function ManageStatus() {
                             <Select 
                                 value={field.value ? 'active' : 'inactive'} 
                                 onValueChange={(value) => field.onChange(value === 'active')}
+                                key={field.value}
                             >
                                 <SelectTrigger className="w-full">
                                     <SelectValue placeholder="Select Status" />

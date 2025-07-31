@@ -67,7 +67,7 @@ export default function ChatAndVideoSetting() {
                                     name="noticeStyle"
                                     control={control}
                                     render={({ field }) => (
-                                        <Select {...field} value={field.value} onValueChange={field.onChange}>
+                                        <Select {...field} value={field.value} onValueChange={field.onChange} key={field.value}>
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Select style" />
                                             </SelectTrigger>
@@ -87,7 +87,7 @@ export default function ChatAndVideoSetting() {
                                     name="displayName"
                                     control={control}
                                     render={({ field }) => (
-                                        <Select {...field} value={field.value} onValueChange={field.onChange}>
+                                        <Select {...field} value={field.value} onValueChange={field.onChange} key={field.value}>
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Select format" />
                                             </SelectTrigger>
@@ -109,7 +109,7 @@ export default function ChatAndVideoSetting() {
                                     name="enableImages"
                                     control={control}
                                     render={({ field }) => (
-                                        <Select value={field.value ? "yes" : "no"} onValueChange={v => field.onChange(v === "yes") }>
+                                        <Select value={field.value ? "yes" : "no"} onValueChange={v => field.onChange(v === "yes") } key={field.value}>
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Select option" />
                                             </SelectTrigger>
@@ -128,7 +128,7 @@ export default function ChatAndVideoSetting() {
                                     name="enableVideos"
                                     control={control}
                                     render={({ field }) => (
-                                        <Select value={field.value ? "yes" : "no"} onValueChange={v => field.onChange(v === "yes") }>
+                                        <Select value={field.value ? "yes" : "no"} onValueChange={v => field.onChange(v === "yes") }  key={field.value}>
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Select option" />
                                             </SelectTrigger>
@@ -147,7 +147,7 @@ export default function ChatAndVideoSetting() {
                                     name="enableFiles"
                                     control={control}
                                     render={({ field }) => (
-                                        <Select value={field.value ? "yes" : "no"} onValueChange={v => field.onChange(v === "yes") }>
+                                        <Select value={field.value ? "yes" : "no"} onValueChange={v => field.onChange(v === "yes") } key={field.value}>
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Select option" />
                                             </SelectTrigger>

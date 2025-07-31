@@ -103,7 +103,7 @@ export default function PartnerTab({ callback }: { callback: () => void }) {
                     control={control}
                     name="drinking"
                     render={({ field }) => (
-                      <Select value={field.value ? "true" : "false"} onValueChange={v => field.onChange(v === "true") }>
+                      <Select value={field.value ? "true" : "false"} onValueChange={v => field.onChange(v === "true") } key={field.value}>
                         <SelectTrigger id="drinking">
                           <SelectValue placeholder="Nee" />
                         </SelectTrigger>
@@ -140,7 +140,7 @@ export default function PartnerTab({ callback }: { callback: () => void }) {
                     control={control}
                     name="smoke"
                     render={({ field }) => (
-                      <Select value={field.value ? "true" : "false"} onValueChange={v => field.onChange(v === "true") }>
+                      <Select value={field.value ? "true" : "false"} onValueChange={v => field.onChange(v === "true") } key={field.value}>
                         <SelectTrigger id="smoke">
                           <SelectValue placeholder="Nee" />
                         </SelectTrigger>
@@ -159,7 +159,7 @@ export default function PartnerTab({ callback }: { callback: () => void }) {
                     control={control}
                     name="goingOut"
                     render={({ field }) => (
-                      <Select value={field.value ? "true" : "false"} onValueChange={v => field.onChange(v === "true") }>
+                      <Select value={field.value ? "true" : "false"} onValueChange={v => field.onChange(v === "true") } key={field.value}>
                         <SelectTrigger id="goingOut">
                           <SelectValue placeholder="Nee" />
                         </SelectTrigger>
