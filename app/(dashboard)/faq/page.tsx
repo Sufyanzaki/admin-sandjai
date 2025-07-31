@@ -7,15 +7,17 @@ import {Edit, PlusCircle, Search, Trash2} from "lucide-react"
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow,} from "@/components/ui/table"
 import {Button} from "@/components/ui/button";
 import Link from "next/link";
-import {FAQModal} from "@/app/(dashboard)/faq/_components/faq-modal";
+import {FaqAddModal} from "@/app/(dashboard)/faq/_components/faq-add-modal";
 import useFaq from "./_hooks/useFaq";
 import { useRouter, useSearchParams } from "next/navigation";
 import useDeleteFaq from "./_hooks/useDeleteFaq";
 import Preloader from "@/components/ui/Preloader";
+import {FaqEditModal} from "@/app/(dashboard)/faq/_components/faq-edit-modal";
 
 export default function SupportFAQ() {
     const [searchQuery, setSearchQuery] = useState("");
     const [open, setOpen] = useState(false);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const { data: faqs, isLoading, error } = useFaq();
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -32,10 +34,11 @@ export default function SupportFAQ() {
         const params = new URLSearchParams(searchParams.toString());
         params.set("edit", String(id));
         router.replace(`?${params.toString()}`);
-        setOpen(true);
+        setIsEditModalOpen(true);
     };
 
     const handleModalClose = (value: boolean) => {
+        setIsEditModalOpen(value);
         setOpen(value);
         if (!value) {
             const params = new URLSearchParams(searchParams.toString());
@@ -152,7 +155,8 @@ export default function SupportFAQ() {
                     )}
                 </CardContent>
             </Card>
-            <FAQModal isOpen={open} onClose={handleModalClose} />
+            <FaqAddModal isOpen={open} onClose={handleModalClose} />
+            <FaqEditModal isOpen={isEditModalOpen} onClose={handleModalClose} />
         </div>
     );
 }

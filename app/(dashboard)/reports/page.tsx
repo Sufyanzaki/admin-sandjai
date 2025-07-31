@@ -10,9 +10,9 @@ const reportCards = [
     title: "Financial Reports",
     description: "Track revenue, expenses, and financial performance",
     stats: [
-      { label: "Total Revenue", value: "$128,450" },
-      { label: "Net Profit", value: "$41,125" },
-      { label: "Growth", value: "+12.8%" },
+      { label: "Total Revenue", value: "$00" },
+      { label: "Net Profit", value: "$00" },
+      { label: "Growth", value: "+00%" },
     ],
     link: "/reports/financial",
     buttonVariant: "default",

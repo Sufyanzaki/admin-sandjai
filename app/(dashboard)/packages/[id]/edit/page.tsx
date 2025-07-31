@@ -1,89 +1,81 @@
 "use client"
 
-import React, { useEffect } from 'react';
-import {
-    ArrowLeft,
-    Save,
-    Upload,
-    Plus,
-    Trash2,
-    Package
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Controller, useFieldArray, useForm } from 'react-hook-form';
-import usePackageById from '../../_hooks/usePackageById';
-import { useEditPackage } from '../../_hooks/useEditPackage';
-import { CustomImageUpload } from '@/components/frontend-settings/CustomImageInput';
-import { useRouter, useParams } from 'next/navigation';
-import { imageUpload } from '@/admin-utils/utils/imageUpload';
+import React, { useState, useEffect } from 'react';
+import {ArrowLeft, Plus, Save, Trash2, Upload, X} from 'lucide-react';
+import {Button} from '@/components/ui/button';
+import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} from '@/components/ui/card';
+import {Input} from '@/components/ui/input';
+import {Label} from '@/components/ui/label';
+import {Switch} from '@/components/ui/switch';
+import {Controller} from 'react-hook-form';
+import {CustomImageUpload} from '@/components/frontend-settings/CustomImageInput';
 import Preloader from "@/components/ui/Preloader";
+import useEditPackage from "@/app/(dashboard)/packages/_hooks/useEditPackage";
 
 export default function PackageEditPage() {
-    const params = useParams();
-    let id = params?.id;
-    if (Array.isArray(id)) id = id[0];
-    const { pkg, loading, error } = usePackageById(id);
-    const { mutate, loading: saving } = useEditPackage();
-    const router = useRouter();
+    const {
+        handleSubmit,
+        onSubmit,
+        errors,
+        isLoading,
+        register,
+        control,
+        watch,
+        features,
+        addFeature,
+        removeFeature,
+        loading,
+        setValue,
+        packageData
+    } = useEditPackage();
 
-    const { control, register, handleSubmit, reset, watch, formState: { errors } } = useForm({
-        defaultValues: {
-            name: '',
-            price: 0,
-            validity: 0,
-            image: '',
-            isActive: true,
-            features: [''],
-        },
-    });
-    const { fields, append, remove } = useFieldArray({ control, name: 'features' });
+    const [imagePreview, setImagePreview] = useState<string | null>(null);
 
     useEffect(() => {
-        if (pkg) {
-            reset({
-                name: pkg.name,
-                price: pkg.price,
-                validity: pkg.validity,
-                image: pkg.image,
-                isActive: pkg.isActive,
-                features: pkg.features && pkg.features.length > 0 ? pkg.features : [''],
-            });
+        if (packageData?.image && typeof packageData.image === "string") {
+            setImagePreview(packageData.image);
         }
-    }, [pkg, reset]);
+    }, [packageData]);
 
-    const onSubmit = async (values: any) => {
-        let imageUrl = values.image;
-        if (typeof values.image === 'object' && values.image !== null && 'name' in values.image) {
-            imageUrl = await imageUpload(values.image);
+    useEffect(() => {
+        return () => {
+            if (imagePreview?.startsWith("blob:")) {
+                URL.revokeObjectURL(imagePreview);
+            }
+        };
+    }, [imagePreview]);
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            const previewUrl = URL.createObjectURL(file);
+            setImagePreview(previewUrl);
+
+            setValue("image", file, { shouldValidate: true });
         }
-        await mutate({
-            id,
-            ...values,
-            image: imageUrl,
-        });
-        router.push('/packages');
     };
 
-    if (loading) return(
+    const handleRemoveImage = () => {
+        if (imagePreview?.startsWith("blob:")) {
+            URL.revokeObjectURL(imagePreview);
+        }
+        setImagePreview(null);
+        setValue("image", null, { shouldValidate: true });
+    };
+
+    if (loading) return (
         <div className="flex items-center flex-col justify-center h-64">
             <Preloader/>
             <p className="text-sm">Package Loading</p>
         </div>
     );
-    if (error) return <div className="p-6 text-red-500">Failed to load package.</div>;
-    if (!pkg) return <div className="p-6 text-muted-foreground">Package not found.</div>;
 
     return (
         <div className="flex flex-col gap-5 p-4 xl:p-6">
             <div className="flex items-center gap-2">
                 <Button variant="ghost" size="icon" asChild>
                     <a href="/packages">
-                        <ArrowLeft className="h-4 w-4" />
+                        <ArrowLeft className="h-4 w-4"/>
                     </a>
                 </Button>
                 <h2 className="text-2xl lg:text-3xl font-bold tracking-tight">Edit Package</h2>
@@ -104,9 +96,9 @@ export default function PackageEditPage() {
                                 <Input
                                     id="name"
                                     placeholder="e.g. Premium Plan"
-                                    {...register('name', { required: true })}
+                                    {...register('name')}
                                 />
-                                {errors.name && <div className="text-red-500 text-sm">Name is required</div>}
+                                {errors.name && <div className="text-red-500 text-sm">{errors.name.message}</div>}
                             </div>
 
                             <div className="space-y-2">
@@ -124,10 +116,10 @@ export default function PackageEditPage() {
                                         type="number"
                                         step="0.01"
                                         min="0"
-                                        {...register('price', { valueAsNumber: true, required: true })}
+                                        {...register('price')}
                                     />
                                 </div>
-                                {errors.price && <div className="text-red-500 text-sm">Price is required</div>}
+                                {errors.price && <div className="text-red-500 text-sm">{errors.price.message}</div>}
                                 <p className="text-xs text-muted-foreground">
                                     Set 0 for free packages
                                 </p>
@@ -142,9 +134,9 @@ export default function PackageEditPage() {
                                     placeholder="0 Days"
                                     type="number"
                                     min="0"
-                                    {...register('validity', { valueAsNumber: true, required: true })}
+                                    {...register('validity')}
                                 />
-                                {errors.validity && <div className="text-red-500 text-sm">Validity is required</div>}
+                                {errors.validity && <div className="text-red-500 text-sm">{errors.validity.message}</div>}
                             </div>
 
                             <div className="flex items-center justify-between space-y-0">
@@ -157,7 +149,7 @@ export default function PackageEditPage() {
                                 <Controller
                                     name="isActive"
                                     control={control}
-                                    render={({ field }) => (
+                                    render={({field}) => (
                                         <Switch
                                             id="isActive"
                                             checked={field.value}
@@ -176,30 +168,58 @@ export default function PackageEditPage() {
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="space-y-2">
-                                <Controller
-                                    name="image"
-                                    control={control}
-                                    render={({ field }) => (
-                                        <CustomImageUpload
-                                            label="Package Image"
-                                            file={field.value instanceof File ? field.value : null}
-                                            onFileChange={file => field.onChange(file)}
-                                        />
+                                <Label>Package Image</Label>
+                                <div className="relative">
+                                    <div className="flex h-32 w-32 items-center justify-center rounded-md border border-dashed">
+                                        <label
+                                            htmlFor="image-upload"
+                                            className="flex flex-col items-center space-y-2 cursor-pointer"
+                                        >
+                                            {imagePreview ? (
+                                                <img
+                                                    src={imagePreview}
+                                                    alt="Preview"
+                                                    width={128}
+                                                    height={128}
+                                                    className="h-full w-full object-cover rounded-md"
+                                                    onError={() => setImagePreview(null)}
+                                                />
+                                            ) : (
+                                                <Upload className="h-8 w-8 text-muted-foreground" />
+                                            )}
+                                            <input
+                                                type="file"
+                                                id="image-upload"
+                                                className="hidden"
+                                                accept="image/*"
+                                                onChange={handleFileChange}
+                                            />
+                                            <span className="text-xs text-muted-foreground">
+                                                Upload image
+                                            </span>
+                                        </label>
+                                    </div>
+                                    {imagePreview && (
+                                        <Button
+                                            type="button"
+                                            variant="destructive"
+                                            size="sm"
+                                            className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0"
+                                            onClick={handleRemoveImage}
+                                        >
+                                            <X className="h-3 w-3" />
+                                        </Button>
                                     )}
-                                />
-                                {errors.image && <div className="text-red-500 text-sm">Image is required</div>}
+                                </div>
                                 <p className="text-xs text-muted-foreground">
                                     Recommended: 600x600px, Max 2MB
                                 </p>
                             </div>
                         </CardContent>
-                        <CardFooter className="flex justify-between">
-                            <Button variant="outline" type="button" asChild>
-                                <a href="/packages">Cancel</a>
-                            </Button>
-                            <Button type="submit" disabled={saving}>
-                                <Save className="mr-2 h-4 w-4" />
-                                {saving ? 'Saving...' : 'Save Changes'}
+                        <CardFooter className="flex justify-end">
+                            <Button type="submit" disabled={isLoading}>
+                                <Save className="mr-2 h-4 w-4"/>
+                                {isLoading ? 'Saving...' : 'Save Changes'}
                             </Button>
                         </CardFooter>
                     </Card>
@@ -213,28 +233,34 @@ export default function PackageEditPage() {
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="space-y-3">
-                            {fields.map((field, index) => (
-                                <div key={field.id} className="flex items-center gap-3">
+                            {features.map((feature, index) => (
+                                <div key={index} className="flex items-center gap-3">
                                     <Input
                                         placeholder={`Feature ${index + 1}`}
-                                        {...register(`features.${index}` as const)}
+                                        {...register(`features.${index}`)}
                                         className="flex-1"
                                     />
                                     <Button
                                         variant="ghost"
                                         size="icon"
                                         type="button"
-                                        onClick={() => remove(index)}
-                                        disabled={fields.length === 1}
+                                        onClick={() => removeFeature(index)}
+                                        disabled={features.length === 1}
                                     >
-                                        <Trash2 className="h-4 w-4 text-red-500" />
+                                        <Trash2 className="h-4 w-4 text-red-500"/>
                                     </Button>
                                 </div>
                             ))}
-                            <Button variant="outline" type="button" onClick={() => append("")}>
-                                <Plus className="mr-2 h-4 w-4" />
+                            <Button variant="outline" type="button" onClick={addFeature}>
+                                <Plus className="mr-2 h-4 w-4"/>
                                 Add Feature
                             </Button>
+                            {errors.features && (
+                                <div className="text-red-500 text-sm">{errors.features.message}</div>
+                            )}
+                            {errors.features?.root && (
+                                <div className="text-red-500 text-sm">{errors.features.root.message}</div>
+                            )}
                         </div>
                     </CardContent>
                 </Card>
