@@ -36,7 +36,7 @@ export interface StaffMember {
   isPremium: boolean;
   createdAt: string;
   updatedAt: string;
-  roleId: number;
+  roleId: string;
   allow: StaffAllow;
 }
 

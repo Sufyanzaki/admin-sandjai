@@ -35,6 +35,7 @@ import Preloader from "@/components/ui/Preloader";
 import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import useRoles from "@/app/(dashboard)/staff/roles/_hook/useRoles";
 
 export default function EditStaffPage() {
   const {
@@ -48,6 +49,8 @@ export default function EditStaffPage() {
     control,
     staffMember,
   } = useEditStaffForm();
+
+  const { roles, loading: rolesLoading } = useRoles();
 
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
@@ -232,30 +235,33 @@ export default function EditStaffPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="role">User Role</Label>
+                  <Label htmlFor="roleId">User Role</Label>
                   <Controller
-                      name="role"
+                      name="roleId"
                       control={control}
                       render={({ field }) => (
                           <Select
-                              key={field.name}
-                              value={field.value}
                               onValueChange={field.onChange}
+                              value={String(field.value)}
+                              disabled={rolesLoading}
+                              key={field.value}
                           >
-                            <SelectTrigger id="role">
-                              <SelectValue placeholder="Select role" />
+                            <SelectTrigger id="roleId">
+                              <SelectValue placeholder={rolesLoading ? "Loading roles..." : "Select role"} />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="ADMIN">ADMIN</SelectItem>
-                              <SelectItem value="CLIENT">CLIENT</SelectItem>
+                              {roles &&
+                                  roles.map((role) => (
+                                      <SelectItem key={role.id} value={String(role.id)}>
+                                        {role.name}
+                                      </SelectItem>
+                                  ))}
                             </SelectContent>
                           </Select>
                       )}
                   />
-                  {errors.role && (
-                      <p className="text-sm text-red-600">
-                        {errors.role.message}
-                      </p>
+                  {errors.roleId && (
+                      <p className="text-xs text-red-500">{errors.roleId.message}</p>
                   )}
                 </div>
               </div>

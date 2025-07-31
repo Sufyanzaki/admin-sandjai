@@ -1,25 +1,24 @@
 "use client";
 
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { editStaffMember, EditStaffPayload } from "../_api/editStaff";
-import { getStaffMember } from "../_api/getStaff";
-import { showError } from "@/admin-utils/lib/formErrors";
-import { showSuccess } from "@/admin-utils/lib/formSuccess";
-import { imageUpload } from "@/admin-utils/utils/imageUpload";
+import {useForm} from "react-hook-form";
+import {zodResolver} from "@hookform/resolvers/zod";
+import {z} from "zod";
+import {editStaffMember, EditStaffPayload} from "../_api/editStaff";
+import {getStaffMember} from "../_api/getStaff";
+import {showError} from "@/admin-utils/lib/formErrors";
+import {showSuccess} from "@/admin-utils/lib/formSuccess";
+import {imageUpload} from "@/admin-utils/utils/imageUpload";
 import useSWRMutation from "swr/mutation";
-import useSWR from "swr";
-import { useState, useEffect } from "react";
-import { useSWRConfig } from "swr";
-import { StaffListResponse, StaffMember } from "../_types/staff";
-import { useParams } from "next/navigation";
+import useSWR, {useSWRConfig} from "swr";
+import {useEffect} from "react";
+import {StaffListResponse, StaffMember} from "../_types/staff";
+import {useParams} from "next/navigation";
 
 const editStaffSchema = z.object({
   email: z.string().min(1, "Email is required").email("Please enter a valid email address"),
   firstName: z.string().min(1, "First name is required"),
   lastName: z.string().min(1, "Last name is required"),
-  role: z.string().min(1, "Role is required"),
+  roleId: z.string().min(1, "Role is required"),
   image: z.any().optional(),
   phone: z.string().optional(),
 });
@@ -44,14 +43,13 @@ export function useEditStaffForm() {
     setValue,
     reset,
     control,
-    watch,
   } = useForm<EditStaffFormValues>({
     resolver: zodResolver(editStaffSchema),
     defaultValues: {
       email: "",
       firstName: "",
       lastName: "",
-      role: "MODERATOR",
+      roleId: "",
       image: undefined,
       phone: "",
     },
@@ -66,9 +64,8 @@ export function useEditStaffForm() {
       email: staffMember.email,
       firstName: staffMember.firstName,
       lastName: staffMember.lastName,
-      role: staffMember.role,
+      roleId: String(staffMember.roleId),
       phone: staffMember.phone || "",
-      // Don't set image here as it's handled separately
     });
   }, [staffMember, reset]);
 
@@ -101,7 +98,7 @@ export function useEditStaffForm() {
         email: values.email,
         firstName: values.firstName,
         lastName: values.lastName,
-        role: values.role,
+        roleId: values.roleId,
         ...(values.phone && { phone: values.phone }),
         ...(imageUrl && { image: imageUrl }),
       };
