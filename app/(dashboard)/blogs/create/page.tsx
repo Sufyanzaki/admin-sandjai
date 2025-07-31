@@ -22,9 +22,12 @@ export default function AddBlogPage() {
         onSubmit,
         errors,
         isLoading,
+        watch,
         register,
         control,
     } = useCreateBlog();
+
+    console.log(watch("description"))
 
     return (
         <div className="flex flex-col gap-4 p-4 xl:p-6">
@@ -47,7 +50,7 @@ export default function AddBlogPage() {
             <Card>
                 <CardHeader>
                     <CardTitle>Blogs Details</CardTitle>
-                    <CardDescription>View and manage all ambulances in your fleet</CardDescription>
+                    <CardDescription>View and manage all blog in your fleet</CardDescription>
                 </CardHeader>
 
                 <CardContent>

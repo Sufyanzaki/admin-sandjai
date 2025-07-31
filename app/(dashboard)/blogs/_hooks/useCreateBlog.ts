@@ -45,6 +45,7 @@ export default function useCreateBlog() {
         reset,
         setValue,
         control,
+        watch
     } = useForm<CreateBlogFormValues>({
         resolver: zodResolver(createBlogSchema),
         defaultValues: {
@@ -111,6 +112,7 @@ export default function useCreateBlog() {
         handleSubmit,
         onSubmit,
         errors,
+        watch,
         isLoading: isSubmitting || isMutating,
         register,
         reset,

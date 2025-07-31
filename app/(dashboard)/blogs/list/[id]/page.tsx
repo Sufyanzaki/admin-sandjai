@@ -11,6 +11,7 @@ import { Progress } from "@/components/ui/progress"
 import { useParams } from "next/navigation";
 import useBlogById from "../../_hooks/useBlogById";
 import { unescapeHtml } from "@/lib/utils"
+import Preloader from "@/components/ui/Preloader";
 
 export default function BlogListDetails() {
   const params = useParams();
@@ -18,7 +19,12 @@ export default function BlogListDetails() {
   const { blog, loading, error } = useBlogById(id);
 
   if (loading) {
-    return <div className="flex items-center justify-center h-64">Loading blog...</div>;
+    return (
+        <div className="flex items-center flex-col justify-center h-64">
+          <Preloader/>
+          <p className="text-sm">Loading Blogs...</p>
+        </div>
+    )
   }
   if (error || !blog) {
     return <div className="flex items-center justify-center h-64 text-red-500">Blog not found</div>;

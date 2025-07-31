@@ -13,6 +13,7 @@ import {useParams} from "next/navigation";
 import {useBlogCategories} from "../../../category/_hooks/useBlogCategories";
 import useEditBlog from "../../../_hooks/useEditBlog";
 import {Controller} from "react-hook-form";
+import Preloader from "@/components/ui/Preloader";
 
 export default function EditBlogPage() {
     const params = useParams();
@@ -32,7 +33,12 @@ export default function EditBlogPage() {
     } = useEditBlog(id);
 
     if (blogLoading) {
-        return <div className="flex items-center justify-center h-64">Loading blog...</div>;
+        return (
+            <div className="flex items-center flex-col justify-center h-64">
+                <Preloader/>
+                <p className="text-sm">Loading Blogs...</p>
+            </div>
+        )
     }
     if (blogError || !blog) {
         return <div className="flex items-center justify-center h-64 text-red-500">Blog not found</div>;
@@ -56,7 +62,7 @@ export default function EditBlogPage() {
             <Card>
                 <CardHeader>
                     <CardTitle>Blogs Details</CardTitle>
-                    <CardDescription>View and manage all ambulances in your fleet</CardDescription>
+                    <CardDescription>View and manage all blog in your fleet</CardDescription>
                 </CardHeader>
 
                 <CardContent>

@@ -89,7 +89,7 @@ export default function BlogListPage() {
       <Card>
         <CardHeader>
           <CardTitle>Blogs Table</CardTitle>
-          <CardDescription>View and manage all ambulances in your fleet</CardDescription>
+          <CardDescription>View and manage all blog in your fleet</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="rounded-md border">
