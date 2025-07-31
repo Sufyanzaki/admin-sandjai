@@ -1,0 +1,1 @@
+export { SimpleEditor } from './simple/simple-editor';

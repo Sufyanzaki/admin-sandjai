@@ -1,6 +1,6 @@
 "use client"
 
-import { ArrowUpRight, Ban, Dock, Star, User, Users } from "lucide-react"
+import { ArrowUpRight, Ban, Dock, Star, User, Users, Edit } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { NewMembers } from "@/components/members/new-members"
@@ -10,9 +10,58 @@ import { Skeleton } from "@/components/ui/skeleton"
 import {useDashboard} from "@/app/(dashboard)/_hooks/useDashboard";
 import MemberStats from "@/components/members/member-stats";
 import {usePackages} from "@/app/(dashboard)/packages/_hooks/usePackages";
+import { SimpleEditor } from "@/components/tiptap-templates/simple/simple-editor";
+import { useState } from "react";
 
 const DashboardPage = () => {
   const { stats, statsLoading, error } = useDashboard();
+  const [editorContent, setEditorContent] = useState<string>(`
+    <h1>Welcome to the Tiptap Rich Text Editor!</h1>
+    <p>This is a powerful, community-driven rich text editor built on top of <strong>ProseMirror</strong>. Here are some features you can try:</p>
+    
+    <h2>Text Formatting</h2>
+    <p>You can make text <strong>bold</strong>, <em>italic</em>, <u>underlined</u>, or even <s>strikethrough</s>. You can also add <code>inline code</code> and create <mark>highlighted text</mark>.</p>
+    
+    <h2>Lists and Tasks</h2>
+    <ul>
+      <li>Bullet points work great</li>
+      <li>You can create nested lists
+        <ul>
+          <li>Like this nested item</li>
+          <li>And this one too</li>
+        </ul>
+      </li>
+    </ul>
+    
+    <ol>
+      <li>Numbered lists are also supported</li>
+      <li>With automatic numbering</li>
+    </ol>
+    
+    <ul data-type="taskList">
+      <li data-type="taskItem" data-checked="true">Completed task</li>
+      <li data-type="taskItem" data-checked="false">Pending task</li>
+      <li data-type="taskItem" data-checked="false">Another task to do</li>
+    </ul>
+    
+    <h2>Text Alignment</h2>
+    <p style="text-align: center">This text is centered</p>
+    <p style="text-align: right">This text is right-aligned</p>
+    
+    <h2>Blockquotes and Code</h2>
+    <blockquote>
+      <p>This is a beautiful blockquote that you can use for important quotes or callouts.</p>
+    </blockquote>
+    
+    <pre><code>// This is a code block
+    function hello() {
+      console.log("Hello, Tiptap!");
+    }</code></pre>
+    
+    <p>You can also use <sup>superscript</sup> and <sub>subscript</sub> formatting.</p>
+    
+    <p>Try editing this content and explore all the features available in the toolbar above!</p>
+  `);
 
   const cardData = [
     {
@@ -133,12 +182,40 @@ const DashboardPage = () => {
             )}
           </div>
 
-          <Tabs defaultValue="stats" className="space-y-4">
-            <TabsList className="grid grid-cols-3 md:w-[340px]">
+          <Tabs defaultValue="editor" className="space-y-4">
+            <TabsList className="grid grid-cols-4 md:w-[520px]">
+              <TabsTrigger value="editor">Tiptap Editor</TabsTrigger>
               <TabsTrigger value="stats">Stats</TabsTrigger>
               <TabsTrigger value="new-users">New Users</TabsTrigger>
               <TabsTrigger value="best-selling">Best Selling</TabsTrigger>
             </TabsList>
+
+            <TabsContent value="editor" className="space-y-4">
+              <div className="space-y-4">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Edit className="h-5 w-5" />
+                      Tiptap Rich Text Editor Demo
+                    </CardTitle>
+                    <CardDescription>
+                      Experience the power of the community-driven Tiptap editor. Try formatting text, creating lists, adding links, and more!
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <SimpleEditor 
+                        existingValue={editorContent} 
+                        onChange={setEditorContent}
+                      />
+                      <div className="text-sm text-muted-foreground">
+                        <p><strong>Features available:</strong> Bold, italic, underline, strikethrough, code, highlighting, links, headings, lists, task lists, blockquotes, code blocks, text alignment, superscript, subscript, and image uploads.</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
 
             <TabsContent value="new-users" className="space-y-4">
               <div className="md:grid max-md:space-y-4 gap-4 md:grid-cols-2">
