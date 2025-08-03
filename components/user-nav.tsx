@@ -15,9 +15,10 @@ export function UserNav() {
   const { data: session } = useSession();
 
   const handleLogout = async () => {
-    await signOut({ 
-      redirect: true 
+    await signOut({
+      redirect: false
     });
+    router.push('/auth/login');
   };
 
   const getUserInitials = () => {

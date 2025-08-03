@@ -1,9 +1,11 @@
-import { useForm, Controller } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { useSearchParams } from 'next/navigation';
-import { showError } from '@/admin-utils/lib/formErrors';
-import { signIn } from 'next-auth/react';
+"use client"
+
+import {useForm} from 'react-hook-form';
+import {zodResolver} from '@hookform/resolvers/zod';
+import {z} from 'zod';
+import {useRouter, useSearchParams} from 'next/navigation';
+import {showError} from '@/admin-utils/lib/formErrors';
+import {signIn} from 'next-auth/react';
 
 const otpSchema = z.object({
   otp: z.string()
@@ -16,6 +18,7 @@ export type OtpFormValues = z.infer<typeof otpSchema>;
 export default function useOTPForm() {
   const searchParams = useSearchParams();
   const email = searchParams.get('email') || '';
+  const router = useRouter();
 
   const {
     register,
@@ -36,7 +39,7 @@ export default function useOTPForm() {
         redirect: false,
         ...values,
         email,
-        callbackUrl: '/',
+        callbackUrl: '/dashboard',
     });
 
     if (result?.error) {
@@ -46,6 +49,7 @@ export default function useOTPForm() {
 
         showError({message: errorMessage});
     }
+    else router.push('/dashboard');
   };
 
   return {
